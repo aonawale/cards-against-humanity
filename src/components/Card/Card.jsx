@@ -58,7 +58,4 @@ Card.propTypes = {
 };
 
 export default Card;
-
-export {
-  cardTypes
-};
+export const cardTypes;

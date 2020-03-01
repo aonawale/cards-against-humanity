@@ -1,8 +1,8 @@
 import { combineReducers } from "redux";
 import { persistReducer } from "redux-persist";
 import storage from "localforage";
-// import authReducer from "redux/auth/auth.reducer";
-// import currentUserReducer from "redux/current-user/current-user.reducer";
+import authReducer from "store/auth/auth.reducer";
+import currentUserReducer from "store/current-user/current-user.reducer";
 
 const persistConfig = {
   key: "cah",
@@ -11,8 +11,8 @@ const persistConfig = {
 };
 
 const rootReducer = combineReducers({
-  // auth: authReducer,
-  // currentUser: currentUserReducer
+  auth: authReducer,
+  currentUser: currentUserReducer
 });
 
 export default persistReducer(persistConfig, rootReducer);

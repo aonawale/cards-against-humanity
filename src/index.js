@@ -4,18 +4,20 @@ import 'typeface-roboto';
 import './index.css';
 import App from 'app/App';
 import * as serviceWorker from './serviceWorker';
-import { Provider } from "react-redux";
-import { PersistGate } from "redux-persist/integration/react";
-import { store, persistor } from "store/store";
+import { Provider } from 'react-redux';
+import { PersistGate } from 'redux-persist/integration/react';
+import { store, persistor } from 'store/store';
 import { createTheme, ThemeProvider } from 'lib/theme';
 
 ReactDOM.render(
   <Provider store={store}>
-    <PersistGate persistor={persistor}>
-      <ThemeProvider theme={createTheme()}>
-        <App />
-      </ThemeProvider>
-    </PersistGate>
+    <BrowserRouter>
+      <PersistGate persistor={persistor}>
+        <ThemeProvider theme={createTheme()}>
+          <App />
+        </ThemeProvider>
+      </PersistGate>
+    </BrowserRouter>
   </Provider>,
   document.getElementById('root')
 );
