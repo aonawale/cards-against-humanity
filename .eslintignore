@@ -1,0 +1,15 @@
+# linting of css to be performed by stylelint
+**/*.scss
+
+**/*.md
+**/*.json
+src/public
+src/test
+src/index.template.html
+
+**/*.png
+**/*.jpeg
+**/*.jpg
+**/*.gif
+**/*.wbmp
+**/*.svg

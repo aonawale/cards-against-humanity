@@ -1,25 +1,27 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import 'typeface-roboto';
+import 'firebaseui/dist/firebaseui.css';
 import './index.css';
-import App from 'app/App';
-import * as serviceWorker from './serviceWorker';
 import { Provider } from 'react-redux';
+import { BrowserRouter } from 'react-router-dom';
 import { PersistGate } from 'redux-persist/integration/react';
 import { store, persistor } from 'store/store';
 import { createTheme, ThemeProvider } from 'lib/theme';
+import Root from 'root';
+import * as serviceWorker from './serviceWorker';
 
 ReactDOM.render(
   <Provider store={store}>
     <BrowserRouter>
       <PersistGate persistor={persistor}>
         <ThemeProvider theme={createTheme()}>
-          <App />
+          <Root />
         </ThemeProvider>
       </PersistGate>
     </BrowserRouter>
   </Provider>,
-  document.getElementById('root')
+  document.getElementById('root'),
 );
 
 // If you want your app to work offline and load faster, you can change

@@ -1,4 +1,4 @@
-import React, { memo, useState, useCallback } from 'react'
+import React, { memo, useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import MuiCard from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
@@ -11,20 +11,20 @@ const cardTypes = {
 };
 
 const useStyles = makeStyles({
-  root: props => ({
+  root: (props) => ({
     width: '200px',
     height: '260px',
     borderRadius: '8px',
     cursor: 'pointer',
     margin: '16px',
-    ...props
+    ...props,
   }),
 });
 
 const Card = memo(({ text, type }) => {
   const classes = useStyles({
     color: type === cardTypes.black ? 'white' : 'black',
-    backgroundColor: type === cardTypes.black ? 'black' : 'white'
+    backgroundColor: type === cardTypes.black ? 'black' : 'white',
   });
 
   const [isActive, setIsActive] = useState(false);
@@ -33,7 +33,7 @@ const Card = memo(({ text, type }) => {
   const handleItemFocus = useCallback(() => setIsActive(true), [setIsActive]);
 
   return (
-    <MuiCard 
+    <MuiCard
       classes={classes}
       raised={isActive}
       onMouseEnter={handleItemFocus}
@@ -54,8 +54,10 @@ Card.defaultProps = {
 
 Card.propTypes = {
   text: PropTypes.string.isRequired,
-  type: PropTypes.oneOf([...Object.values(cardTypes)]).isRequired
+  type: PropTypes.oneOf([...Object.values(cardTypes)]),
 };
 
 export default Card;
-export const cardTypes;
+export {
+  cardTypes,
+};
