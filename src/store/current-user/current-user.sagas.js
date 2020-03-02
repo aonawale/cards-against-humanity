@@ -1,12 +1,13 @@
-import { all, call, put, takeLatest } from "redux-saga/effects";
-import userActionTypes from "./current-user.types";
-import { currentUserFetchSuccess, currentUserFetchFailure } from "./current-user.actions";
-import request from "redux/request";
+import {
+  all, call, put, takeLatest,
+} from 'redux-saga/effects';
+import userActionTypes from './current-user.types';
+import { currentUserFetchSuccess, currentUserFetchFailure } from './current-user.actions';
 
 export function* currentUserFetch() {
   try {
-    const { data } = yield request.get("/users/me");
-    yield put(currentUserFetchSuccess(data));
+    // const { data } = yield request.get('/users/me');
+    yield put(currentUserFetchSuccess());
   } catch (error) {
     yield put(currentUserFetchFailure(error));
   }

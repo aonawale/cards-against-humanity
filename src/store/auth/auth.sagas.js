@@ -1,10 +1,15 @@
-import { all, call, put, takeLatest } from "redux-saga/effects";
-import request from "redux/request";
-import actionTypes from "./auth.types";
-import { signOutSuccess, signOutFailure, signinSuccess, signinFailure } from "redux/auth/auth.actions";
+import {
+  all, call, put, takeLatest,
+} from 'redux-saga/effects';
+import {
+  signOutSuccess, signOutFailure, signinSuccess, signinFailure,
+} from 'store/auth/auth.actions';
+import { firebaseApp } from 'lib/firebase';
+import actionTypes from './auth.types';
 
 export function* signOut() {
   try {
+    yield firebaseApp.auth().signOut();
     yield put(signOutSuccess());
   } catch (error) {
     yield put(signOutFailure(error));
@@ -17,8 +22,8 @@ export function* onSignOutStart() {
 
 export function* signin({ payload }) {
   try {
-    const { data } = yield request.post("/oauth/token", payload);
-    yield put(signinSuccess(data));
+    // const { data } = yield request.post('/oauth/token', payload);
+    yield put(signinSuccess());
   } catch (error) {
     yield put(signinFailure(error));
   }

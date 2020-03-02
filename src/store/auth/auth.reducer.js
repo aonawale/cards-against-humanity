@@ -1,9 +1,9 @@
-import actionTypes from "./auth.types";
+import actionTypes from './auth.types';
 
 const INITIAL_STATE = {
-  accessToken: null,
+  credential: null,
   isAuthenticating: false,
-  error: null
+  error: null,
 };
 
 const authReducer = (state = INITIAL_STATE, { type, payload }) => {
@@ -11,30 +11,30 @@ const authReducer = (state = INITIAL_STATE, { type, payload }) => {
     case actionTypes.SIGNIN_START:
       return {
         ...state,
-        isAuthenticating: true
+        isAuthenticating: true,
       };
     case actionTypes.SIGNIN_FAILURE:
       return {
-        accessToken: null,
+        credential: null,
         error: payload,
-        isAuthenticating: false
+        isAuthenticating: false,
       };
     case actionTypes.SIGNIN_SUCCESS:
       return {
         error: null,
-        accessToken: payload.access_token,
-        isAuthenticating: false
+        credential: payload.credential,
+        isAuthenticating: false,
       };
     case actionTypes.SIGNOUT_FAILURE:
       return {
         ...state,
-        error: payload
+        error: payload,
       };
     case actionTypes.SIGNOUT_SUCCESS:
       return {
         error: null,
-        accessToken: null,
-        isAuthenticating: false
+        credential: null,
+        isAuthenticating: false,
       };
     default:
       return state;

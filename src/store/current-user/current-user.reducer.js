@@ -1,9 +1,9 @@
-import userActionTypes from "./current-user.types";
+import userActionTypes from './current-user.types';
 
 const INITIAL_STATE = {
   user: null,
   isUserLoading: false,
-  error: null
+  error: null,
 };
 
 const userReducer = (state = INITIAL_STATE, { type, payload }) => {
@@ -11,20 +11,20 @@ const userReducer = (state = INITIAL_STATE, { type, payload }) => {
     case userActionTypes.CURRENT_USER_FETCH_START:
       return {
         ...state,
-        isUserLoading: true
+        isUserLoading: true,
       };
     case userActionTypes.CURRENT_USER_FETCH_FAILURE:
       return {
         ...state,
         error: payload,
-        isUserLoading: false
+        isUserLoading: false,
       };
     case userActionTypes.CURRENT_USER_FETCH_SUCCESS:
       return {
         ...state,
         error: null,
         user: payload.user,
-        isUserLoading: false
+        isUserLoading: false,
       };
     default:
       return state;

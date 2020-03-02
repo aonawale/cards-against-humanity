@@ -1,18 +1,18 @@
-import { createSelector } from "reselect";
+import { createSelector } from 'reselect';
 
-const selectAuth = state => state.auth;
+const selectAuth = (state) => state.auth;
 
-export const selectAccessToken = createSelector(
+export const selectCredential = createSelector(
   [selectAuth],
-  auth => auth.accessToken
+  (auth) => auth.credential,
 );
 
 export const selectIsAuthenticating = createSelector(
   [selectAuth],
-  auth => auth.isAuthenticating
+  (auth) => auth.isAuthenticating,
 );
 
 export const selectIsAuthenticated = createSelector(
-  [selectAccessToken],
-  accessToken => !!accessToken
+  [selectCredential],
+  (credential) => !!credential,
 );

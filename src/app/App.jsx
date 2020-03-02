@@ -1,10 +1,12 @@
 import React from 'react';
-// import './App.css';
+import Box from '@material-ui/core/Box';
+import Navbar from 'components/Navbar/Navbar';
 
 const App = ({ children }) => (
-  <div>
+  <Box height="100%">
+    <Navbar />
     <main>{children}</main>
-  </div>
+  </Box>
 );
 
 export default App;

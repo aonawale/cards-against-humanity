@@ -1,8 +1,11 @@
 import React from 'react';
 import Login from 'components/Login/Login';
+import Container from '@material-ui/core/Container';
 
 const LoginPage = () => (
-  <Login />
+  <Container maxWidth="sm">
+    <Login />
+  </Container>
 );
 
 export default LoginPage;

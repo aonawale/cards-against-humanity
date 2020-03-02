@@ -1,9 +1,12 @@
 import React, { useRef, useEffect } from 'react';
 import { firebaseUI } from 'lib/firebase';
-import * as firebase from 'firebase/app';
+import firebase from 'firebase/app';
+import { useDispatch } from 'react-redux';
+import { signinSuccess, signinFailure } from 'store/auth/auth.actions';
 
 const Login = () => {
   const ref = useRef();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const config = {
@@ -12,13 +15,22 @@ const Login = () => {
         firebase.auth.GoogleAuthProvider.PROVIDER_ID,
         firebase.auth.FacebookAuthProvider.PROVIDER_ID,
       ],
+      callbacks: {
+        signInSuccessWithAuthResult(authResult) {
+          dispatch(signinSuccess(authResult));
+          return false;
+        },
+        signInFailure(error) {
+          dispatch(signinFailure(error));
+        },
+      },
     };
 
     firebaseUI.start(ref.current, config);
-  }, []);
+  }, [dispatch]);
 
   return (
-    <div ref={ref} className="login" />
+    <div ref={ref} />
   );
 };
 
