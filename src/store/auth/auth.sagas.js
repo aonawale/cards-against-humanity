@@ -20,9 +20,9 @@ export function* onSignOutStart() {
   yield takeLatest(actionTypes.SIGNOUT_START, signOut);
 }
 
-export function* signin({ payload }) {
+export function* signin() {
   try {
-    // const { data } = yield request.post('/oauth/token', payload);
+    // Hopefully will manually call firebase signin here at some point
     yield put(signinSuccess());
   } catch (error) {
     yield put(signinFailure(error));
