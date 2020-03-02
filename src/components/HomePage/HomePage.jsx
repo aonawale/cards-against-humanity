@@ -1,11 +1,26 @@
-import React from 'react';
-import Card, { cardTypes } from 'components/Card/Card';
+import React, { useCallback } from 'react';
+import Button from '@material-ui/core/Button';
+import { useHistory } from 'react-router-dom';
 
-const HomePage = () => (
-  <>
-    <Card text="How are you?" />
-    <Card text="How are you is the quqeyebs sjhgs?" type={cardTypes.black} />
-  </>
-);
+const HomePage = () => {
+  const history = useHistory();
+
+  const handleNewGame = useCallback(() => {
+    history.push('game');
+  }, [history]);
+
+  return (
+    <>
+      <Button
+        variant="contained"
+        color="primary"
+        size="large"
+        onClick={handleNewGame}
+      >
+        New Game
+      </Button>
+    </>
+  );
+};
 
 export default HomePage;

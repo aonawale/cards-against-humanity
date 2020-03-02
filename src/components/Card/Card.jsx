@@ -1,7 +1,7 @@
 import React, { memo, useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
-import MuiCard from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
+import Paper from '@material-ui/core/Paper';
+import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -16,9 +16,11 @@ const useStyles = makeStyles({
     height: '260px',
     borderRadius: '8px',
     cursor: 'pointer',
-    margin: '16px',
     ...props,
   }),
+  text: {
+    wordWrap: 'break-word',
+  },
 });
 
 const Card = memo(({ text, type }) => {
@@ -33,18 +35,18 @@ const Card = memo(({ text, type }) => {
   const handleItemFocus = useCallback(() => setIsActive(true), [setIsActive]);
 
   return (
-    <MuiCard
-      classes={classes}
-      raised={isActive}
+    <Paper
+      elevation={isActive ? 4 : 2}
+      className={classes.root}
       onMouseEnter={handleItemFocus}
       onMouseLeave={handleItemBlur}
     >
-      <CardContent>
-        <Typography variant="h4" component="h1">
+      <Box p={2}>
+        <Typography variant="h4" component="h1" className={classes.text}>
           {text}
         </Typography>
-      </CardContent>
-    </MuiCard>
+      </Box>
+    </Paper>
   );
 });
 
