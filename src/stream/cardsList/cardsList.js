@@ -3,9 +3,9 @@ import { map, filter, flatMap } from 'rxjs/operators';
 
 const url = 'https://cards-against-humanity-api.herokuapp.com/sets/Base';
 
+const cardsResponseSubject = new Subject();
 const blackCardsListSubject = new Subject();
 const whiteCardsListSubject = new Subject();
-const cardsResponseSubject = new Subject();
 
 from(fetch(url)).pipe(
   filter((response) => response),
@@ -14,17 +14,12 @@ from(fetch(url)).pipe(
 
 cardsResponseSubject.pipe(
   map(({ blackCards }) => blackCards),
-  map((cards) => cards.map(({ text, pick }) => ({
-    text,
-    pick,
-  }))),
+  map((cards) => cards.map(({ text, pick }) => ({ text, pick }))),
 ).subscribe(blackCardsListSubject);
 
 cardsResponseSubject.pipe(
   map(({ whiteCards }) => whiteCards),
-  map((cards) => cards.map((card) => ({
-    text: card,
-  }))),
+  map((cards) => cards.map((card) => ({ text: card }))),
 ).subscribe(whiteCardsListSubject);
 
 export {

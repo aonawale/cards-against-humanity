@@ -3,13 +3,13 @@ import 'firebase/auth';
 import * as firebaseui from 'firebaseui';
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyDNEIRxIGiX25ogNLDAgs0ItvHJQj9A3Q4',
-  authDomain: 'cah-dev-86dc7.firebaseapp.com',
-  databaseURL: 'https://cah-dev-86dc7.firebaseio.com',
-  projectId: 'cah-dev-86dc7',
-  storageBucket: 'cah-dev-86dc7.appspot.com',
-  messagingSenderId: '708919127947',
-  appId: '1:708919127947:web:87b610b4902a868d6bc98e',
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  databaseURL: process.env.REACT_APP_FIREBASE_DATABASE_URL,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
 };
 
 export const firebaseApp = firebase.initializeApp(firebaseConfig);
