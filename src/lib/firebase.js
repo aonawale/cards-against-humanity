@@ -1,7 +1,7 @@
-import * as firebase from 'firebase/app';
+import { initializeApp } from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/firestore';
-import * as firebaseui from 'firebaseui';
+import { auth as uiAuth } from 'firebaseui';
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
@@ -13,5 +13,8 @@ const firebaseConfig = {
   appId: process.env.REACT_APP_FIREBASE_APP_ID,
 };
 
-export const firebaseApp = firebase.initializeApp(firebaseConfig);
-export const firebaseUI = new firebaseui.auth.AuthUI(firebaseApp.auth());
+export const firebaseApp = initializeApp(firebaseConfig);
+export const firebaseUI = new uiAuth.AuthUI(firebaseApp.auth());
+
+export const auth = firebaseApp.auth();
+export const firestore = firebaseApp.firestore();

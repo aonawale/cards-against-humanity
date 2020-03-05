@@ -1,17 +1,19 @@
 import { Subject } from 'rxjs';
-import { map, filter, tap } from 'rxjs/operators';
-import { authStateSubject } from 'stream/eventSources/firebaseEventSources';
-import { firebaseApp } from 'lib/firebase';
+import { map, filter } from 'rxjs/operators';
+import { auth, firestore } from 'lib/firebase';
+import { authState } from 'rxfire/auth';
 
+const authStateSubject = new Subject();
 const currentUserSubject = new Subject();
 const currentUserIsAuthenticatedSubject = new Subject();
+
+authState(auth).subscribe(authStateSubject);
 
 authStateSubject.pipe(
   map(({ user }) => !!user),
 ).subscribe(currentUserIsAuthenticatedSubject);
 
 authStateSubject.pipe(
-  map(({ user }) => user),
   filter((user) => !!user),
   map(({ uid, email, displayName }) => ({
     id: uid,
@@ -21,7 +23,7 @@ authStateSubject.pipe(
 ).subscribe(currentUserSubject);
 
 currentUserSubject.subscribe((user) => {
-  firebaseApp.firestore().collection('users').doc(user.id).set(user);
+  firestore.collection('users').doc(user.id).set(user);
 });
 
 export {
