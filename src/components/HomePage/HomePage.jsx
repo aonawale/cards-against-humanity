@@ -1,12 +1,14 @@
 import React, { useCallback } from 'react';
 import Button from '@material-ui/core/Button';
 import { useHistory } from 'react-router-dom';
+import { firebaseApp } from 'lib/firebase';
 
 const HomePage = () => {
   const history = useHistory();
 
   const handleNewGame = useCallback(() => {
-    history.push('game');
+    const { id } = firebaseApp.firestore().collection('games').doc();
+    history.push(`games/${id}`);
   }, [history]);
 
   return (

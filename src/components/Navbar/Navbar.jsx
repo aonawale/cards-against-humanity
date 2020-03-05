@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
+import PropTypes from 'prop-types';
 import { Link as RouterLink } from 'react-router-dom';
 import Box from '@material-ui/core/Box';
 import Link from '@material-ui/core/Link';
@@ -9,16 +10,12 @@ import IconButton from '@material-ui/core/IconButton';
 import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
 import AccountCircle from '@material-ui/icons/AccountCircle';
-import { useSelector, useDispatch } from 'react-redux';
-import { selectIsAuthenticated } from 'store/auth/auth.selectors';
+import { useDispatch } from 'react-redux';
 import { signOutStart } from 'store/auth/auth.actions';
-import currentUserSubject from 'stream/currentUser/firebaseCurrentUser';
 
-const Navbar = () => {
+const Navbar = ({ currentUser, isAuthenticated }) => {
   const dispatch = useDispatch();
-  const isAuthenticated = useSelector(selectIsAuthenticated);
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [currentUser, setCurrentUser] = useState();
+  const [anchorEl, setAnchorEl] = useState();
 
   const handleMenu = useCallback((event) => {
     setAnchorEl(event.currentTarget);
@@ -32,11 +29,6 @@ const Navbar = () => {
     dispatch(signOutStart());
     handleClose();
   }, [dispatch, handleClose]);
-
-  useEffect(() => {
-    const subscription = currentUserSubject.subscribe(setCurrentUser);
-    return () => subscription.unsubscribe();
-  }, []);
 
   return (
     <AppBar position="static" color="transparent" variant="outlined">
@@ -80,6 +72,13 @@ const Navbar = () => {
       </Toolbar>
     </AppBar>
   );
+};
+
+Navbar.propTypes = {
+  currentUser: PropTypes.shape({
+    displayName: PropTypes.string,
+  }),
+  isAuthenticated: PropTypes.bool.isRequired,
 };
 
 export default Navbar;

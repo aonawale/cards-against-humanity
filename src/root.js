@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import App from 'app/App';
 import LoginPage from 'components/LoginPage/LoginPage';
 import HomePage from 'components/HomePage/HomePage';
@@ -6,14 +6,18 @@ import GamePage from 'components/GamePage/GamePage';
 import AuthenticatedRoute from 'components/AuthenticatedRoute/AuthenticatedRoute';
 import UnauthenticatedRoute from 'components/UnauthenticatedRoute/UnauthenticatedRoute';
 import { Switch } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { selectIsAuthenticated } from 'store/auth/auth.selectors';
+import { currentUserIsAuthenticatedSubject } from 'stream/currentUser/firebaseCurrentUser';
 
 const Routes = () => {
-  const isAuthenticated = useSelector(selectIsAuthenticated);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const subscription = currentUserIsAuthenticatedSubject.subscribe(setIsAuthenticated);
+    return () => subscription.unsubscribe();
+  }, []);
 
   return (
-    <App>
+    <App isAuthenticated={isAuthenticated}>
       <Switch>
         <UnauthenticatedRoute exact path="/login" isAuthenticated={isAuthenticated}>
           <LoginPage />
