@@ -1,6 +1,6 @@
 import { Subject, from } from 'rxjs';
 import {
-  map, switchMap, withLatestFrom, flatMap, tap,
+  map, withLatestFrom, flatMap, tap,
 } from 'rxjs/operators';
 import { currentUserSubject } from 'stream/currentUser/currentUser';
 import { firestore } from 'lib/firebase';
@@ -20,8 +20,7 @@ const startGame = (name) => {
 
 newGameSubject.pipe(
   withLatestFrom(currentUserSubject),
-  switchMap(([game, user]) => from(fetch(url)).pipe(
-    flatMap((response) => response.json()),
+  flatMap(([game, user]) => from(fetch(url).then((res) => res.json())).pipe(
     map(({ whiteCards, blackCards }) => ({
       game, user, whiteCards, blackCards,
     })),
@@ -41,8 +40,7 @@ newGameSubject.pipe(
     null,
   )),
   tap(console.log),
-  switchMap((game) => from(firestore.collection('games').doc(game.id).withConverter(converter).set(game))),
-  tap(console.log),
+  flatMap((game) => from(firestore.collection('games').doc(game.id).withConverter(converter).set(game))),
 ).subscribe(() => {});
 
 export default startGame;

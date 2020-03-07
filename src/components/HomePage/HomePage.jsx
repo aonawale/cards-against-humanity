@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Button from '@material-ui/core/Button';
 import { useHistory } from 'react-router-dom';
-import startGame from 'stream/startGame/startGame';
-import gamesListSubject from 'stream/gamesList/gamesList';
+import startGame from 'stream/gamesList/startGame/startGame';
+import deleteGame from 'stream/gamesList/deleteGame/deleteGame';
+import gamesListSubject, { selectGame } from 'stream/gamesList/gamesList';
 import GamesList from 'components/GamesList/GamesList';
 import GameStartDialog from 'components/GameStartDialog/GameStartDialog';
 
@@ -21,12 +22,12 @@ const HomePage = () => {
   }, []);
 
   const handleClickGame = useCallback(({ id }) => {
-    // history.push(`games/${id}`);
-  }, []);
+    selectGame(id);
+    history.push(`games/${id}`);
+  }, [history]);
 
   const handleDeleteGame = useCallback(({ id }) => {
-    console.log(id);
-    setStartDialogIsOpen(false);
+    deleteGame(id);
   }, []);
 
   const handleConfirmStartDialog = useCallback(({ name }) => {

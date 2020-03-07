@@ -20,6 +20,7 @@ const GamesListItem = memo(({ game, onClick, onDelete }) => {
   }, []);
 
   const handleConfirmDeleteDialog = useCallback(() => {
+    setDeleteDialogIsOpen(false);
     if (onDelete)
       onDelete(game);
   }, [game, onDelete]);
@@ -30,7 +31,7 @@ const GamesListItem = memo(({ game, onClick, onDelete }) => {
 
   return (
     <>
-      <ListItem dense button onClick={handleClick}>
+      <ListItem button onClick={handleClick}>
         <ListItemText primary={game.name} />
         <ListItemSecondaryAction>
           <IconButton edge="end" aria-label="delete" onClick={handleDelete}>

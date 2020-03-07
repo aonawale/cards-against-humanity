@@ -2,18 +2,27 @@ import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import List from '@material-ui/core/List';
 import GamesListItem from 'components/GamesListItem/GamesListItem';
+import Box from '@material-ui/core/Box';
+import Typography from '@material-ui/core/Typography';
 
 const GamesList = memo(({ games, onClickGame, onDeleteGame }) => (
-  <List>
-    {games.map((game) => (
-      <GamesListItem
-        key={game.id}
-        game={game}
-        onClick={onClickGame}
-        onDelete={onDeleteGame}
-      />
-    ))}
-  </List>
+  <Box paddingY={2}>
+    <Box paddingX={2}>
+      <Typography component="h2">
+        {games.length ? 'Your Games' : 'No Games'}
+      </Typography>
+    </Box>
+    <List>
+      {games.map((game) => (
+        <GamesListItem
+          key={game.id}
+          game={game}
+          onClick={onClickGame}
+          onDelete={onDeleteGame}
+        />
+      ))}
+    </List>
+  </Box>
 ));
 
 GamesList.defaultProps = {

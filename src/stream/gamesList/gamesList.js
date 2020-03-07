@@ -1,16 +1,14 @@
-import { Subject } from 'rxjs';
+import { Subject, BehaviorSubject } from 'rxjs';
 import { map, switchMap, tap } from 'rxjs/operators';
 import { currentUserSubject } from 'stream/currentUser/currentUser';
 import { firestore } from 'lib/firebase';
 import { collection } from 'rxfire/firestore';
 import { converter } from 'game/game';
 
-const gamesListSubject = new Subject();
+const gamesListSubject = new BehaviorSubject([]);
+const selectedGameIDSubject = new Subject();
 
-// combineLatest([
-//   currentUserSubject,
-
-// ])
+const selectGame = (id) => selectedGameIDSubject.next(id);
 
 currentUserSubject.pipe(
   map(({ id }) => firestore.collection('games').where('ownerID', '==', id).withConverter(converter)),
@@ -20,3 +18,8 @@ currentUserSubject.pipe(
 ).subscribe(gamesListSubject);
 
 export default gamesListSubject;
+
+export {
+  selectGame,
+  selectedGameIDSubject,
+};
