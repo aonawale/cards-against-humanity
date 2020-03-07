@@ -10,7 +10,7 @@ const currentUserIsAuthenticatedSubject = new Subject();
 authState(auth).subscribe(authStateSubject);
 
 authStateSubject.pipe(
-  map(({ user }) => !!user),
+  map((user) => !!user),
 ).subscribe(currentUserIsAuthenticatedSubject);
 
 authStateSubject.pipe(

@@ -1,14 +1,17 @@
 import { Subject } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { map, switchMap, tap } from 'rxjs/operators';
 import { currentUserSubject } from 'stream/currentUser/firebaseCurrentUser';
 import { firestore } from 'lib/firebase';
-import { collectionData } from 'rxfire/auth';
+import { collection } from 'rxfire/firestore';
+import { converter } from 'game/game';
 
 const gamesListSubject = new Subject();
 
 currentUserSubject.pipe(
-  map(({ id }) => firestore.collection('games').where('ownerID', '==', id)),
-  switchMap((ref) => collectionData(ref, 'id')),
+  map(({ id }) => firestore.collection('games').where('ownerID', '==', id).withConverter(converter)),
+  switchMap((ref) => collection(ref)),
+  map((snapshots) => snapshots.map((snap) => snap.data())),
+  tap(console.log),
 ).subscribe(gamesListSubject);
 
 export default gamesListSubject;

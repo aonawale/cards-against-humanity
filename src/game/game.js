@@ -1,17 +1,18 @@
 import Deck from 'game/deck/deck';
+import { converter as cardConverter } from 'game/card/card';
+import { converter as playerConverter } from 'game/player/player';
 
 export default class Game {
-  constructor(id, ownerID, cZar, players, whiteCards, blackCards) {
+  constructor(id, ownerID, cZarID, players, whiteCards, blackCards, isStarted, playedBlackCard, playedWhiteCards) {
     this.id = id;
     this.ownerID = ownerID;
-    this.cZar = cZar;
-    this.players = new Set(...players);
-    this.whiteCards = new Deck(whiteCards);
-    this.blackCards = new Deck(blackCards);
-
-    this.isStarted = false;
-    this.playedBlackCard = null;
-    this.playedWhiteCards = new Map();
+    this.cZarID = cZarID;
+    this.players = players;
+    this.whiteCardsDeck = new Deck(whiteCards);
+    this.blackCardsDeck = new Deck(blackCards);
+    this.isStarted = isStarted;
+    this.playedBlackCard = playedBlackCard;
+    this.playedWhiteCards = new Map(Object.entries(playedWhiteCards || {}));
   }
 
   addPlayer(player) {
@@ -21,51 +22,107 @@ export default class Game {
   }
 
   start() {
-    this.whiteCards.shuffle();
-    this.blackCards.shuffle();
+    if (this.isStarted)
+      throw new Error('Game has already started!');
+    // shuffle cards
+    this.whiteCardsDeck.shuffle();
+    this.blackCardsDeck.shuffle();
 
-    // assign last 5 white cards for each player
+    // assign last 5 white cards to each player
     this.players.forEach((player) => {
-      player.cards = this.whiteCards.deal(5);
+      player.cards = this.whiteCardsDeck.deal(5);
     });
 
     this.isStarted = true;
   }
 
-  startRound() {
+  startNextRound() {
     if (!this.isStarted)
       throw new Error('Game has not started!');
 
     // replace the last cards played
     this.players.forEach((player) => {
-      player.cards.push(this.whiteCards.deal(this.playedBlackCard.pick));
+      player.cards.push(this.whiteCardsDeck.deal(this.playedBlackCard.pick));
     });
 
-    this.cZar = this.players[3];
+    this.resetRound();
+    this.chooseNextCZar();
     this.playBlackCard();
   }
 
-  // a cZar playing a black card
+  resetRound() {
+    this.playedBlackCard = null;
+    this.playedWhiteCards = new Map();
+  }
+
+  chooseNextCZar() {
+    const index = this.players.findIndex((player) => player.id === this.cZarID);
+    const nextIndex = (index + 1) % this.players.length;
+    this.cZarID = this.players[nextIndex].id;
+  }
+
+  // a cZarID playing a black card
   playBlackCard() {
-    this.playedBlackCard = this.blackCards.pop();
+    this.playedBlackCard = this.blackCardsDeck.pop();
   }
 
   // a player playing a white card
   playWhiteCard(player, card) {
+    if (!this.playedBlackCard)
+      throw new Error('Black card has not been played!');
+
     const hasPlayed = this.playedWhiteCards.has(player.id);
     const playedCards = this.playedWhiteCards.get(player.id);
 
-    if (hasPlayed && this.playedBlackCard.pick > playedCards.length)
+    if (hasPlayed && this.playedBlackCard.pick <= playedCards.length)
+      throw new Error('You cannot play more than the required card!');
+    else if (hasPlayed && this.playedBlackCard.pick > playedCards.length)
       this.playedWhiteCards.set(player.id, [...playedCards, card]);
     else
       this.playedWhiteCards.set(player.id, [card]);
   }
 
-  // a cZar picking winning cards
+  // picking winner
   pickWinner(playerID) {
-    const cards = this.playedWhiteCards.get(playerID);
-    cards.forEach((card) => (card.isFaceUp = true));
+    if (this.playedWhiteCards.size !== this.players.length)
+      throw new Error('All players must play card(s) before picking a winner!');
 
-    this.players.find(({ id }) => id === playerID);
+    const cards = this.playedWhiteCards.get(playerID);
+    cards.forEach((card) => { card.isFaceUp = true; });
+
+    const player = this.players.find(({ id }) => id === playerID);
+    player.incrementPoints();
   }
 }
+
+export const converter = {
+  toFirestore(game) {
+    return {
+      id: game.id,
+      ownerID: game.ownerID,
+      cZarID: game.cZarID,
+      players: game.players.map(playerConverter.toFirestore),
+      whiteCards: game.whiteCardsDeck.cards.map(cardConverter.toFirestore),
+      blackCards: game.blackCardsDeck.cards.map(cardConverter.toFirestore),
+      isStarted: game.isStarted,
+      playedBlackCard: game.playedBlackCard,
+      playedWhiteCards: [...game.playedWhiteCards.entries()].reduce(
+        (aggr, [key, value]) => ({ ...aggr, [key]: value }), {},
+      ),
+    };
+  },
+
+  fromFirestore(snapshot, options) {
+    const data = snapshot.data(options);
+    return new Game(
+      data.id,
+      data.ownerID,
+      data.cZarID,
+      data.players.map((player) => playerConverter.fromFirestore({ data: () => player }, options)),
+      data.whiteCards.map((card) => cardConverter.fromFirestore({ data: () => card }, options)),
+      data.blackCards.map((card) => cardConverter.fromFirestore({ data: () => card }, options)),
+      data.playedBlackCard,
+      data.playedWhiteCards,
+    );
+  },
+};

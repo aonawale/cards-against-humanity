@@ -8,30 +8,30 @@ const cardsLoadedSubject = new BehaviorSubject(false);
 const blackCardsListSubject = new BehaviorSubject([]);
 const whiteCardsListSubject = new BehaviorSubject([]);
 
-const fetchCards = () => {
-  cardsLoadedSubject.pipe(
-    filter((loaded) => !loaded),
-    flatMap(() => from(fetch(url))),
-    filter((response) => response),
-    flatMap((response) => response.json()),
-  ).subscribe((res) => {
-    cardsLoadedSubject.next(true);
-    cardsResponseSubject.next(res);
-  });
-};
+// const fetchCards = () => {
+//   cardsLoadedSubject.pipe(
+//     filter((loaded) => !loaded),
+//     flatMap(() => from(fetch(url))),
+//     filter((response) => response),
+//     flatMap((response) => response.json()),
+//   ).subscribe((res) => {
+//     cardsLoadedSubject.next(true);
+//     cardsResponseSubject.next(res);
+//   });
+// };
 
-cardsResponseSubject.pipe(
-  map(({ blackCards }) => blackCards),
-  map((cards) => cards.map(({ text, pick }) => ({ text, pick }))),
-).subscribe(blackCardsListSubject);
+// cardsResponseSubject.pipe(
+//   map(({ blackCards }) => blackCards),
+//   map((cards) => cards.map(({ text, pick }) => ({ text, pick }))),
+// ).subscribe(blackCardsListSubject);
 
-cardsResponseSubject.pipe(
-  map(({ whiteCards }) => whiteCards),
-  map((cards) => cards.map((card) => ({ text: card }))),
-).subscribe(whiteCardsListSubject);
+// cardsResponseSubject.pipe(
+//   map(({ whiteCards }) => whiteCards),
+//   map((cards) => cards.map((card) => ({ text: card }))),
+// ).subscribe(whiteCardsListSubject);
 
 export {
-  fetchCards,
+  // fetchCards,
   blackCardsListSubject,
   whiteCardsListSubject,
 };

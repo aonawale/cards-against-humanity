@@ -2,15 +2,11 @@ import React, { useState, useEffect } from 'react';
 import Grid from '@material-ui/core/Grid';
 import Box from '@material-ui/core/Box';
 import Card, { cardTypes } from 'components/Card/Card';
-import { fetchCards, blackCardsListSubject, whiteCardsListSubject } from 'stream/cardsList/cardsList';
+import { blackCardsListSubject, whiteCardsListSubject } from 'stream/cardsList/cardsList';
 
 const GamePage = () => {
   const [whiteCards, setWhiteCards] = useState([]);
   const [blackCards, setBlackCards] = useState([]);
-
-  useEffect(() => {
-    fetchCards();
-  }, []);
 
   useEffect(() => {
     const subscription = whiteCardsListSubject.subscribe(setWhiteCards);
