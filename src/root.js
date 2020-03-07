@@ -23,7 +23,7 @@ const Routes = () => {
           <LoginPage />
         </UnauthenticatedRoute>
 
-        <AuthenticatedRoute exact path="/games/:game_id" isAuthenticated={isAuthenticated}>
+        <AuthenticatedRoute exact path="/games/:gameID" isAuthenticated={isAuthenticated}>
           <GamePage />
         </AuthenticatedRoute>
 

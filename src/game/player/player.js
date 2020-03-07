@@ -29,7 +29,7 @@ export const converter = {
       data.id,
       data.name,
       data.points,
-      data.cards.map(cardConverter.fromFirestore),
+      data.cards.map((card) => cardConverter.fromFirestore({ data: () => card }, options)),
     );
   },
 };

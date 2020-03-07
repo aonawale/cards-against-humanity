@@ -1,9 +1,13 @@
 export default class Deck {
-  constructor(cards) {
+  constructor(cards = []) {
     this.cards = cards;
   }
 
-  deal(count = 10) {
+  pop() {
+    return this.cards.pop();
+  }
+
+  deal(count = 5) {
     return this.cards.splice(-1 * count, count);
   }
 

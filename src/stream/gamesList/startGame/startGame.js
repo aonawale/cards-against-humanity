@@ -36,10 +36,10 @@ newGameSubject.pipe(
     [new Player(user.id, user.displayName)],
     whiteCards.map((text) => new Card(text)),
     blackCards.map((card) => new Card(card.text, card.pick)),
-    true,
     null,
   )),
   tap(console.log),
+  tap((game) => game.startNextRound()),
   flatMap((game) => from(firestore.collection('games').doc(game.id).withConverter(converter).set(game))),
 ).subscribe(() => {});
 

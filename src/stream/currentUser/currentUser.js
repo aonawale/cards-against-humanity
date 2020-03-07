@@ -1,11 +1,11 @@
-import { Subject } from 'rxjs';
+import { Subject, ReplaySubject } from 'rxjs';
 import { map, filter } from 'rxjs/operators';
 import { auth, firestore } from 'lib/firebase';
 import { authState } from 'rxfire/auth';
 
 const authStateSubject = new Subject();
-const currentUserSubject = new Subject();
-const currentUserIsAuthenticatedSubject = new Subject();
+const currentUserSubject = new ReplaySubject(1);
+const currentUserIsAuthenticatedSubject = new ReplaySubject(1);
 
 authState(auth).subscribe(authStateSubject);
 

@@ -3,7 +3,7 @@ import { converter as cardConverter } from 'game/card/card';
 import { converter as playerConverter } from 'game/player/player';
 
 export default class Game {
-  constructor(id, name, ownerID, cZarID, players, whiteCards, blackCards, isStarted,
+  constructor(id, name, ownerID, cZarID, players, whiteCards, blackCards,
     playedBlackCard, playedWhiteCards) {
     this.id = id;
     this.name = name;
@@ -12,7 +12,6 @@ export default class Game {
     this.players = players;
     this.whiteCardsDeck = new Deck(whiteCards);
     this.blackCardsDeck = new Deck(blackCards);
-    this.isStarted = isStarted;
     this.playedBlackCard = playedBlackCard;
     this.playedWhiteCards = new Map(Object.entries(playedWhiteCards || {}));
   }
@@ -23,32 +22,44 @@ export default class Game {
       this.players.add(player);
   }
 
-  start() {
-    if (this.isStarted)
-      throw new Error('Game has already started!');
-    // shuffle cards
-    this.whiteCardsDeck.shuffle();
-    this.blackCardsDeck.shuffle();
+  // start() {
+  //   if (this.isStarted)
+  //     throw new Error('Game has already started!');
+  //   // shuffle cards
+  //   this.whiteCardsDeck.shuffle();
+  //   this.blackCardsDeck.shuffle();
 
-    // assign last 5 white cards to each player
-    this.players.forEach((player) => {
-      player.cards = this.whiteCardsDeck.deal(5);
-    });
+  //   // assign last 5 white cards to each player
+  //   this.players.forEach((player) => {
+  //     player.cards = this.whiteCardsDeck.deal(5);
+  //   });
 
-    this.isStarted = true;
-  }
+  //   this.isStarted = true;
+  // }
 
   startNextRound() {
-    if (!this.isStarted)
-      throw new Error('Game has not started!');
+    // if (!this.isStarted)
+    //   throw new Error('Game has not started!');
 
+    // shuffle cards
+    // this.whiteCardsDeck.shuffle();
+    // this.blackCardsDeck.shuffle();
+
+    // // if we have already started playing
+    // if (this.playedBlackCard) {
     // replace the last cards played
     this.players.forEach((player) => {
-      player.cards.push(this.whiteCardsDeck.deal(this.playedBlackCard.pick));
+      player.cards = [...player.cards, ...this.whiteCardsDeck.deal(this.playedBlackCard?.pick)];
     });
-
     this.resetRound();
     this.chooseNextCZar();
+    // } else {
+    //   // assign last 5 white cards to each player
+    //   this.players.forEach((player) => {
+    //     player.cards = this.whiteCardsDeck.deal(5);
+    //   });
+    // }
+
     this.playBlackCard();
   }
 
@@ -77,7 +88,7 @@ export default class Game {
     const playedCards = this.playedWhiteCards.get(player.id);
 
     if (hasPlayed && this.playedBlackCard.pick <= playedCards.length)
-      throw new Error('You cannot play more than the required card!');
+      throw new Error('You cannot play more than the required cards!');
     else if (hasPlayed && this.playedBlackCard.pick > playedCards.length)
       this.playedWhiteCards.set(player.id, [...playedCards, card]);
     else
@@ -107,8 +118,7 @@ export const converter = {
       players: game.players.map(playerConverter.toFirestore),
       whiteCards: game.whiteCardsDeck.cards.map(cardConverter.toFirestore),
       blackCards: game.blackCardsDeck.cards.map(cardConverter.toFirestore),
-      isStarted: game.isStarted,
-      playedBlackCard: game.playedBlackCard,
+      playedBlackCard: cardConverter.toFirestore(game.playedBlackCard),
       playedWhiteCards: [...game.playedWhiteCards.entries()].reduce(
         (aggr, [key, value]) => ({ ...aggr, [key]: value }), {},
       ),
@@ -125,7 +135,7 @@ export const converter = {
       data.players.map((player) => playerConverter.fromFirestore({ data: () => player }, options)),
       data.whiteCards.map((card) => cardConverter.fromFirestore({ data: () => card }, options)),
       data.blackCards.map((card) => cardConverter.fromFirestore({ data: () => card }, options)),
-      data.playedBlackCard,
+      cardConverter.fromFirestore({ data: () => data.playedBlackCard }, options),
       data.playedWhiteCards,
     );
   },
