@@ -17,9 +17,13 @@ export default class Game {
   }
 
   addPlayer(player) {
-    // max allowed players is 10
-    if (this.players.size < 10)
-      this.players.add(player);
+    if (this.players.length >= 10)
+      throw new Error('Max allowed players is 10!');
+    this.players.push(player);
+  }
+
+  hasPlayer(playerID) {
+    return !!this.players.find(({ id }) => id === playerID);
   }
 
   // start() {
