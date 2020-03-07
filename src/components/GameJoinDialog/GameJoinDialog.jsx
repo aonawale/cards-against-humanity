@@ -8,7 +8,7 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
 const GameJoinDialog = memo(({
-  gameName, isOpen, onClose, onJoin,
+  gameName, isOpen, onClose, onConfirm,
 }) => (
   <Dialog
     open={isOpen}
@@ -26,8 +26,8 @@ const GameJoinDialog = memo(({
       <Button onClick={onClose} color="primary">
         No, I want my mummy
       </Button>
-      <Button onClick={onJoin} color="primary" autoFocus>
-        join
+      <Button onClick={onConfirm} color="primary" autoFocus>
+        Bring it on!
       </Button>
     </DialogActions>
   </Dialog>
@@ -41,7 +41,7 @@ GameJoinDialog.propTypes = {
   gameName: PropTypes.string.isRequired,
   isOpen: PropTypes.bool,
   onClose: PropTypes.func,
-  onJoin: PropTypes.func,
+  onConfirm: PropTypes.func,
 };
 
 export default GameJoinDialog;

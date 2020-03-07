@@ -59,7 +59,8 @@ const GamePage = memo(() => {
   }, [gameID]);
 
   const handleCloseJoinDialog = useCallback(() => {
-    history.push('games');
+    setJoinDialogIsOpen(false);
+    history.replace('/');
   }, [history]);
 
   return (
@@ -125,8 +126,9 @@ const GamePage = memo(() => {
 
       <GameJoinDialog
         isOpen={joinDialogIsOpen}
+        gameName={selectedGame?.name || ''}
         onClose={handleCloseJoinDialog}
-        onStart={handleConfirmJoinDialog}
+        onConfirm={handleConfirmJoinDialog}
       />
     </Box>
   );

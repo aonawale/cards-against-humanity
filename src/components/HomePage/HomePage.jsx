@@ -4,16 +4,23 @@ import { useHistory } from 'react-router-dom';
 import startGame from 'stream/gamesList/startGame/startGame';
 import deleteGame from 'stream/gamesList/deleteGame/deleteGame';
 import gamesListSubject, { selectGame } from 'stream/gamesList/gamesList';
+import { currentUserSubject } from 'stream/currentUser/currentUser';
 import GamesList from 'components/GamesList/GamesList';
 import GameStartDialog from 'components/GameStartDialog/GameStartDialog';
 
 const HomePage = () => {
   const history = useHistory();
   const [gamesList, setGamesList] = useState([]);
+  const [currentUser, setCurrentUser] = useState();
   const [startDialogIsOpen, setStartDialogIsOpen] = useState(false);
 
   useEffect(() => {
     const subscription = gamesListSubject.subscribe(setGamesList);
+    return () => subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const subscription = currentUserSubject.subscribe(setCurrentUser);
     return () => subscription.unsubscribe();
   }, []);
 
@@ -52,6 +59,7 @@ const HomePage = () => {
 
       <GamesList
         games={gamesList}
+        currentUser={currentUser}
         onClickGame={handleClickGame}
         onDeleteGame={handleDeleteGame}
       />

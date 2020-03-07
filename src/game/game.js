@@ -19,6 +19,7 @@ export default class Game {
   addPlayer(player) {
     if (this.players.length >= 10)
       throw new Error('Max allowed players is 10!');
+    player.cards = [...player.cards, ...this.whiteCardsDeck.deal()];
     this.players.push(player);
   }
 
@@ -119,7 +120,9 @@ export const converter = {
       name: game.name,
       ownerID: game.ownerID,
       cZarID: game.cZarID,
-      players: game.players.map(playerConverter.toFirestore),
+      players: game.players.reduce(
+        (aggr, player) => ({ ...aggr, [player.id]: playerConverter.toFirestore(player) }), {},
+      ),
       whiteCards: game.whiteCardsDeck.cards.map(cardConverter.toFirestore),
       blackCards: game.blackCardsDeck.cards.map(cardConverter.toFirestore),
       playedBlackCard: cardConverter.toFirestore(game.playedBlackCard),
@@ -136,7 +139,7 @@ export const converter = {
       data.name,
       data.ownerID,
       data.cZarID,
-      data.players.map((player) => playerConverter.fromFirestore({ data: () => player }, options)),
+      Object.entries(data.players).map(([, player]) => playerConverter.fromFirestore({ data: () => player }, options)),
       data.whiteCards.map((card) => cardConverter.fromFirestore({ data: () => card }, options)),
       data.blackCards.map((card) => cardConverter.fromFirestore({ data: () => card }, options)),
       cardConverter.fromFirestore({ data: () => data.playedBlackCard }, options),

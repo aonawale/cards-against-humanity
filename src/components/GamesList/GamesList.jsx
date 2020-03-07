@@ -5,11 +5,13 @@ import GamesListItem from 'components/GamesListItem/GamesListItem';
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
 
-const GamesList = memo(({ games, onClickGame, onDeleteGame }) => (
+const GamesList = memo(({
+  games, currentUser, onClickGame, onDeleteGame,
+}) => (
   <Box paddingY={2}>
     <Box paddingX={2}>
       <Typography component="h2">
-        {games.length ? 'Your Games' : 'No Games'}
+        {games.length ? 'All Games' : 'No Games'}
       </Typography>
     </Box>
     <List>
@@ -19,6 +21,7 @@ const GamesList = memo(({ games, onClickGame, onDeleteGame }) => (
           game={game}
           onClick={onClickGame}
           onDelete={onDeleteGame}
+          canDelete={game.ownerID === currentUser?.id}
         />
       ))}
     </List>
@@ -31,6 +34,9 @@ GamesList.defaultProps = {
 
 GamesList.propTypes = {
   games: PropTypes.arrayOf(GamesListItem.propTypes.game),
+  currentUser: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+  }),
   onClickGame: PropTypes.func,
   onDeleteGame: PropTypes.func,
 };

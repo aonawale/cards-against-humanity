@@ -1,6 +1,6 @@
 import { ReplaySubject } from 'rxjs';
 import {
-  map, tap, filter, distinctUntilChanged, flatMap,
+  map, tap, filter, distinctUntilChanged, switchMap,
 } from 'rxjs/operators';
 import { firestore } from 'lib/firebase';
 import { converter } from 'game/game';
@@ -10,12 +10,12 @@ import { selectedGameIDSubject } from 'stream/gamesList/gamesList';
 const selectedGameSubject = new ReplaySubject(1);
 
 selectedGameIDSubject.pipe(
+  filter((id) => !!id),
   distinctUntilChanged(),
   map((id) => firestore.collection('games').doc(id).withConverter(converter)),
-  flatMap((ref) => doc(ref)),
-  tap(console.log),
-  filter((game) => !!game),
-  tap(console.log),
+  switchMap((ref) => doc(ref)),
+  map((snapshot) => snapshot.data()),
+  tap((val) => console.log('selectedGameSubject =>', val)),
 ).subscribe(selectedGameSubject);
 
 export default selectedGameSubject;

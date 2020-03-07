@@ -7,7 +7,9 @@ import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
 import GameDeleteDialog from 'components/GameDeleteDialog/GameDeleteDialog';
 
-const GamesListItem = memo(({ game, onClick, onDelete }) => {
+const GamesListItem = memo(({
+  game, canDelete, onClick, onDelete,
+}) => {
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false);
 
   const handleClick = useCallback(() => {
@@ -33,11 +35,13 @@ const GamesListItem = memo(({ game, onClick, onDelete }) => {
     <>
       <ListItem button onClick={handleClick}>
         <ListItemText primary={game.name} />
-        <ListItemSecondaryAction>
-          <IconButton edge="end" aria-label="delete" onClick={handleDelete}>
-            <DeleteIcon />
-          </IconButton>
-        </ListItemSecondaryAction>
+        {canDelete && (
+          <ListItemSecondaryAction>
+            <IconButton edge="end" aria-label="delete" onClick={handleDelete}>
+              <DeleteIcon />
+            </IconButton>
+          </ListItemSecondaryAction>
+        )}
       </ListItem>
 
       <GameDeleteDialog
@@ -54,6 +58,7 @@ GamesListItem.propTypes = {
     id: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
   }),
+  canDelete: PropTypes.bool,
   onClick: PropTypes.func,
   onDelete: PropTypes.func,
 };
