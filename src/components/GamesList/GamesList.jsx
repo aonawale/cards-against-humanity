@@ -7,6 +7,7 @@ const GamesList = memo(({ games, onClickGame, onDeleteGame }) => (
   <List>
     {games.map((game) => (
       <GamesListItem
+        key={game.id}
         game={game}
         onClick={onClickGame}
         onDelete={onDeleteGame}

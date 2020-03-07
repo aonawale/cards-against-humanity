@@ -1,11 +1,16 @@
 import { Subject } from 'rxjs';
 import { map, switchMap, tap } from 'rxjs/operators';
-import { currentUserSubject } from 'stream/currentUser/firebaseCurrentUser';
+import { currentUserSubject } from 'stream/currentUser/currentUser';
 import { firestore } from 'lib/firebase';
 import { collection } from 'rxfire/firestore';
 import { converter } from 'game/game';
 
 const gamesListSubject = new Subject();
+
+// combineLatest([
+//   currentUserSubject,
+
+// ])
 
 currentUserSubject.pipe(
   map(({ id }) => firestore.collection('games').where('ownerID', '==', id).withConverter(converter)),

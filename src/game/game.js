@@ -3,8 +3,10 @@ import { converter as cardConverter } from 'game/card/card';
 import { converter as playerConverter } from 'game/player/player';
 
 export default class Game {
-  constructor(id, ownerID, cZarID, players, whiteCards, blackCards, isStarted, playedBlackCard, playedWhiteCards) {
+  constructor(id, name, ownerID, cZarID, players, whiteCards, blackCards, isStarted,
+    playedBlackCard, playedWhiteCards) {
     this.id = id;
+    this.name = name;
     this.ownerID = ownerID;
     this.cZarID = cZarID;
     this.players = players;
@@ -99,6 +101,7 @@ export const converter = {
   toFirestore(game) {
     return {
       id: game.id,
+      name: game.name,
       ownerID: game.ownerID,
       cZarID: game.cZarID,
       players: game.players.map(playerConverter.toFirestore),
@@ -116,6 +119,7 @@ export const converter = {
     const data = snapshot.data(options);
     return new Game(
       data.id,
+      data.name,
       data.ownerID,
       data.cZarID,
       data.players.map((player) => playerConverter.fromFirestore({ data: () => player }, options)),

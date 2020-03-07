@@ -2,7 +2,7 @@ import { Subject, from } from 'rxjs';
 import {
   map, switchMap, withLatestFrom, flatMap, tap,
 } from 'rxjs/operators';
-import { currentUserSubject } from 'stream/currentUser/firebaseCurrentUser';
+import { currentUserSubject } from 'stream/currentUser/currentUser';
 import { firestore } from 'lib/firebase';
 import Game, { converter } from 'game/game';
 import Card from 'game/card/card';
@@ -12,9 +12,9 @@ const url = 'https://cards-against-humanity-api.herokuapp.com/sets/Base';
 
 const newGameSubject = new Subject();
 
-const startGame = () => {
+const startGame = (name) => {
   const { id } = firestore.collection('games').doc();
-  newGameSubject.next({ id });
+  newGameSubject.next({ id, name });
   return id;
 };
 
@@ -31,6 +31,7 @@ newGameSubject.pipe(
     game, user, whiteCards, blackCards,
   }) => new Game(
     game.id,
+    game.name,
     user.id,
     user.id,
     [new Player(user.id, user.displayName)],
