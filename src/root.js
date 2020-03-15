@@ -5,7 +5,7 @@ import HomePage from 'components/HomePage/HomePage';
 import GamePage from 'components/GamePage/GamePage';
 import AuthenticatedRoute from 'components/AuthenticatedRoute/AuthenticatedRoute';
 import UnauthenticatedRoute from 'components/UnauthenticatedRoute/UnauthenticatedRoute';
-import { Switch } from 'react-router-dom';
+import { Switch, Route } from 'react-router-dom';
 import { currentUserIsAuthenticatedSubject } from 'stream/currentUser/currentUser';
 
 const Routes = () => {
@@ -23,9 +23,9 @@ const Routes = () => {
           <LoginPage />
         </UnauthenticatedRoute>
 
-        <AuthenticatedRoute exact path="/games/:gameID" isAuthenticated={isAuthenticated}>
+        <Route exact path="/games/:gameID" isAuthenticated={isAuthenticated}>
           <GamePage />
-        </AuthenticatedRoute>
+        </Route>
 
         <AuthenticatedRoute exact path="/" isAuthenticated={isAuthenticated}>
           <HomePage />

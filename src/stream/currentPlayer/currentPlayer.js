@@ -1,13 +1,13 @@
 import { ReplaySubject, combineLatest } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { currentUserSubject } from 'stream/currentUser/currentUser';
-import selectedGameSubject from 'stream/gamesList/selectedGame/selectedGame';
+import currentGameSubject from 'stream/currentGame/currentGame';
 
 const currentPlayerSubject = new ReplaySubject(1);
 
 combineLatest([
   currentUserSubject,
-  selectedGameSubject,
+  currentGameSubject,
 ]).pipe(
   map(([currentUser, game]) => game?.players.find(({ id }) => id === currentUser.id)),
   tap((val) => console.log('currentPlayerSubject =>', val)),

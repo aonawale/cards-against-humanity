@@ -1,11 +1,5 @@
-{
-  {
-    gameID: {
-      pSar: playerID,
-      players: [playerID]
-    }
-  }
-}
+game state
+[czar_pick, play_cards, winner_selected]
 
 - start game -> game page => api request new game -> create default game state
     put gameID 

@@ -16,7 +16,6 @@ const selectGame = (id) => selectedGameIDSubject.next(id);
 currentUserSubject.pipe(
   map(({ id }) => firestore.collection('games').where(`players.${id}.id`, '==', id).withConverter(converter)),
   switchMap((ref) => collection(ref)),
-  tap((val) => console.log('gamesListSubject before =>', val)),
   map((snapshots) => snapshots.map((snap) => snap.data())),
   tap((val) => console.log('gamesListSubject =>', val)),
 ).subscribe(gamesListSubject);

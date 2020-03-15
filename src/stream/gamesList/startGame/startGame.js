@@ -5,7 +5,7 @@ import {
 import { currentUserSubject } from 'stream/currentUser/currentUser';
 import { blackCardsListSubject, whiteCardsListSubject } from 'stream/cardsList/cardsList';
 import { firestore as db } from 'lib/firebase';
-import Game, { converter } from 'game/game';
+import Game, { gameStates, converter } from 'game/game';
 import Card from 'game/card/card';
 import Player from 'game/player/player';
 
@@ -26,6 +26,7 @@ newGameSubject.pipe(
       user.id,
       user.id,
       [new Player(user.id, user.displayName)],
+      gameStates.playingCards,
     );
     game.setWhiteCards(whiteCards.map(({ text }) => new Card(text)));
     game.setBlackCards(blackCards.map(({ text, pick }) => new Card(text, pick)));

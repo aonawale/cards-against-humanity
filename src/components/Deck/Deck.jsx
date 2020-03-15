@@ -41,7 +41,7 @@ const Deck = memo(({ cards, type }) => {
           >
             <Box p={2}>
               <Typography variant="h4" component="h1" className={textStyle}>
-              Cards Against Humanity
+                Cards Against Humanity
               </Typography>
             </Box>
           </CardPaper>

@@ -3,7 +3,7 @@ import {
   switchMap, tap, map, distinctUntilChanged, withLatestFrom, filter, concatMap, pairwise,
 } from 'rxjs/operators';
 import { currentUserSubject } from 'stream/currentUser/currentUser';
-import selectedGameSubject from 'stream/gamesList/selectedGame/selectedGame';
+import currentGameSubject from 'stream/currentGame/currentGame';
 import { firestore as db } from 'lib/firebase';
 import { converter } from 'game/game';
 import Player from 'game/player/player';
@@ -16,7 +16,7 @@ const joinGame = (id) => joinGameSubject.next(id);
 joinGameSubject.pipe(
   distinctUntilChanged(),
   withLatestFrom(
-    selectedGameSubject.pipe(
+    currentGameSubject.pipe(
       filter((game) => !!game),
     ),
     currentUserSubject.pipe(
@@ -32,7 +32,7 @@ joinGameSubject.pipe(
   switchMap(([game, players]) => from(db.collection('games').doc(game.id).update({ players }))),
 ).subscribe(() => {});
 
-selectedGameSubject.pipe(
+currentGameSubject.pipe(
   filter((game) => game),
   map((game) => game.players),
   pairwise(),

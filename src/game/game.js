@@ -1,9 +1,22 @@
+// eslint-disable-next-line max-classes-per-file
 import Deck from 'game/deck/deck';
 import { converter as cardConverter } from 'game/card/card';
 import { converter as playerConverter } from 'game/player/player';
 
-export default class Game {
-  constructor(id, name, ownerID, cZarID, players, lastWhiteCard,
+const gameStates = {
+  playingCards: 'playing_cards', // players are playing cards
+  pickingWinner: 'picking_winner', // czar picking winner
+  winnerSelected: 'winner_selected', // winner is selected
+};
+
+class GameState {
+  constructor(name) {
+    this.name = name;
+  }
+}
+
+class Game {
+  constructor(id, name, ownerID, cZarID, players, state, lastWhiteCard,
     playedBlackCard, playedWhiteCards) {
     this.id = id;
     this.name = name;
@@ -13,6 +26,7 @@ export default class Game {
     this.playedBlackCard = playedBlackCard;
     this.playedWhiteCards = new Map(Object.entries(playedWhiteCards || {}));
     this.lastWhiteCard = lastWhiteCard;
+    this.state = state;
   }
 
   static findCardIndex(cards, cardToFind) {
@@ -38,6 +52,10 @@ export default class Game {
     for (let index = 0; index < foundIndex; index++)
       blackCards.push(cards[index]);
     this.blackCardsDeck = new Deck(blackCards);
+  }
+
+  setState(state) {
+    this.state = state;
   }
 
   setLastWhiteCard() {
@@ -114,9 +132,6 @@ export default class Game {
     else
       this.playedWhiteCards.set(player.id, [card]);
 
-    // // set last played white card
-    // this.lastWhiteCard = card;
-
     // remove the card from the player cards
     player.cards = player.cards.filter(({ text }) => text !== card.text);
   }
@@ -134,7 +149,7 @@ export default class Game {
   }
 }
 
-export const converter = {
+const converter = {
   toFirestore(game) {
     return {
       id: game.id,
@@ -149,6 +164,7 @@ export const converter = {
       playedWhiteCards: [...game.playedWhiteCards.entries()].reduce(
         (aggr, [key, value]) => ({ ...aggr, [key]: value.map(cardConverter.toFirestore) }), {},
       ),
+      state: game.state,
     };
   },
 
@@ -160,9 +176,17 @@ export const converter = {
       data.ownerID,
       data.cZarID,
       Object.entries(data.players).map(([, player]) => playerConverter.fromFirestore({ data: () => player }, options)),
+      data.state,
       data.lastWhiteCard,
       cardConverter.fromFirestore({ data: () => data.playedBlackCard }, options),
       data.playedWhiteCards,
     );
   },
+};
+
+export default Game;
+
+export {
+  gameStates,
+  converter,
 };
