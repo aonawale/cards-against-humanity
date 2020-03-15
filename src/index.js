@@ -9,6 +9,7 @@ import { PersistGate } from 'redux-persist/integration/react';
 import { store, persistor } from 'store/store';
 import { createTheme, ThemeProvider } from 'lib/theme';
 import Root from 'root';
+import { SnackbarProvider } from 'notistack';
 import * as serviceWorker from './serviceWorker';
 
 ReactDOM.render(
@@ -16,7 +17,9 @@ ReactDOM.render(
     <BrowserRouter>
       <PersistGate persistor={persistor}>
         <ThemeProvider theme={createTheme()}>
-          <Root />
+          <SnackbarProvider maxSnack={3}>
+            <Root />
+          </SnackbarProvider>
         </ThemeProvider>
       </PersistGate>
     </BrowserRouter>

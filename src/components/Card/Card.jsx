@@ -14,7 +14,9 @@ const useStyles = makeStyles({
   },
 });
 
-const Card = memo(({ card, type, isClickable }) => {
+const Card = memo(({
+  card, type, onClick, isClickable,
+}) => {
   const classes = useStyles({
     cursor: isClickable ? 'pointer' : 'default',
   });
@@ -24,11 +26,17 @@ const Card = memo(({ card, type, isClickable }) => {
   const handleItemBlur = useCallback(() => setIsActive(false), [setIsActive]);
   const handleItemFocus = useCallback(() => setIsActive(true), [setIsActive]);
 
+  const handleClick = useCallback(() => {
+    if (isClickable && onClick)
+      onClick(card);
+  }, [card, isClickable, onClick]);
+
   return (
     <CardPaper
       type={type}
       classes={classes.root}
       elevation={isActive ? 4 : 2}
+      onClick={handleClick}
       onMouseEnter={handleItemFocus}
       onMouseLeave={handleItemBlur}
     >
@@ -52,6 +60,7 @@ Card.propTypes = {
   }).isRequired,
   type: PropTypes.oneOf([...Object.values(cardTypes)]),
   isClickable: PropTypes.bool,
+  onClick: PropTypes.func,
 };
 
 export default Card;

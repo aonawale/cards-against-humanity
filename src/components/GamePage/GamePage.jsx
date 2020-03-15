@@ -13,14 +13,17 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import { cardTypes } from 'components/CardPaper/CardPaper';
 import { selectGame } from 'stream/gamesList/gamesList';
-import joinGame from 'stream/gamesList/joinGame/joinGame';
+import joinGame, { playerJoinedGameSubject } from 'stream/gamesList/joinGame/joinGame';
+import playCard, { playerPlayedCardSubject } from 'stream/gamesList/playCard/playCard';
 import selectedGameSubject from 'stream/gamesList/selectedGame/selectedGame';
 import currentPlayerSubject from 'stream/gamesList/currentPlayer/currentPlayer';
 import { currentUserSubject } from 'stream/currentUser/currentUser';
+import { useSnackbar } from 'notistack';
 
 const GamePage = memo(() => {
   const history = useHistory();
   const { gameID } = useParams();
+  const { enqueueSnackbar } = useSnackbar();
   const [selectedGame, setSelectedGame] = useState();
   const [currentPlayer, setCurrentPlayer] = useState();
   const [currentUser, setCurrentUser] = useState();
@@ -31,23 +34,49 @@ const GamePage = memo(() => {
     selectGame(gameID);
   }, [gameID]);
 
+  // bind component state to selectedGameSubject
   useEffect(() => {
     const subscription = selectedGameSubject.subscribe(setSelectedGame);
     return () => subscription.unsubscribe();
   }, []);
 
+  // bind component state to currentPlayerSubject
   useEffect(() => {
     const subscription = currentPlayerSubject.subscribe(setCurrentPlayer);
     return () => subscription.unsubscribe();
   }, []);
 
+  // bind component state to currentUserSubject
   useEffect(() => {
     const subscription = currentUserSubject.subscribe(setCurrentUser);
     return () => subscription.unsubscribe();
   }, []);
 
+  // listen for player join game
   useEffect(() => {
-    setJoinDialogIsOpen(selectedGame && currentUser && !selectedGame.hasPlayer(currentUser.id));
+    const subscription = playerJoinedGameSubject.subscribe((player) => {
+      const message = player.id === currentPlayer?.id
+        ? 'You joined game'
+        : `${player.name} joined game`;
+      enqueueSnackbar(message);
+    });
+    return () => subscription.unsubscribe();
+  }, [currentPlayer, enqueueSnackbar]);
+
+  // listen for player play card event
+  useEffect(() => {
+    const subscription = playerPlayedCardSubject.subscribe(({ player }) => {
+      // const message = player.id === currentPlayer?.id
+      //   ? 'You played a card'
+      //   : `${player.name} played a card`;
+      // console.log(message);
+      // enqueueSnackbar(message);
+    });
+    return () => subscription.unsubscribe();
+  }, [currentPlayer, enqueueSnackbar]);
+
+  useEffect(() => {
+    setJoinDialogIsOpen(!!(selectedGame && currentUser && !selectedGame.hasPlayer(currentUser.id)));
   }, [currentUser, selectedGame]);
 
   const handleTabChange = useCallback((event, newValue) => {
@@ -62,6 +91,10 @@ const GamePage = memo(() => {
     setJoinDialogIsOpen(false);
     history.replace('/');
   }, [history]);
+
+  const handleCardClick = useCallback((card) => {
+    playCard(card);
+  }, []);
 
   return (
     <Box p={2}>
@@ -79,6 +112,7 @@ const GamePage = memo(() => {
       </Grid>
 
       <Tabs value={currentTab} onChange={handleTabChange}>
+        <Tab label="Game" />
         <Tab label="My Cards" />
         <Tab label="Players" />
         <Tab label="Deck" />
@@ -86,24 +120,34 @@ const GamePage = memo(() => {
 
       <TabPanel value={currentTab} index={0}>
         <Box display="flex" width="100%" overflow="scroll">
+          {(currentPlayer?.id === selectedGame?.cZarID) && (
+            'Players are playing'
+          )}
+        </Box>
+      </TabPanel>
+
+      <TabPanel value={currentTab} index={1}>
+        <Box display="flex" width="100%" overflow="scroll">
           {currentPlayer?.cards.map((card) => (
             <Box key={card.text} p={2}>
               <Card
                 card={card}
-                isClickable={selectedGame?.cZarID !== currentPlayer?.id}
+                isClickable
+                // isClickable={currentPlayer && selectedGame?.canPlayWhiteCard(currentPlayer)}
+                onClick={handleCardClick}
               />
             </Box>
           ))}
         </Box>
       </TabPanel>
 
-      <TabPanel value={currentTab} index={1}>
+      <TabPanel value={currentTab} index={2}>
         <PlayersList
           players={selectedGame?.players}
         />
       </TabPanel>
 
-      <TabPanel value={currentTab} index={2}>
+      <TabPanel value={currentTab} index={3}>
         <Box display="flex" width="100%" justifyContent="center">
           {selectedGame?.blackCardsDeck && (
             <Box p={2}>

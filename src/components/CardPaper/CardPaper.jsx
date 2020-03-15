@@ -19,7 +19,7 @@ const useStyles = makeStyles({
 });
 
 const CardPaper = memo(({
-  type, elevation, variant, classes, children, onMouseEnter, onMouseLeave,
+  type, classes, children, ...rest
 }) => {
   const { root } = useStyles({
     color: type === cardTypes.black ? 'white' : 'black',
@@ -31,11 +31,9 @@ const CardPaper = memo(({
 
   return (
     <Paper
-      variant={variant}
-      elevation={elevation}
       className={`${root} ${classes}`}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
+      // eslint-disable-next-line react/jsx-props-no-spreading
+      {...rest}
     >
       {children}
     </Paper>
@@ -45,10 +43,6 @@ const CardPaper = memo(({
 CardPaper.propTypes = {
   type: PropTypes.oneOf([...Object.values(cardTypes)]).isRequired,
   classes: PropTypes.string,
-  variant: PropTypes.string,
-  elevation: PropTypes.number,
-  onMouseEnter: PropTypes.func,
-  onMouseLeave: PropTypes.func,
 };
 
 export default CardPaper;
