@@ -78,12 +78,12 @@ const GamePage = memo(() => {
 
   // listen for player play card event
   useEffect(() => {
-    const subscription = playerPlayedCardSubject.subscribe(({ player }) => {
-      // const message = player.id === currentPlayer?.id
-      //   ? 'You played a card'
-      //   : `${player.name} played a card`;
-      // console.log(message);
-      // enqueueSnackbar(message);
+    const subscription = playerPlayedCardSubject.subscribe((player) => {
+      const message = player.id === currentPlayer?.id
+        ? 'You played a card'
+        : `${player.name} played a card`;
+      console.log(message);
+      enqueueSnackbar(message);
     });
     return () => subscription.unsubscribe();
   }, [currentPlayer, enqueueSnackbar]);

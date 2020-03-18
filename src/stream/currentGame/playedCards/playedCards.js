@@ -1,10 +1,9 @@
 import {
-  Subject, ReplaySubject, combineLatest, from,
+  Subject, ReplaySubject, from,
 } from 'rxjs';
 import {
-  map, tap, filter, switchMap, withLatestFrom, pairwise,
+  map, tap, filter, switchMap, withLatestFrom, pairwise, concatMap,
 } from 'rxjs/operators';
-import currentPlayerSubject from 'stream/currentPlayer/currentPlayer';
 import currentGameSubject from 'stream/currentGame/currentGame';
 import { firestore as db } from 'lib/firebase';
 
@@ -14,19 +13,16 @@ const playerPlayedCardSubject = new Subject();
 
 // played white cards
 currentGameSubject.pipe(
-  withLatestFrom(currentPlayerSubject),
-  // filter(([game, player]) => game && game?.cZarID === player?.id),
-  map(([game]) => [...game.playedWhiteCards.values()].reduce(
+  filter((game) => !!game),
+  map((game) => [...game.playedWhiteCards.values()].reduce(
     (aggr, curr) => [...aggr, ...curr], [],
   )),
   tap((val) => console.log('playedWhiteCardsSubject =>', val)),
 ).subscribe(playedWhiteCardsSubject);
 
 // a player plays a white card
-combineLatest([
-  currentGameSubject.pipe(filter((game) => !!game)),
-  playedWhiteCardsSubject,
-]).pipe(
+currentGameSubject.pipe(
+  withLatestFrom(playedWhiteCardsSubject),
   filter(([game]) => game.playedBlackCard
     && game.state === 'playing_cards'
     && game.players.length > 1),
@@ -35,22 +31,24 @@ combineLatest([
     playedWhiteCards.map(({ text }) => text),
   ]),
   pairwise(),
-  tap((val) => console.log('a player plays a white card =>', val)),
+  map(([[, prev], [game, curr]]) => [game, curr.filter((currItem) => !prev.includes(currItem))]),
+  map(([game, cards]) => cards.map((text) => game.cardPlayer({ text }))),
+  filter((players) => players.length),
+  tap((val) => console.log('players play white card =>', val)),
+  concatMap(from),
 ).subscribe(playerPlayedCardSubject);
 
 // switch to the picking_winner state when all players
 // have played required amount of white cards
-combineLatest([
-  currentGameSubject.pipe(filter((game) => !!game)),
-  playedWhiteCardsSubject,
-]).pipe(
+currentGameSubject.pipe(
+  withLatestFrom(playedWhiteCardsSubject),
   filter(([game, playedWhiteCards]) => game.playedBlackCard
     && game.state === 'playing_cards'
     && playedWhiteCards.length
     && game.players.length > 1
     && playedWhiteCards.length === ((game.players.length - 1) * game.playedBlackCard.pick)),
   tap(([game]) => game.setState('picking_winner')),
-  tap((val) => console.log('update state =>', val)),
+  tap(([game]) => console.log('update state to =>', game.state)),
 ).subscribe(([game]) => {
   from(db.collection('games').doc(game.id).update({ state: game.state }));
 });

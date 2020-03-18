@@ -9,7 +9,7 @@ combineLatest([
   currentUserSubject,
   currentGameSubject,
 ]).pipe(
-  map(([currentUser, game]) => game?.players.find(({ id }) => id === currentUser.id)),
+  map(([currentUser, game]) => game?.players?.find(({ id }) => id === currentUser.id)),
   tap((val) => console.log('currentPlayerSubject =>', val)),
 ).subscribe(currentPlayerSubject);
 

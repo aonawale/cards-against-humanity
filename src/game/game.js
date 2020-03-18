@@ -138,6 +138,17 @@ class Game {
     player.cards = player.cards.filter(({ text }) => text !== card.text);
   }
 
+  // This can be further improved by saving playerID on the card
+  // assigned to a player and generating a UID for each card
+  // just in case we have two cards with same text value
+  cardPlayer(card) {
+    const [playerID] = [...this.playedWhiteCards.entries()].find(
+      ([, cards]) => cards.find(({ text }) => text === card.text),
+    );
+
+    return this.players.find(({ id }) => id === playerID);
+  }
+
   get canPickWinner() {
     const cards = [...this.playedWhiteCards.values()].reduce(
       (aggr, curr) => [...aggr, ...curr], [],
@@ -156,7 +167,7 @@ class Game {
       ([, cards]) => cards.find(({ text }) => text === card.text),
     );
 
-    const player = this.players.find(({ id }) => id === playerID);
+    const player = this.cardPlayer(card);
 
     if (player) {
       player.incrementPoints();
