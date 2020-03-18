@@ -1,6 +1,6 @@
 import { from, Subject } from 'rxjs';
 import {
-  switchMap, tap, map, distinctUntilChanged, withLatestFrom, filter, concatMap, pairwise,
+  tap, map, distinctUntilChanged, withLatestFrom, filter, concatMap, pairwise,
 } from 'rxjs/operators';
 import { currentUserSubject } from 'stream/currentUser/currentUser';
 import currentGameSubject from 'stream/currentGame/currentGame';
@@ -29,14 +29,16 @@ joinGameSubject.pipe(
   tap((val) => console.log('joinGameSubject game add player =>', val)),
   map(([, game]) => [game, converter.toFirestore(game).players]),
   tap((val) => console.log('joinGameSubject converted players =>', val)),
-  switchMap(([game, players]) => from(db.collection('games').doc(game.id).update({ players }))),
-).subscribe(() => {});
+).subscribe(([game, players]) => {
+  from(db.collection('games').doc(game.id).update({ players }));
+});
 
 currentGameSubject.pipe(
   filter((game) => game),
   map((game) => game.players),
   pairwise(),
   map(([prev, curr]) => curr.filter((currItem) => !prev.find((prevItem) => currItem.id === prevItem.id))),
+  filter((val) => val.length),
   tap((val) => console.log('playerJoinedGameSubject players join game =>', val)),
   concatMap(from),
 ).subscribe(playerJoinedGameSubject);

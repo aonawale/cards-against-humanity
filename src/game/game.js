@@ -17,7 +17,7 @@ class GameState {
 
 class Game {
   constructor(id, name, ownerID, cZarID, players, state, lastWhiteCard,
-    playedBlackCard, playedWhiteCards) {
+    playedBlackCard, playedWhiteCards, roundWinnerID) {
     this.id = id;
     this.name = name;
     this.ownerID = ownerID;
@@ -27,6 +27,7 @@ class Game {
     this.playedWhiteCards = new Map(Object.entries(playedWhiteCards || {}));
     this.lastWhiteCard = lastWhiteCard;
     this.state = state;
+    this.roundWinnerID = roundWinnerID;
   }
 
   static findCardIndex(cards, cardToFind) {
@@ -86,12 +87,13 @@ class Game {
     });
 
     this.setLastWhiteCard();
-    this.resetRound();
+    this.resetCurrentRound();
     this.chooseNextCZar();
     this.playBlackCard();
   }
 
-  resetRound() {
+  resetCurrentRound() {
+    this.roundWinnerID = null;
     this.playedBlackCard = null;
     this.playedWhiteCards = new Map();
   }
@@ -136,16 +138,30 @@ class Game {
     player.cards = player.cards.filter(({ text }) => text !== card.text);
   }
 
+  get canPickWinner() {
+    const cards = [...this.playedWhiteCards.values()].reduce(
+      (aggr, curr) => [...aggr, ...curr], [],
+    );
+    return this.players.length > 1
+    && this.playedBlackCard
+    && cards.length === ((this.players.length - 1) * this.playedBlackCard.pick);
+  }
+
   // picking winner
-  pickWinner(playerID) {
-    if (this.playedWhiteCards.size !== this.players.length)
+  pickWinner(card) {
+    if (!this.canPickWinner)
       throw new Error('All players must play card(s) before picking a winner!');
 
-    const cards = this.playedWhiteCards.get(playerID);
-    cards.forEach((card) => { card.isFaceUp = true; });
+    const [playerID] = [...this.playedWhiteCards.entries()].find(
+      ([, cards]) => cards.find(({ text }) => text === card.text),
+    );
 
     const player = this.players.find(({ id }) => id === playerID);
-    player.incrementPoints();
+
+    if (player) {
+      player.incrementPoints();
+      this.roundWinnerID = playerID;
+    }
   }
 }
 
@@ -165,21 +181,28 @@ const converter = {
         (aggr, [key, value]) => ({ ...aggr, [key]: value.map(cardConverter.toFirestore) }), {},
       ),
       state: game.state,
+      roundWinnerID: game.roundWinnerID || null,
     };
   },
 
   fromFirestore(snapshot, options) {
     const data = snapshot.data(options);
+
+    const players = Object.entries(data.players).map(
+      ([, player]) => playerConverter.fromFirestore({ data: () => player }, options),
+    );
+
     return new Game(
       data.id,
       data.name,
       data.ownerID,
       data.cZarID,
-      Object.entries(data.players).map(([, player]) => playerConverter.fromFirestore({ data: () => player }, options)),
+      players,
       data.state,
       data.lastWhiteCard,
       cardConverter.fromFirestore({ data: () => data.playedBlackCard }, options),
       data.playedWhiteCards,
+      data.roundWinnerID,
     );
   },
 };

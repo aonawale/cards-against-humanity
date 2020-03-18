@@ -15,8 +15,12 @@ import Tab from '@material-ui/core/Tab';
 import { cardTypes } from 'components/CardPaper/CardPaper';
 import { selectGame } from 'stream/gamesList/gamesList';
 import joinGame, { playerJoinedGameSubject } from 'stream/gamesList/joinGame/joinGame';
-import playCard, { playerPlayedCardSubject } from 'stream/currentGame/playCard/playCard';
-import { playedWhiteCardsSubject } from 'stream/currentGame/playedCards/playedCards';
+import pickWinner from 'stream/currentGame/pickWinner/pickWinner';
+import playCard from 'stream/currentGame/playCard/playCard';
+import {
+  playedWhiteCardsSubject,
+  playerPlayedCardSubject,
+} from 'stream/currentGame/playedCards/playedCards';
 import currentGameSubject from 'stream/currentGame/currentGame';
 import currentPlayerSubject from 'stream/currentPlayer/currentPlayer';
 import { currentUserSubject } from 'stream/currentUser/currentUser';
@@ -105,6 +109,10 @@ const GamePage = memo(() => {
     playCard(card);
   }, []);
 
+  const handleCZarCardClick = useCallback((card) => {
+    pickWinner(card);
+  }, []);
+
   const currentPlayerIsCzar = useMemo(() => currentPlayer?.id === currentGame?.cZarID, [currentGame, currentPlayer]);
 
   return (
@@ -138,7 +146,7 @@ const GamePage = memo(() => {
                   <Box key={card.text} p={2}>
                     <Card
                       card={card}
-                      onClick={handleCardClick}
+                      onClick={handleCZarCardClick}
                       isClickable={currentPlayerIsCzar}
                     />
                   </Box>
@@ -172,6 +180,19 @@ const GamePage = memo(() => {
                   />
                 </Box>
               ));
+            }
+
+            if (currentGame?.state === 'winner_selected') {
+              if (currentPlayerIsCzar) {
+                return (
+                  <Box p={2} height="100%" width="100%">
+                    <Typography variant="h4" component="h1">
+                      You picked winner!
+                    </Typography>
+                  </Box>
+                );
+              }
+              return '';
             }
 
             return null;
