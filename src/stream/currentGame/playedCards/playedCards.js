@@ -24,7 +24,8 @@ currentGameSubject.pipe(
 // a player plays a white card
 currentGameSubject.pipe(
   withLatestFrom(playedWhiteCardsSubject),
-  filter(([game]) => game.playedBlackCard
+  filter(([game]) => game
+    && game.playedBlackCard
     && game.state === gameStates.playingCards
     && game.players.length > 1),
   map(([game, playedWhiteCards]) => [
@@ -43,7 +44,8 @@ currentGameSubject.pipe(
 // have played required amount of white cards
 currentGameSubject.pipe(
   withLatestFrom(playedWhiteCardsSubject),
-  filter(([game, playedWhiteCards]) => game.playedBlackCard
+  filter(([game, playedWhiteCards]) => game
+    && game.playedBlackCard
     && game.state === gameStates.playingCards
     && playedWhiteCards.length
     && game.players.length > 1
@@ -57,7 +59,8 @@ currentGameSubject.pipe(
 // switch to the winner_selected state when the cZar has
 // selected winner for the current round and emit the player
 currentGameSubject.pipe(
-  filter((game) => game.playedBlackCard
+  filter((game) => game
+    && game.playedBlackCard
     && game.state === gameStates.pickingWinner
     && game.players.length > 1),
   map((game) => [game, game.roundWinnerID]),
