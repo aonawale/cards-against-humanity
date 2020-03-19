@@ -4,9 +4,9 @@ import { converter as cardConverter } from 'game/card/card';
 import { converter as playerConverter } from 'game/player/player';
 
 const gameStates = {
-  playingCards: 'playing_cards', // players are playing cards
-  pickingWinner: 'picking_winner', // czar picking winner
-  winnerSelected: 'winner_selected', // winner is selected
+  playingCards: 'playingCards', // players are playing cards
+  pickingWinner: 'pickingWinner', // czar picking winner
+  winnerSelected: 'winnerSelected', // winner is selected
 };
 
 class GameState {
@@ -56,6 +56,8 @@ class Game {
   }
 
   setState(state) {
+    if (!Object.prototype.hasOwnProperty.call(gameStates, state))
+      throw new Error('Cannot set an unknown state');
     this.state = state;
   }
 
@@ -169,10 +171,8 @@ class Game {
 
     const player = this.cardPlayer(card);
 
-    if (player) {
-      player.incrementPoints();
-      this.roundWinnerID = playerID;
-    }
+    player.incrementPoints();
+    this.roundWinnerID = playerID;
   }
 }
 
