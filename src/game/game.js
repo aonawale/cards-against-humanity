@@ -1,4 +1,3 @@
-// eslint-disable-next-line max-classes-per-file
 import Deck from 'game/deck/deck';
 import { converter as cardConverter } from 'game/card/card';
 import { converter as playerConverter } from 'game/player/player';
@@ -8,12 +7,6 @@ const gameStates = {
   pickingWinner: Symbol('pickingWinner'), // czar picking winner
   winnerSelected: Symbol('winnerSelected'), // winner is selected
 };
-
-class GameState {
-  constructor(name) {
-    this.name = name;
-  }
-}
 
 class Game {
   constructor(id, name, ownerID, cZarID, players, state, lastWhiteCard,
@@ -30,8 +23,6 @@ class Game {
     this.roundWinnerID = roundWinnerID;
   }
 
-  // can be improved by starting the find from the end of the array
-  // since we are looking for the last card it will make this find operation very fast
   static findCardIndex(cards, cardToFind) {
     if (!cardToFind)
       return cards.length; // return early if cardToFind is null
@@ -75,7 +66,7 @@ class Game {
   addPlayer(player) {
     if (this.players.length >= 10)
       throw new Error('Max allowed players is 10!');
-    player.cards = [...player.cards, ...this.whiteCardsDeck.deal(5)];
+    player.cards = this.whiteCardsDeck.deal(5);
     this.players.push(player);
     this.setLastWhiteCard();
   }
