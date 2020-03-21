@@ -4,9 +4,9 @@ import { converter as cardConverter } from 'game/card/card';
 import { converter as playerConverter } from 'game/player/player';
 
 const gameStates = {
-  playingCards: 'playingCards', // players are playing cards
-  pickingWinner: 'pickingWinner', // czar picking winner
-  winnerSelected: 'winnerSelected', // winner is selected
+  playingCards: Symbol('playingCards'), // players are playing cards
+  pickingWinner: Symbol('pickingWinner'), // czar picking winner
+  winnerSelected: Symbol('winnerSelected'), // winner is selected
 };
 
 class GameState {
@@ -30,6 +30,8 @@ class Game {
     this.roundWinnerID = roundWinnerID;
   }
 
+  // can be improved by starting the find from the end of the array
+  // since we are looking for the last card it will make this find operation very fast
   static findCardIndex(cards, cardToFind) {
     let foundIndex = -1;
     if (cardToFind?.text)
@@ -56,8 +58,8 @@ class Game {
   }
 
   setState(state) {
-    if (!Object.prototype.hasOwnProperty.call(gameStates, state))
-      throw new Error('Cannot set an unknown state');
+    if (!Object.values(gameStates).includes(state))
+      throw new Error('Invalid state');
     this.state = state;
   }
 
@@ -80,6 +82,15 @@ class Game {
   }
 
   startNextRound() {
+    this.dealWhiteCardsToPlayers();
+    this.setLastWhiteCard();
+    this.resetCurrentRound();
+    this.chooseNextCZar();
+    this.playBlackCard();
+    this.setState(gameStates.playingCards);
+  }
+
+  dealWhiteCardsToPlayers() {
     const dealCount = this.playedBlackCard?.pick || 5;
 
     this.players.forEach((player) => {
@@ -87,11 +98,6 @@ class Game {
       if (!this.playedBlackCard || (player.id !== this.cZarID))
         player.cards = [...player.cards, ...this.whiteCardsDeck.deal(dealCount)];
     });
-
-    this.setLastWhiteCard();
-    this.resetCurrentRound();
-    this.chooseNextCZar();
-    this.playBlackCard();
   }
 
   resetCurrentRound() {
@@ -177,6 +183,10 @@ class Game {
 }
 
 const converter = {
+  convertStateToFirestore(state) {
+    return Object.entries(gameStates).find(([, value]) => value === state)[0];
+  },
+
   toFirestore(game) {
     return {
       id: game.id,
@@ -191,7 +201,7 @@ const converter = {
       playedWhiteCards: [...game.playedWhiteCards.entries()].reduce(
         (aggr, [key, value]) => ({ ...aggr, [key]: value.map(cardConverter.toFirestore) }), {},
       ),
-      state: game.state,
+      state: this.convertStateToFirestore(game.state),
       roundWinnerID: game.roundWinnerID || null,
     };
   },
@@ -199,17 +209,15 @@ const converter = {
   fromFirestore(snapshot, options) {
     const data = snapshot.data(options);
 
-    const players = Object.entries(data.players).map(
-      ([, player]) => playerConverter.fromFirestore({ data: () => player }, options),
-    );
-
     return new Game(
       data.id,
       data.name,
       data.ownerID,
       data.cZarID,
-      players,
-      data.state,
+      Object.entries(data.players).map(
+        ([, player]) => playerConverter.fromFirestore({ data: () => player }, options),
+      ),
+      Object.entries(gameStates).find(([key]) => key === data.state)[1],
       data.lastWhiteCard,
       cardConverter.fromFirestore({ data: () => data.playedBlackCard }, options),
       data.playedWhiteCards,

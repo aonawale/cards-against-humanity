@@ -25,7 +25,6 @@ joinGameSubject.pipe(
   ),
   filter(([id, game, player]) => id === game.id && !game.hasPlayer(player)),
   tap(([, game, player]) => game.addPlayer(player)),
-
   tap((val) => console.log('joinGameSubject game add player =>', val)),
   map(([, game]) => [game, converter.toFirestore(game).players]),
   tap((val) => console.log('joinGameSubject converted players =>', val)),

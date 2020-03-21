@@ -1,6 +1,6 @@
 import { ReplaySubject, BehaviorSubject } from 'rxjs';
 import {
-  map, switchMap, tap, take,
+  map, switchMap, tap, take, distinctUntilKeyChanged,
 } from 'rxjs/operators';
 import { currentUserSubject } from 'stream/currentUser/currentUser';
 import { firestore } from 'lib/firebase';
@@ -17,6 +17,7 @@ currentUserSubject.pipe(
   map(({ id }) => firestore.collection('games').where(`players.${id}.id`, '==', id).withConverter(converter)),
   switchMap((ref) => collection(ref)),
   map((snapshots) => snapshots.map((snap) => snap.data())),
+  distinctUntilKeyChanged('length'),
   tap((val) => console.log('gamesListSubject =>', val)),
 ).subscribe(gamesListSubject);
 

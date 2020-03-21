@@ -1,10 +1,10 @@
 import { Subject } from 'rxjs';
 import {
-  tap, distinctUntilKeyChanged, withLatestFrom, filter,
+  tap, distinctUntilKeyChanged, withLatestFrom, filter, map,
 } from 'rxjs/operators';
 import currentGameSubject from 'stream/currentGame/currentGame';
 import { firestore as db } from 'lib/firebase';
-import { converter } from 'game/game';
+import { converter, gameStates } from 'game/game';
 
 const pickWinnerSubject = new Subject();
 
@@ -19,8 +19,10 @@ pickWinnerSubject.pipe(
   tap((val) => console.log('pickWinnerSubject emits =>', val)),
   filter(([, game]) => game.canPickWinner),
   tap(([card, game]) => game.pickWinner(card)),
+  map(([, game]) => game),
+  tap((game) => game.setState(gameStates.winnerSelected)),
   tap((val) => console.log('pickWinnerSubject picked winner =>', val)),
-).subscribe(([, game]) => {
+).subscribe((game) => {
   db.collection('games').doc(game.id).withConverter(converter).set(game);
 });
 

@@ -4,6 +4,7 @@ import React, {
 import { useHistory, useParams } from 'react-router-dom';
 import Grid from '@material-ui/core/Grid';
 import Box from '@material-ui/core/Box';
+import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import Card from 'components/Card/Card';
 import TabPanel from 'components/TabPanel/TabPanel';
@@ -17,6 +18,7 @@ import { selectGame } from 'stream/gamesList/gamesList';
 import joinGame, { playerJoinedGameSubject } from 'stream/gamesList/joinGame/joinGame';
 import pickWinner from 'stream/currentGame/pickWinner/pickWinner';
 import playCard from 'stream/currentGame/playCard/playCard';
+import nextRound from 'stream/currentGame/nextRound/nextRound';
 import {
   playedWhiteCardsSubject,
   playerPlayedCardSubject,
@@ -114,6 +116,10 @@ const GamePage = memo(() => {
     pickWinner(card);
   }, []);
 
+  const handleNextRound = useCallback(() => {
+    nextRound();
+  }, []);
+
   const currentPlayerIsCzar = useMemo(() => currentPlayer?.id === currentGame?.cZarID, [currentGame, currentPlayer]);
 
   return (
@@ -190,10 +196,23 @@ const GamePage = memo(() => {
                     <Typography variant="h4" component="h1">
                       You picked winner!
                     </Typography>
+                    <Button
+                      variant="outlined"
+                      size="large"
+                      onClick={handleNextRound}
+                    >
+                      Next round
+                    </Button>
                   </Box>
                 );
               }
-              return '';
+              return (
+                <Box p={2} height="100%" width="100%">
+                  <Typography variant="h4" component="h1">
+                    Czar choose picked a winner!
+                  </Typography>
+                </Box>
+              );
             }
 
             return null;

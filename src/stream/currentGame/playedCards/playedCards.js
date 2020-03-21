@@ -2,14 +2,13 @@ import {
   Subject, ReplaySubject, from,
 } from 'rxjs';
 import {
-  map, tap, filter, switchMap, withLatestFrom, pairwise, concatMap,
+  map, tap, filter, withLatestFrom, pairwise, concatMap, distinctUntilKeyChanged,
 } from 'rxjs/operators';
 import currentGameSubject from 'stream/currentGame/currentGame';
 import { firestore as db } from 'lib/firebase';
-import { gameStates } from 'game/game';
+import { gameStates, converter } from 'game/game';
 
 const playedWhiteCardsSubject = new ReplaySubject(1);
-const playerWinsRoundSubject = new ReplaySubject(1);
 const playerPlayedCardSubject = new Subject();
 
 // played white cards
@@ -18,6 +17,7 @@ currentGameSubject.pipe(
   map((game) => [...game.playedWhiteCards.values()].reduce(
     (aggr, curr) => [...aggr, ...curr], [],
   )),
+  distinctUntilKeyChanged('length'),
   tap((val) => console.log('playedWhiteCardsSubject =>', val)),
 ).subscribe(playedWhiteCardsSubject);
 
@@ -52,30 +52,12 @@ currentGameSubject.pipe(
     && playedWhiteCards.length === ((game.players.length - 1) * game.playedBlackCard.pick)),
   tap(([game]) => game.setState(gameStates.pickingWinner)),
   tap(([game]) => console.log('update state to =>', game.state)),
-).subscribe(([game]) => {
-  from(db.collection('games').doc(game.id).update({ state: game.state }));
+  map(([game]) => [game, converter.convertStateToFirestore(game.state)]),
+).subscribe(([game, state]) => {
+  db.collection('games').doc(game.id).update({ state });
 });
-
-// switch to the winner_selected state when the cZar has
-// selected winner for the current round and emit the player
-currentGameSubject.pipe(
-  filter((game) => game
-    && game.playedBlackCard
-    && game.state === gameStates.pickingWinner
-    && game.players.length > 1),
-  map((game) => [game, game.roundWinnerID]),
-  pairwise(),
-  filter(([[, prev], [, curr]]) => !prev && curr),
-  map(([, [game]]) => game),
-  tap((game) => game.setState('winner_selected')),
-  switchMap((game) => from(db.collection('games')
-    .doc(game.id).update({ state: game.state })
-    .then(() => game.players.find(({ id }) => id === game.roundWinnerID)))),
-  tap((player) => console.log('playerWinsRound and update state to winner_selected ==>', player)),
-).subscribe(playerWinsRoundSubject);
 
 export {
   playedWhiteCardsSubject,
-  playerWinsRoundSubject,
   playerPlayedCardSubject,
 };
