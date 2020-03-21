@@ -3,12 +3,12 @@ export default class Deck {
     this.cards = cards;
   }
 
-  pop() {
+  draw() {
     return this.cards.pop();
   }
 
   deal(count = 5) {
-    return this.cards.splice(-1 * count, count);
+    return this.cards.splice(-1 * count, count).reverse();
   }
 
   shuffle() {

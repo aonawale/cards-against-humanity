@@ -33,12 +33,15 @@ class Game {
   // can be improved by starting the find from the end of the array
   // since we are looking for the last card it will make this find operation very fast
   static findCardIndex(cards, cardToFind) {
-    let foundIndex = -1;
-    if (cardToFind?.text)
-      foundIndex = cards.findIndex((card) => card.text === cardToFind?.text);
-    if (foundIndex < 0)
-      foundIndex = cards.length;
-    return foundIndex;
+    if (!cardToFind)
+      return cards.length; // return early if cardToFind is null
+
+    let index = cards.length;
+    while (index--) {
+      if (cards[index].text === cardToFind?.text)
+        break;
+    }
+    return index;
   }
 
   setWhiteCards(cards) {
@@ -66,7 +69,7 @@ class Game {
   setLastWhiteCard() {
     // set last white card
     const lastPlayer = this.players[this.players.length - 1];
-    [this.lastWhiteCard] = lastPlayer.cards;
+    this.lastWhiteCard = lastPlayer.cards[lastPlayer.cards.length - 1];
   }
 
   addPlayer(player) {
@@ -114,8 +117,7 @@ class Game {
 
   // a cZarID playing a black card
   playBlackCard() {
-    this.playedBlackCard = this.blackCardsDeck.pop();
-    this.blackCardsCount -= 1;
+    this.playedBlackCard = this.blackCardsDeck.draw();
   }
 
   canPlayWhiteCard(player) {
@@ -216,7 +218,7 @@ const converter = {
       data.cZarID,
       Object.entries(data.players).map(
         ([, player]) => playerConverter.fromFirestore({ data: () => player }, options),
-      ),
+      ).sort((a, b) => a.createdAt - b.createdAt),
       Object.entries(gameStates).find(([key]) => key === data.state)[1],
       data.lastWhiteCard,
       cardConverter.fromFirestore({ data: () => data.playedBlackCard }, options),

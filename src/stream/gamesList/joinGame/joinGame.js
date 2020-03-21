@@ -20,16 +20,16 @@ joinGameSubject.pipe(
       filter((game) => !!game),
     ),
     currentUserSubject.pipe(
-      map(({ id, displayName }) => new Player(id, displayName)),
+      map(({ id, displayName }) => new Player(id, displayName, Date.now())),
     ),
   ),
   filter(([id, game, player]) => id === game.id && !game.hasPlayer(player)),
   tap(([, game, player]) => game.addPlayer(player)),
   tap((val) => console.log('joinGameSubject game add player =>', val)),
-  map(([, game]) => [game, converter.toFirestore(game).players]),
+  map(([, game]) => game),
   tap((val) => console.log('joinGameSubject converted players =>', val)),
-).subscribe(([game, players]) => {
-  from(db.collection('games').doc(game.id).update({ players }));
+).subscribe((game) => {
+  db.collection('games').doc(game.id).withConverter(converter).set(game);
 });
 
 currentGameSubject.pipe(
@@ -39,7 +39,7 @@ currentGameSubject.pipe(
   map(([prev, curr]) => curr.filter((currItem) => !prev.find((prevItem) => currItem.id === prevItem.id))),
   filter((val) => val.length),
   tap((val) => console.log('playerJoinedGameSubject players join game =>', val)),
-  concatMap(from),
+  concatMap((players) => from(players)),
 ).subscribe(playerJoinedGameSubject);
 
 export default joinGame;

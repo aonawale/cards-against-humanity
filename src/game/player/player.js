@@ -1,11 +1,12 @@
 import { converter as cardConverter } from 'game/card/card';
 
 export default class Player {
-  constructor(id, name, points = 0, cards = []) {
+  constructor(id, name, createdAt, points = 0, cards = []) {
     this.id = id;
     this.name = name;
     this.points = points;
     this.cards = cards;
+    this.createdAt = createdAt;
   }
 
   incrementPoints() {
@@ -18,6 +19,7 @@ export const converter = {
     return {
       id: player.id,
       name: player.name,
+      createdAt: player.createdAt,
       points: player.points,
       cards: player.cards.map(cardConverter.toFirestore),
     };
@@ -28,6 +30,7 @@ export const converter = {
     return new Player(
       data.id,
       data.name,
+      data.createdAt,
       data.points,
       data.cards.map((card) => cardConverter.fromFirestore({ data: () => card }, options)),
     );

@@ -25,7 +25,7 @@ newGameSubject.pipe(
       name,
       user.id,
       user.id,
-      [new Player(user.id, user.displayName)],
+      [new Player(user.id, user.displayName, Date.now())],
       gameStates.playingCards,
     );
     game.setWhiteCards(whiteCards.map(({ text }) => new Card(text)));

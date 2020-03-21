@@ -5,6 +5,7 @@ import {
   map, tap, filter, withLatestFrom, pairwise, concatMap, distinctUntilKeyChanged,
 } from 'rxjs/operators';
 import currentGameSubject from 'stream/currentGame/currentGame';
+import currentPlayerSubject from 'stream/currentPlayer/currentPlayer';
 import { firestore as db } from 'lib/firebase';
 import { gameStates, converter } from 'game/game';
 
@@ -37,14 +38,15 @@ currentGameSubject.pipe(
   map(([game, cards]) => cards.map((text) => game.cardPlayer({ text }))),
   filter((players) => players.length),
   tap((val) => console.log('players play white card =>', val)),
-  concatMap(from),
+  concatMap((players) => from(players)),
 ).subscribe(playerPlayedCardSubject);
 
 // switch to the picking_winner state when all players
 // have played required amount of white cards
 currentGameSubject.pipe(
-  withLatestFrom(playedWhiteCardsSubject),
-  filter(([game, playedWhiteCards]) => game
+  withLatestFrom(playedWhiteCardsSubject, currentPlayerSubject),
+  filter(([game, playedWhiteCards, currentPlayer]) => game
+    && game.cZarID === currentPlayer?.id
     && game.playedBlackCard
     && game.state === gameStates.playingCards
     && playedWhiteCards.length
@@ -52,9 +54,8 @@ currentGameSubject.pipe(
     && playedWhiteCards.length === ((game.players.length - 1) * game.playedBlackCard.pick)),
   tap(([game]) => game.setState(gameStates.pickingWinner)),
   tap(([game]) => console.log('update state to =>', game.state)),
-  map(([game]) => [game, converter.convertStateToFirestore(game.state)]),
-).subscribe(([game, state]) => {
-  db.collection('games').doc(game.id).update({ state });
+).subscribe(([game]) => {
+  db.collection('games').doc(game.id).withConverter(converter).set(game);
 });
 
 export {
