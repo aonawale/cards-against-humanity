@@ -5,7 +5,7 @@ import {
   map, tap, filter, withLatestFrom, pairwise, concatMap, distinctUntilKeyChanged,
 } from 'rxjs/operators';
 import currentGameSubject from 'stream/currentGame/currentGame';
-import currentPlayerSubject from 'stream/currentPlayer/currentPlayer';
+import currentPlayerSubject from 'stream/currentGame/currentPlayer/currentPlayer';
 import { firestore as db } from 'lib/firebase';
 import { gameStates, converter } from 'game/game';
 

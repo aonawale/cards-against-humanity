@@ -25,7 +25,7 @@ import {
 } from 'stream/currentGame/playedCards/playedCards';
 import { gameStates } from 'game/game';
 import currentGameSubject from 'stream/currentGame/currentGame';
-import currentPlayerSubject from 'stream/currentPlayer/currentPlayer';
+import currentPlayerSubject from 'stream/currentGame/currentPlayer/currentPlayer';
 import { currentUserSubject } from 'stream/currentUser/currentUser';
 import { useSnackbar } from 'notistack';
 
@@ -71,10 +71,8 @@ const GamePage = memo(() => {
   // listen for player join game
   useEffect(() => {
     const subscription = playerJoinedGameSubject.subscribe((player) => {
-      const message = player.id === currentPlayer?.id
-        ? 'You joined game'
-        : `${player.name} joined game`;
-      enqueueSnackbar(message);
+      if (player.id !== currentPlayer?.id)
+        enqueueSnackbar(`${player.name} joined game`);
     });
     return () => subscription.unsubscribe();
   }, [currentPlayer, enqueueSnackbar]);
@@ -82,11 +80,8 @@ const GamePage = memo(() => {
   // listen for player play card event
   useEffect(() => {
     const subscription = playerPlayedCardSubject.subscribe((player) => {
-      const message = player.id === currentPlayer?.id
-        ? 'You played a card'
-        : `${player.name} played a card`;
-      console.log(message);
-      enqueueSnackbar(message);
+      if (player.id !== currentPlayer?.id)
+        enqueueSnackbar(`${player.name} played a card`);
     });
     return () => subscription.unsubscribe();
   }, [currentPlayer, enqueueSnackbar]);

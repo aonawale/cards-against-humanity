@@ -2,8 +2,8 @@ import { Subject } from 'rxjs';
 import {
   tap, distinctUntilKeyChanged, withLatestFrom, filter,
 } from 'rxjs/operators';
-import currentPlayerSubject from 'stream/currentPlayer/currentPlayer';
 import currentGameSubject from 'stream/currentGame/currentGame';
+import currentPlayerSubject from 'stream/currentGame/currentPlayer/currentPlayer';
 import { firestore as db } from 'lib/firebase';
 import { converter } from 'game/game';
 

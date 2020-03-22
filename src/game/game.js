@@ -25,7 +25,7 @@ class Game {
 
   static findCardIndex(cards, cardToFind) {
     if (!cardToFind)
-      return cards.length; // return early if cardToFind is null
+      return cards.length; // return early if there is no cardToFind
 
     let index = cards.length;
     while (index--) {
@@ -68,7 +68,8 @@ class Game {
       throw new Error('Max allowed players is 10!');
     player.cards = this.whiteCardsDeck.deal(5);
     this.players.push(player);
-    this.setLastWhiteCard();
+    // set last white card to last dealt card
+    this.lastWhiteCard = player.cards[player.cards.length - 1];
   }
 
   hasPlayer(playerID) {
@@ -77,7 +78,6 @@ class Game {
 
   startNextRound() {
     this.dealWhiteCardsToPlayers();
-    this.setLastWhiteCard();
     this.resetCurrentRound();
     this.chooseNextCZar();
     this.playBlackCard();
@@ -89,8 +89,12 @@ class Game {
 
     this.players.forEach((player) => {
       // don't deal cards to cZar if game has already started
-      if (!this.playedBlackCard || (player.id !== this.cZarID))
-        player.cards = [...player.cards, ...this.whiteCardsDeck.deal(dealCount)];
+      if (!this.playedBlackCard || (player.id !== this.cZarID)) {
+        const cards = this.whiteCardsDeck.deal(dealCount);
+        player.cards = [...player.cards, ...cards];
+        // set last white card to last dealt card
+        this.lastWhiteCard = cards[cards.length - 1];
+      }
     });
   }
 

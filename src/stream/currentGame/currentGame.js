@@ -19,7 +19,7 @@ selectedGameIDSubject.pipe(
   withLatestFrom(whiteCardsListSubject, blackCardsListSubject),
   map(([game, whiteCards, blackCards]) => {
     if (!game)
-      return null;
+      return undefined;
     game.setWhiteCards(whiteCards.map(({ text }) => new Card(text)));
     game.setBlackCards(blackCards.map(({ text, pick }) => new Card(text, pick)));
     return game;
