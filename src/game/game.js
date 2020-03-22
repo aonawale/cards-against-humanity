@@ -57,12 +57,6 @@ class Game {
     this.state = state;
   }
 
-  setLastWhiteCard() {
-    // set last white card
-    const lastPlayer = this.players[this.players.length - 1];
-    this.lastWhiteCard = lastPlayer.cards[lastPlayer.cards.length - 1];
-  }
-
   addPlayer(player) {
     if (this.players.length >= 10)
       throw new Error('Max allowed players is 10!');

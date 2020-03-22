@@ -1,6 +1,6 @@
-import { Subject, from } from 'rxjs';
+import { Subject } from 'rxjs';
 import {
-  map, withLatestFrom, flatMap, tap,
+  map, withLatestFrom, tap,
 } from 'rxjs/operators';
 import { currentUserSubject } from 'stream/currentUser/currentUser';
 import { blackCardsListSubject, whiteCardsListSubject } from 'stream/cardsList/cardsList';
@@ -33,8 +33,9 @@ newGameSubject.pipe(
     game.startNextRound();
     return game;
   }),
-  tap((val) => console.log('newGameSubject init game=>', val)),
-  flatMap((game) => from(db.collection('games').doc(game.id).withConverter(converter).set(game))),
-).subscribe(() => {});
+  tap((val) => console.log('newGameSubject init game =>', val)),
+).subscribe((game) => {
+  db.collection('games').doc(game.id).withConverter(converter).set(game);
+});
 
 export default startGame;

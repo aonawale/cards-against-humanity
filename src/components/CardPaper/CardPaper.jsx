@@ -24,9 +24,6 @@ const CardPaper = memo(({
   const { root } = useStyles({
     color: type === cardTypes.black ? 'white' : 'black',
     backgroundColor: type === cardTypes.black ? 'black' : 'white',
-    boxShadow: type === cardTypes.black
-      ? '0px 3px 1px -2px #fff, 0px 2px 2px 0px #fff, 0px 1px 5px 0px #fff;'
-      : '0px 3px 1px -2px rgba(0,0,0,0.2), 0px 2px 2px 0px rgba(0,0,0,0.14), 0px 1px 5px 0px rgba(0,0,0,0.12);',
   });
 
   return (

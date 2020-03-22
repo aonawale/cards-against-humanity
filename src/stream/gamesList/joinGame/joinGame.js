@@ -25,9 +25,8 @@ joinGameSubject.pipe(
   ),
   filter(([id, game, player]) => id === game.id && !game.hasPlayer(player)),
   tap(([, game, player]) => game.addPlayer(player)),
-  tap((val) => console.log('joinGameSubject game add player =>', val)),
   map(([, game]) => game),
-  tap((val) => console.log('joinGameSubject converted players =>', val)),
+  tap((val) => console.log('joinGameSubject game add player =>', val)),
 ).subscribe((game) => {
   db.collection('games').doc(game.id).withConverter(converter).set(game);
 });

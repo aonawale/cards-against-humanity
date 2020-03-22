@@ -3,7 +3,7 @@ import {
   map, switchMap, tap, take, distinctUntilKeyChanged,
 } from 'rxjs/operators';
 import { currentUserSubject } from 'stream/currentUser/currentUser';
-import { firestore } from 'lib/firebase';
+import { firestore as db } from 'lib/firebase';
 import { collection } from 'rxfire/firestore';
 import { converter } from 'game/game';
 
@@ -14,9 +14,9 @@ const selectedGameIDSubject = new ReplaySubject(1);
 const selectGame = (id) => selectedGameIDSubject.next(id);
 
 currentUserSubject.pipe(
-  map(({ id }) => firestore.collection('games').where(`players.${id}.id`, '==', id).withConverter(converter)),
+  map(({ id }) => db.collection('games').where(`players.${id}.id`, '==', id).withConverter(converter)),
   switchMap((ref) => collection(ref)),
-  map((snapshots) => snapshots.map((snap) => snap.data())),
+  map((snapshots) => snapshots.map((snapshot) => snapshot.data())),
   distinctUntilKeyChanged('length'),
   tap((val) => console.log('gamesListSubject =>', val)),
 ).subscribe(gamesListSubject);

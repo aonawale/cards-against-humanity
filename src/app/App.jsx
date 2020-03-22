@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import Box from '@material-ui/core/Box';
+import CssBaseline from '@material-ui/core/CssBaseline';
 import Navbar from 'components/Navbar/Navbar';
 import { currentUserSubject } from 'stream/currentUser/currentUser';
 
@@ -14,6 +15,7 @@ const App = ({ isAuthenticated, children }) => {
 
   return (
     <Box height="100%">
+      <CssBaseline />
       <Navbar
         currentUser={currentUser}
         isAuthenticated={isAuthenticated}
