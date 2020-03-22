@@ -1,15 +1,13 @@
 import React, {
-  memo, useState, useEffect, useCallback, useMemo,
+  memo, useState, useEffect, useCallback,
 } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
-import Grid from '@material-ui/core/Grid';
 import Box from '@material-ui/core/Box';
-import Button from '@material-ui/core/Button';
-import Typography from '@material-ui/core/Typography';
 import Card from 'components/Card/Card';
 import TabPanel from 'components/TabPanel/TabPanel';
 import PlayersList from 'components/PlayersList/PlayersList';
 import GameDeck from 'components/GameDeck/GameDeck';
+import GamePlay from 'components/GamePlay/GamePlay';
 import GameJoinDialog from 'components/GameJoinDialog/GameJoinDialog';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
@@ -20,10 +18,8 @@ import pickWinner from 'stream/currentGame/pickWinner/pickWinner';
 import playCard from 'stream/currentGame/playCard/playCard';
 import nextRound from 'stream/currentGame/nextRound/nextRound';
 import {
-  playedWhiteCardsSubject,
   playerPlayedCardSubject,
 } from 'stream/currentGame/playedCards/playedCards';
-import { gameStates } from 'game/game';
 import currentGameSubject from 'stream/currentGame/currentGame';
 import currentPlayerSubject from 'stream/currentGame/currentPlayer/currentPlayer';
 import { currentUserSubject } from 'stream/currentUser/currentUser';
@@ -36,7 +32,6 @@ const GamePage = memo(() => {
   const [currentGame, setcurrentGame] = useState();
   const [currentPlayer, setCurrentPlayer] = useState();
   const [currentUser, setCurrentUser] = useState();
-  const [playedWhiteCards, setPlayedWhiteCards] = useState();
   const [currentTab, setCurrentTab] = useState(0);
   const [joinDialogIsOpen, setJoinDialogIsOpen] = useState(false);
 
@@ -59,12 +54,6 @@ const GamePage = memo(() => {
   // bind component state to currentUserSubject
   useEffect(() => {
     const subscription = currentUserSubject.subscribe(setCurrentUser);
-    return () => subscription.unsubscribe();
-  }, []);
-
-  // bind component state to playedWhiteCardsSubject
-  useEffect(() => {
-    const subscription = playedWhiteCardsSubject.subscribe(setPlayedWhiteCards);
     return () => subscription.unsubscribe();
   }, []);
 
@@ -103,11 +92,11 @@ const GamePage = memo(() => {
     history.replace('/');
   }, [history]);
 
-  const handleCardClick = useCallback((card) => {
+  const handlePlayerClickCard = useCallback((card) => {
     playCard(card);
   }, []);
 
-  const handleCZarCardClick = useCallback((card) => {
+  const handleCZarClickCard = useCallback((card) => {
     pickWinner(card);
   }, []);
 
@@ -115,122 +104,51 @@ const GamePage = memo(() => {
     nextRound();
   }, []);
 
-  const currentPlayerIsCzar = useMemo(() => currentPlayer?.id === currentGame?.cZarID, [currentGame, currentPlayer]);
-
   return (
-    <Box p={2}>
-      <Grid container spacing={4} justify="center">
-
-        {currentGame?.playedBlackCard && (
-          <Grid item>
-            <Card
-              type={cardTypes.black}
-              card={currentGame.playedBlackCard}
-            />
-          </Grid>
-        )}
-
-      </Grid>
+    <Box>
+      {currentGame?.playedBlackCard && (
+        <Box p={1} display="flex" justifyContent="center">
+          <Card
+            type={cardTypes.black}
+            card={currentGame.playedBlackCard}
+          />
+        </Box>
+      )}
 
       <Tabs value={currentTab} onChange={handleTabChange}>
         <Tab label="Game" />
-        <Tab label="Players" />
         <Tab label="Deck" />
+        <Tab label="Players" />
       </Tabs>
 
       <TabPanel value={currentTab} index={0}>
-        <Box display="flex" width="100%" overflow="scroll">
-
-          {(() => {
-            if (currentGame?.state === gameStates.pickingWinner) {
-              if (currentPlayerIsCzar) {
-                return playedWhiteCards?.map((card) => (
-                  <Box key={card.text} p={2}>
-                    <Card
-                      card={card}
-                      onClick={handleCZarCardClick}
-                      isClickable={currentPlayerIsCzar}
-                    />
-                  </Box>
-                ));
-              }
-              return (
-                <Box p={2} height="100%" width="100%">
-                  <Typography variant="h4" component="h1">
-                    The CZar is picking a winner
-                  </Typography>
-                </Box>
-              );
-            }
-
-            if (currentGame?.state === gameStates.playingCards) {
-              if (currentPlayerIsCzar) {
-                return (
-                  <Box p={2} height="100%" width="100%">
-                    <Typography variant="h4" component="h1">
-                      Players are playing cards
-                    </Typography>
-                  </Box>
-                );
-              }
-              return currentPlayer?.cards.map((card) => (
-                <Box key={card.text} p={2}>
-                  <Card
-                    card={card}
-                    isClickable={currentPlayer && currentGame?.canPlayWhiteCard(currentPlayer)}
-                    onClick={handleCardClick}
-                  />
-                </Box>
-              ));
-            }
-
-            if (currentGame?.state === gameStates.winnerSelected) {
-              if (currentPlayerIsCzar) {
-                return (
-                  <Box p={2} height="100%" width="100%">
-                    <Typography variant="h4" component="h1">
-                      You picked winner!
-                    </Typography>
-                    <Button
-                      variant="outlined"
-                      size="large"
-                      onClick={handleNextRound}
-                    >
-                      Next round
-                    </Button>
-                  </Box>
-                );
-              }
-              return (
-                <Box p={2} height="100%" width="100%">
-                  <Typography variant="h4" component="h1">
-                    Czar choose picked a winner!
-                  </Typography>
-                </Box>
-              );
-            }
-
-            return null;
-          })()}
-        </Box>
+        {(currentGame && currentPlayer) && (
+          <GamePlay
+            game={currentGame}
+            currentPlayer={currentPlayer}
+            onPlayerClickCard={handlePlayerClickCard}
+            onCZarClickCard={handleCZarClickCard}
+            onNextRound={handleNextRound}
+          />
+        )}
       </TabPanel>
 
       <TabPanel value={currentTab} index={1}>
-        <PlayersList
-          players={currentGame?.players}
-        />
-      </TabPanel>
-
-      <TabPanel value={currentTab} index={2}>
         <GameDeck
           whiteCardsDeck={currentGame?.whiteCardsDeck}
           blackCardsDeck={currentGame?.blackCardsDeck}
         />
       </TabPanel>
 
+      <TabPanel value={currentTab} index={2}>
+        <PlayersList
+          players={currentGame?.players}
+        />
+      </TabPanel>
+
       <GameJoinDialog
         isOpen={joinDialogIsOpen}
-        gameName={currentGame?.name || ''}
+        gameName={currentGame?.name ?? ''}
         onClose={handleCloseJoinDialog}
         onConfirm={handleConfirmJoinDialog}
       />
