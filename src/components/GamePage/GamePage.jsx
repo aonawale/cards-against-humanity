@@ -3,7 +3,7 @@ import React, {
 } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import Box from '@material-ui/core/Box';
-import Card from 'components/Card/Card';
+import Card, { cardTypes } from 'components/Card/Card';
 import TabPanel from 'components/TabPanel/TabPanel';
 import PlayersList from 'components/PlayersList/PlayersList';
 import GameDeck from 'components/GameDeck/GameDeck';
@@ -11,7 +11,8 @@ import GamePlay from 'components/GamePlay/GamePlay';
 import GameJoinDialog from 'components/GameJoinDialog/GameJoinDialog';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
-import { cardTypes } from 'components/CardPaper/CardPaper';
+import Typography from '@material-ui/core/Typography';
+
 import { selectGame } from 'stream/gamesList/gamesList';
 import joinGame, { playerJoinedGameSubject } from 'stream/gamesList/joinGame/joinGame';
 import pickWinner from 'stream/currentGame/pickWinner/pickWinner';
@@ -105,13 +106,17 @@ const GamePage = memo(() => {
   }, []);
 
   return (
-    <Box>
+    <Box display="flex" flexDirection="column" height="100%">
       {currentGame?.playedBlackCard && (
         <Box p={1} display="flex" justifyContent="center">
           <Card
             type={cardTypes.black}
             card={currentGame.playedBlackCard}
-          />
+          >
+            <Typography variant="h4" component="h1">
+              {currentGame?.playedBlackCard?.text}
+            </Typography>
+          </Card>
         </Box>
       )}
 
@@ -121,30 +126,34 @@ const GamePage = memo(() => {
         <Tab label="Players" />
       </Tabs>
 
-      <TabPanel value={currentTab} index={0}>
-        {(currentGame && currentPlayer) && (
-          <GamePlay
-            game={currentGame}
-            currentPlayer={currentPlayer}
-            onPlayerClickCard={handlePlayerClickCard}
-            onCZarClickCard={handleCZarClickCard}
-            onNextRound={handleNextRound}
+      <Box width="100%" flex="1">
+        <TabPanel value={currentTab} index={0}>
+          {(currentGame && currentPlayer) && (
+            <GamePlay
+              game={currentGame}
+              currentPlayer={currentPlayer}
+              onPlayerClickCard={handlePlayerClickCard}
+              onCZarClickCard={handleCZarClickCard}
+              onNextRound={handleNextRound}
+            />
+          )}
+        </TabPanel>
+
+        <TabPanel value={currentTab} index={1}>
+          {currentGame?.whiteCardsDeck && currentGame?.blackCardsDeck && (
+            <GameDeck
+              whiteCardsDeck={currentGame?.whiteCardsDeck}
+              blackCardsDeck={currentGame?.blackCardsDeck}
+            />
+          )}
+        </TabPanel>
+
+        <TabPanel value={currentTab} index={2}>
+          <PlayersList
+            players={currentGame?.players}
           />
-        )}
-      </TabPanel>
-
-      <TabPanel value={currentTab} index={1}>
-        <GameDeck
-          whiteCardsDeck={currentGame?.whiteCardsDeck}
-          blackCardsDeck={currentGame?.blackCardsDeck}
-        />
-      </TabPanel>
-
-      <TabPanel value={currentTab} index={2}>
-        <PlayersList
-          players={currentGame?.players}
-        />
-      </TabPanel>
+        </TabPanel>
+      </Box>
 
       <GameJoinDialog
         isOpen={joinDialogIsOpen}

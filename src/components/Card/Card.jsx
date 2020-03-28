@@ -1,23 +1,36 @@
 import React, { memo, useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import Box from '@material-ui/core/Box';
-import Typography from '@material-ui/core/Typography';
+import Paper from '@material-ui/core/Paper';
 import { makeStyles } from '@material-ui/core/styles';
-import CardPaper, { cardTypes } from 'components/CardPaper/CardPaper';
+
+const cardTypes = {
+  white: Symbol('white'),
+  black: Symbol('black'),
+};
 
 const useStyles = makeStyles({
   root: (props) => ({
+    width: '200px',
+    height: '260px',
+    borderRadius: '8px',
+    cursor: 'default',
     ...props,
   }),
-  text: {
+  content: {
     wordWrap: 'break-word',
+    userSelect: 'none',
+    height: '100%',
+    overflow: 'hidden',
   },
 });
 
 const Card = memo(({
-  card, type, onClick, isClickable,
+  card, type, classes, onClick, isClickable, children,
 }) => {
-  const classes = useStyles({
+  const { root, content } = useStyles({
+    color: type === cardTypes.black ? 'white' : 'black',
+    backgroundColor: type === cardTypes.black ? 'black' : 'white',
     cursor: isClickable ? 'pointer' : 'default',
   });
 
@@ -32,20 +45,17 @@ const Card = memo(({
   }, [card, isClickable, onClick]);
 
   return (
-    <CardPaper
-      type={type}
-      classes={classes.root}
+    <Paper
+      className={`${root} ${classes}`}
       elevation={isActive ? 4 : 2}
       onClick={handleClick}
       onMouseEnter={handleItemFocus}
       onMouseLeave={handleItemBlur}
     >
-      <Box p={2}>
-        <Typography variant="h4" component="h1" className={classes.text}>
-          {card.text}
-        </Typography>
+      <Box p={2} className={content}>
+        {children}
       </Box>
-    </CardPaper>
+    </Paper>
   );
 });
 
@@ -59,8 +69,13 @@ Card.propTypes = {
     text: PropTypes.string.isRequired,
   }).isRequired,
   type: PropTypes.oneOf([...Object.values(cardTypes)]),
+  classes: PropTypes.string,
   isClickable: PropTypes.bool,
   onClick: PropTypes.func,
 };
 
 export default Card;
+
+export {
+  cardTypes,
+};

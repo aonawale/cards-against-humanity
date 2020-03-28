@@ -2,9 +2,9 @@ import React, { memo, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import Game, { gameStates } from 'game/game';
 import Player from 'game/player/player';
-
 import Box from '@material-ui/core/Box';
 import Card from 'components/Card/Card';
+import CardsStack from 'components/CardsStack/CardsStack';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 
@@ -13,25 +13,28 @@ const GamePlay = memo(({
 }) => {
   const currentPlayerIsCzar = useMemo(() => currentPlayer.id === game.cZarID, [currentPlayer.id, game.cZarID]);
   return (
-    <Box display="flex" width="100%" overflow="scroll">
-
+    <Box p={2} display="flex" width="100%" height="100%" overflow="scroll">
       {(() => {
         if (game.state === gameStates.pickingWinner) {
           if (currentPlayerIsCzar) {
-            return [...game.playedWhiteCards.values()].map((cards) => cards.map((card) => (
-              <Box key={card.text} p={2}>
-                <Card
-                  card={card}
-                  onClick={onCZarClickCard}
-                  isClickable={currentPlayerIsCzar}
-                />
-              </Box>
-            )));
+            return [...game.playedWhiteCards.values()].map((cards) => (
+              <CardsStack
+                key={cards.map(({ text }) => text).join('')}
+                cards={cards}
+                onClick={onCZarClickCard}
+              >
+                {(card) => (
+                  <Typography variant="h4" component="h1">
+                    {card.text}
+                  </Typography>
+                )}
+              </CardsStack>
+            ));
           }
           return (
             <Box p={2} height="100%" width="100%">
               <Typography variant="h4" component="h1">
-                    The CZar is picking a winner
+                The CZar is picking a winner
               </Typography>
             </Box>
           );
@@ -42,7 +45,7 @@ const GamePlay = memo(({
             return (
               <Box p={2} height="100%" width="100%">
                 <Typography variant="h4" component="h1">
-                      Players are playing cards
+                  Players are playing cards
                 </Typography>
               </Box>
             );
@@ -53,7 +56,11 @@ const GamePlay = memo(({
                 card={card}
                 isClickable={currentPlayer && game.canPlayWhiteCard(currentPlayer)}
                 onClick={onPlayerClickCard}
-              />
+              >
+                <Typography variant="h4" component="h1">
+                  {card.text}
+                </Typography>
+              </Card>
             </Box>
           ));
         }
@@ -70,7 +77,7 @@ const GamePlay = memo(({
                   size="large"
                   onClick={onNextRound}
                 >
-                      Next round
+                  Next round
                 </Button>
               </Box>
             );

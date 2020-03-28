@@ -1,11 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import Box from '@material-ui/core/Box';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Navbar from 'components/Navbar/Navbar';
 import { currentUserSubject } from 'stream/currentUser/currentUser';
+import { makeStyles } from '@material-ui/core/styles';
+
+const useStyles = makeStyles({
+  main: {
+    height: 'calc(100vh - 66px)',
+  },
+});
 
 const App = ({ isAuthenticated, children }) => {
+  const classes = useStyles();
   const [currentUser, setCurrentUser] = useState();
 
   useEffect(() => {
@@ -14,14 +21,14 @@ const App = ({ isAuthenticated, children }) => {
   }, []);
 
   return (
-    <Box height="100%">
+    <>
       <CssBaseline />
       <Navbar
         currentUser={currentUser}
         isAuthenticated={isAuthenticated}
       />
-      <main>{children}</main>
-    </Box>
+      <main className={classes.main}>{children}</main>
+    </>
   );
 };
 
