@@ -3,6 +3,9 @@ const cardTypes = {
   black: Symbol('black'),
 };
 
+// This can be further improved by generating a UID for each card
+// just in case we have two cards with same text value as I am current
+// using text prop as a unique property
 class Card {
   constructor(type, text, pick = null, playerID = null) {
     this.text = text;

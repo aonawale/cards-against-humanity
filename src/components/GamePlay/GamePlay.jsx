@@ -17,7 +17,7 @@ const useStyles = makeStyles({
 });
 
 const Info = ({ title, children }) => (
-  <Box pt={2} textAlign="center">
+  <Box textAlign="center" whiteSpace="normal">
     <Typography variant="h5" component="h1">
       {title}
     </Typography>
@@ -41,62 +41,60 @@ const GamePlay = memo(({
   return (
     <Box p={2} whiteSpace="nowrap" width="100%" height="100%" overflow="scroll">
       {(() => {
-        if (game.state === gameStates.pickingWinner) {
-          if (currentPlayerIsCzar) {
-            return [...game.playedWhiteCards.values()].map((cards) => (
-              <CardsStack
-                key={`${Math.random()}`}
-                classes={classes.card}
-                cards={cards}
-                onClick={onCZarClickCard}
-              >
-                {(card) => (
+        switch (game.state) {
+          case gameStates.pickingWinner:
+            return currentPlayerIsCzar
+              ? [...game.playedWhiteCards.values()].map((cards) => (
+                <CardsStack
+                  key={`${Math.random()}`}
+                  classes={classes.card}
+                  cards={cards}
+                  onClick={onCZarClickCard}
+                >
+                  {(card) => (
+                    <Typography variant="h4" component="h1">
+                      {card.text}
+                    </Typography>
+                  )}
+                </CardsStack>
+              ))
+              : <Info title="Waiting for the Card Czar to choose a winner" />;
+          case gameStates.playingCards:
+            return currentPlayerIsCzar
+              ? (
+                <Info
+                  title={`Waiting for ${game.pendingPlayers.map(({ firstName }) => firstName).join(',')} to play...`}
+                />
+              )
+              : currentPlayer?.cards.map((card) => (
+                <Card
+                  key={card.text}
+                  card={card}
+                  classes={classes.card}
+                  isClickable={currentPlayer && game.canPlayWhiteCard(currentPlayer)}
+                  onClick={onPlayerClickCard}
+                >
                   <Typography variant="h4" component="h1">
                     {card.text}
                   </Typography>
-                )}
-              </CardsStack>
-            ));
-          }
-          return <Info title="The CZar is picking a winner" />;
+                </Card>
+              ));
+          case gameStates.winnerSelected:
+            return currentPlayerIsCzar
+              ? (
+                <Info title="You picked winner!">
+                  <Button
+                    variant="outlined"
+                    onClick={onNextRound}
+                  >
+                    Next round
+                  </Button>
+                </Info>
+              )
+              : <Info title="The Card Czar choose a winner!" />;
+          default:
+            return null;
         }
-
-        if (game.state === gameStates.playingCards) {
-          if (currentPlayerIsCzar)
-            return <Info title="Players are playing cards" />;
-
-          return currentPlayer?.cards.map((card) => (
-            <Card
-              key={card.text}
-              card={card}
-              classes={classes.card}
-              isClickable={currentPlayer && game.canPlayWhiteCard(currentPlayer)}
-              onClick={onPlayerClickCard}
-            >
-              <Typography variant="h4" component="h1">
-                {card.text}
-              </Typography>
-            </Card>
-          ));
-        }
-
-        if (game.state === gameStates.winnerSelected) {
-          if (currentPlayerIsCzar) {
-            return (
-              <Info title="You picked winner!">
-                <Button
-                  variant="outlined"
-                  onClick={onNextRound}
-                >
-                  Next round
-                </Button>
-              </Info>
-            );
-          }
-          return <Info title="Czar choose a winner!" />;
-        }
-
-        return null;
       })()}
     </Box>
   );

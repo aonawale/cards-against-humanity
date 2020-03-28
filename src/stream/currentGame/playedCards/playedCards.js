@@ -31,11 +31,14 @@ currentGameSubject.pipe(
     && game.players.length > 1),
   map(([game, playedWhiteCards]) => [
     game,
-    playedWhiteCards.map(({ text }) => text),
+    playedWhiteCards.map(({ text, playerID }) => ({ text, playerID })),
   ]),
   pairwise(),
-  map(([[, prev], [game, curr]]) => [game, curr.filter((currItem) => !prev.includes(currItem))]),
-  map(([game, cards]) => cards.map((text) => game.cardPlayer({ text }))),
+  map(([[, prev], [game, curr]]) => [
+    game,
+    curr.filter((currItem) => !prev.find((prevItem) => currItem.text === prevItem.text)),
+  ]),
+  map(([game, cards]) => cards.map((card) => game.cardPlayer(card))),
   filter((players) => players.length),
   tap((val) => console.log('players play white card =>', val)),
   concatMap((players) => from(players)),

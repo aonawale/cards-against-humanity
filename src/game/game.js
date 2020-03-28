@@ -23,6 +23,7 @@ class Game {
     this.roundWinnerID = roundWinnerID;
   }
 
+  // //---------------------- Static functions
   static findCardIndex(cards, cardToFind) {
     if (!cardToFind)
       return cards.length; // return early if there is no cardToFind
@@ -35,6 +36,24 @@ class Game {
     return index;
   }
 
+  // //---------------------------- Getters
+  get canPickWinner() {
+    const cards = [...this.playedWhiteCards.values()].reduce(
+      (aggr, curr) => [...aggr, ...curr], [],
+    );
+    return this.players.length > 1
+    && this.playedBlackCard
+    && cards.length === ((this.players.length - 1) * this.playedBlackCard.pick);
+  }
+
+  get pendingPlayers() {
+    return this.players.filter(({ id }) => this.playedBlackCard
+      && this.cZarID !== id
+      && (!this.playedWhiteCards.has(id)
+      || (this.playedWhiteCards.get(id).length < this.playedBlackCard?.pick)));
+  }
+
+  // //---------------------------- Instance methods
   setWhiteCards(cards) {
     const foundIndex = Game.findCardIndex(cards, this.lastWhiteCard);
     const whiteCards = [];
@@ -141,24 +160,8 @@ class Game {
     player.cards = player.cards.filter(({ text }) => text !== card.text);
   }
 
-  // This can be further improved by saving playerID on the card
-  // assigned to a player and generating a UID for each card
-  // just in case we have two cards with same text value
   cardPlayer(card) {
-    const [playerID] = [...this.playedWhiteCards.entries()].find(
-      ([, cards]) => cards.find(({ text }) => text === card.text),
-    );
-
-    return this.players.find(({ id }) => id === playerID);
-  }
-
-  get canPickWinner() {
-    const cards = [...this.playedWhiteCards.values()].reduce(
-      (aggr, curr) => [...aggr, ...curr], [],
-    );
-    return this.players.length > 1
-    && this.playedBlackCard
-    && cards.length === ((this.players.length - 1) * this.playedBlackCard.pick);
+    return this.players.find(({ id }) => id === card.playerID);
   }
 
   // picking winner

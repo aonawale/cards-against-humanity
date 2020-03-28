@@ -9,6 +9,10 @@ export default class Player {
     this.createdAt = createdAt;
   }
 
+  get firstName() {
+    return this.name.split(' ')[0];
+  }
+
   incrementPoints() {
     this.points += 1;
   }

@@ -40,40 +40,29 @@ const GamePage = memo(() => {
     selectGame(gameID);
   }, [gameID]);
 
-  // bind component state to currentGameSubject
+  // bind component state to game data stream
   useEffect(() => {
-    const subscription = currentGameSubject.subscribe(setcurrentGame);
-    return () => subscription.unsubscribe();
+    const subscriptions = [];
+    subscriptions.push(currentGameSubject.subscribe(setcurrentGame));
+    subscriptions.push(currentPlayerSubject.subscribe(setCurrentPlayer));
+    subscriptions.push(currentUserSubject.subscribe(setCurrentUser));
+    return () => subscriptions.forEach((subscription) => subscription.unsubscribe());
   }, []);
 
-  // bind component state to currentPlayerSubject
+  // listen for game play events
   useEffect(() => {
-    const subscription = currentPlayerSubject.subscribe(setCurrentPlayer);
-    return () => subscription.unsubscribe();
-  }, []);
-
-  // bind component state to currentUserSubject
-  useEffect(() => {
-    const subscription = currentUserSubject.subscribe(setCurrentUser);
-    return () => subscription.unsubscribe();
-  }, []);
-
-  // listen for player join game
-  useEffect(() => {
-    const subscription = playerJoinedGameSubject.subscribe((player) => {
+    const subscriptions = [];
+    // listen for player join game
+    subscriptions.push(playerJoinedGameSubject.subscribe((player) => {
       if (player.id !== currentPlayer?.id)
-        enqueueSnackbar(`${player.name} joined game`);
-    });
-    return () => subscription.unsubscribe();
-  }, [currentPlayer, enqueueSnackbar]);
-
-  // listen for player play card event
-  useEffect(() => {
-    const subscription = playerPlayedCardSubject.subscribe((player) => {
+        enqueueSnackbar(`${player.firstName} joined game`);
+    }));
+    // listen for player play card event
+    subscriptions.push(playerPlayedCardSubject.subscribe((player) => {
       if (player.id !== currentPlayer?.id)
-        enqueueSnackbar(`${player.name} played a card`);
-    });
-    return () => subscription.unsubscribe();
+        enqueueSnackbar(`${player.firstName} played a card`);
+    }));
+    return () => subscriptions.forEach((subscription) => subscription.unsubscribe());
   }, [currentPlayer, enqueueSnackbar]);
 
   useEffect(() => {
