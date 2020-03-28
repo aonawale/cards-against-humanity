@@ -1,13 +1,9 @@
 import React, { memo, useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
+import { cardTypes } from 'game/card/card';
 import Box from '@material-ui/core/Box';
 import Paper from '@material-ui/core/Paper';
 import { makeStyles } from '@material-ui/core/styles';
-
-const cardTypes = {
-  white: Symbol('white'),
-  black: Symbol('black'),
-};
 
 const useStyles = makeStyles({
   root: (props) => ({
@@ -19,6 +15,7 @@ const useStyles = makeStyles({
   }),
   content: {
     wordWrap: 'break-word',
+    whiteSpace: 'normal',
     userSelect: 'none',
     height: '100%',
     overflow: 'hidden',
@@ -26,11 +23,11 @@ const useStyles = makeStyles({
 });
 
 const Card = memo(({
-  card, type, classes, onClick, isClickable, children,
+  card, classes, onClick, isClickable, children,
 }) => {
   const { root, content } = useStyles({
-    color: type === cardTypes.black ? 'white' : 'black',
-    backgroundColor: type === cardTypes.black ? 'black' : 'white',
+    color: card.type === cardTypes.black ? 'white' : 'black',
+    backgroundColor: card.type === cardTypes.black ? 'black' : 'white',
     cursor: isClickable ? 'pointer' : 'default',
   });
 
@@ -60,15 +57,14 @@ const Card = memo(({
 });
 
 Card.defaultProps = {
-  type: cardTypes.white,
   isClickable: false,
 };
 
 Card.propTypes = {
   card: PropTypes.shape({
     text: PropTypes.string.isRequired,
+    type: PropTypes.oneOf([...Object.values(cardTypes)]),
   }).isRequired,
-  type: PropTypes.oneOf([...Object.values(cardTypes)]),
   classes: PropTypes.string,
   isClickable: PropTypes.bool,
   onClick: PropTypes.func,

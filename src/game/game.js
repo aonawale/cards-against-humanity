@@ -17,7 +17,7 @@ class Game {
     this.cZarID = cZarID;
     this.players = players;
     this.playedBlackCard = playedBlackCard;
-    this.playedWhiteCards = new Map(Object.entries(playedWhiteCards || {}));
+    this.playedWhiteCards = playedWhiteCards || new Map();
     this.lastWhiteCard = lastWhiteCard;
     this.state = state;
     this.roundWinnerID = roundWinnerID;
@@ -57,15 +57,6 @@ class Game {
     this.state = state;
   }
 
-  addPlayer(player) {
-    if (this.players.length >= 10)
-      throw new Error('Max allowed players is 10!');
-    player.cards = this.whiteCardsDeck.deal(5);
-    this.players.push(player);
-    // set last white card to last dealt card
-    this.lastWhiteCard = player.cards[player.cards.length - 1];
-  }
-
   hasPlayer(playerID) {
     return !!this.players.find(({ id }) => id === playerID);
   }
@@ -83,13 +74,26 @@ class Game {
 
     this.players.forEach((player) => {
       // don't deal cards to cZar if game has already started
-      if (!this.playedBlackCard || (player.id !== this.cZarID)) {
-        const cards = this.whiteCardsDeck.deal(dealCount);
-        player.cards = [...player.cards, ...cards];
-        // set last white card to last dealt card
-        this.lastWhiteCard = cards[cards.length - 1];
-      }
+      if (!this.playedBlackCard || (player.id !== this.cZarID))
+        this.dealCardsToPlayer(player, dealCount);
     });
+  }
+
+  dealCardsToPlayer(player, dealCount) {
+    const cards = this.whiteCardsDeck.deal(dealCount);
+    cards.forEach((card) => {
+      card.playerID = player.id;
+      player.cards.push(card);
+    });
+    // set last white card to last dealt card
+    this.lastWhiteCard = cards[cards.length - 1];
+  }
+
+  addPlayer(player) {
+    if (this.players.length >= 10)
+      throw new Error('Max allowed players is 10!');
+    this.dealCardsToPlayer(player, 5);
+    this.players.push(player);
   }
 
   resetCurrentRound() {
@@ -209,9 +213,15 @@ const converter = {
         ([, player]) => playerConverter.fromFirestore({ data: () => player }, options),
       ).sort((a, b) => a.createdAt - b.createdAt),
       Object.entries(gameStates).find(([key]) => key === data.state)[1],
-      data.lastWhiteCard,
+      cardConverter.fromFirestore({ data: () => data.lastWhiteCard }, options),
       cardConverter.fromFirestore({ data: () => data.playedBlackCard }, options),
-      data.playedWhiteCards,
+      [...Object.entries(data.playedWhiteCards)].reduce(
+        (aggr, [key, value]) => aggr.set(
+          key,
+          value.map((card) => cardConverter.fromFirestore({ data: () => card }, options)),
+        ),
+        new Map(),
+      ),
       data.roundWinnerID,
     );
   },

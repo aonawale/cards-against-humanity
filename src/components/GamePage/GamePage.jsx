@@ -3,7 +3,7 @@ import React, {
 } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import Box from '@material-ui/core/Box';
-import Card, { cardTypes } from 'components/Card/Card';
+import Card from 'components/Card/Card';
 import TabPanel from 'components/TabPanel/TabPanel';
 import PlayersList from 'components/PlayersList/PlayersList';
 import GameDeck from 'components/GameDeck/GameDeck';
@@ -110,8 +110,7 @@ const GamePage = memo(() => {
       {currentGame?.playedBlackCard && (
         <Box p={1} display="flex" justifyContent="center">
           <Card
-            type={cardTypes.black}
-            card={currentGame.playedBlackCard}
+            card={currentGame?.playedBlackCard}
           >
             <Typography variant="h4" component="h1">
               {currentGame?.playedBlackCard?.text}

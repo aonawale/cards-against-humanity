@@ -1,26 +1,40 @@
-export default class Card {
-  constructor(text, pick = null, isFaceUp = false) {
+const cardTypes = {
+  white: Symbol('white'),
+  black: Symbol('black'),
+};
+
+class Card {
+  constructor(type, text, pick = null, playerID = null) {
     this.text = text;
+    this.type = type;
     this.pick = pick;
-    this.isFaceUp = isFaceUp;
+    this.playerID = playerID;
   }
 }
 
 export const converter = {
   toFirestore(card) {
     return {
+      type: Object.entries(cardTypes).find(([, value]) => value === card.type)[0],
       text: card.text,
       pick: card.pick,
-      isFaceUp: card.isFaceUp,
+      playerID: card.playerID,
     };
   },
 
   fromFirestore(snapshot, options) {
     const data = snapshot.data(options);
     return new Card(
+      Object.entries(cardTypes).find(([key]) => key === data.type)[1],
       data.text,
       data.pick,
-      data.isFaceUp,
+      data.playerID,
     );
   },
+};
+
+export default Card;
+
+export {
+  cardTypes,
 };

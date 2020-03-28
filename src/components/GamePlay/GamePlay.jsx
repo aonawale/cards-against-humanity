@@ -7,19 +7,46 @@ import Card from 'components/Card/Card';
 import CardsStack from 'components/CardsStack/CardsStack';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
+import { makeStyles } from '@material-ui/core/styles';
+
+const useStyles = makeStyles({
+  card: {
+    marginRight: '16px',
+    display: 'inline-block',
+  },
+});
+
+const Info = ({ title, children }) => (
+  <Box pt={2} textAlign="center">
+    <Typography variant="h5" component="h1">
+      {title}
+    </Typography>
+    {children}
+  </Box>
+);
+
+Info.propTypes = {
+  title: PropTypes.string.isRequired,
+};
 
 const GamePlay = memo(({
   game, currentPlayer, onCZarClickCard, onPlayerClickCard, onNextRound,
 }) => {
-  const currentPlayerIsCzar = useMemo(() => currentPlayer.id === game.cZarID, [currentPlayer.id, game.cZarID]);
+  const classes = useStyles();
+  const currentPlayerIsCzar = useMemo(
+    () => currentPlayer.id === game.cZarID,
+    [currentPlayer.id, game.cZarID],
+  );
+
   return (
-    <Box p={2} display="flex" width="100%" height="100%" overflow="scroll">
+    <Box p={2} whiteSpace="nowrap" width="100%" height="100%" overflow="scroll">
       {(() => {
         if (game.state === gameStates.pickingWinner) {
           if (currentPlayerIsCzar) {
             return [...game.playedWhiteCards.values()].map((cards) => (
               <CardsStack
-                key={cards.map(({ text }) => text).join('')}
+                key={`${Math.random()}`}
+                classes={classes.card}
                 cards={cards}
                 onClick={onCZarClickCard}
               >
@@ -31,64 +58,42 @@ const GamePlay = memo(({
               </CardsStack>
             ));
           }
-          return (
-            <Box p={2} height="100%" width="100%">
-              <Typography variant="h4" component="h1">
-                The CZar is picking a winner
-              </Typography>
-            </Box>
-          );
+          return <Info title="The CZar is picking a winner" />;
         }
 
         if (game.state === gameStates.playingCards) {
-          if (currentPlayerIsCzar) {
-            return (
-              <Box p={2} height="100%" width="100%">
-                <Typography variant="h4" component="h1">
-                  Players are playing cards
-                </Typography>
-              </Box>
-            );
-          }
+          if (currentPlayerIsCzar)
+            return <Info title="Players are playing cards" />;
+
           return currentPlayer?.cards.map((card) => (
-            <Box key={card.text} p={2}>
-              <Card
-                card={card}
-                isClickable={currentPlayer && game.canPlayWhiteCard(currentPlayer)}
-                onClick={onPlayerClickCard}
-              >
-                <Typography variant="h4" component="h1">
-                  {card.text}
-                </Typography>
-              </Card>
-            </Box>
+            <Card
+              key={card.text}
+              card={card}
+              classes={classes.card}
+              isClickable={currentPlayer && game.canPlayWhiteCard(currentPlayer)}
+              onClick={onPlayerClickCard}
+            >
+              <Typography variant="h4" component="h1">
+                {card.text}
+              </Typography>
+            </Card>
           ));
         }
 
         if (game.state === gameStates.winnerSelected) {
           if (currentPlayerIsCzar) {
             return (
-              <Box p={2} height="100%" width="100%">
-                <Typography variant="h4" component="h1">
-                  You picked winner!
-                </Typography>
+              <Info title="You picked winner!">
                 <Button
                   variant="outlined"
-                  size="large"
                   onClick={onNextRound}
                 >
                   Next round
                 </Button>
-              </Box>
+              </Info>
             );
           }
-          return (
-            <Box p={2} height="100%" width="100%">
-              <Typography variant="h4" component="h1">
-                Czar choose picked a winner!
-              </Typography>
-            </Box>
-          );
+          return <Info title="Czar choose a winner!" />;
         }
 
         return null;

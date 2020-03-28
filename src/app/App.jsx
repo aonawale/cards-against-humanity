@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import CssBaseline from '@material-ui/core/CssBaseline';
 import Navbar from 'components/Navbar/Navbar';
 import { currentUserSubject } from 'stream/currentUser/currentUser';
 import { makeStyles } from '@material-ui/core/styles';
@@ -22,7 +21,6 @@ const App = ({ isAuthenticated, children }) => {
 
   return (
     <>
-      <CssBaseline />
       <Navbar
         currentUser={currentUser}
         isAuthenticated={isAuthenticated}

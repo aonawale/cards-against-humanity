@@ -9,6 +9,7 @@ import { store, persistor } from 'store/store';
 import { createTheme, ThemeProvider } from 'lib/theme';
 import Root from 'root';
 import { SnackbarProvider } from 'notistack';
+import CssBaseline from '@material-ui/core/CssBaseline';
 import * as serviceWorker from './serviceWorker';
 
 ReactDOM.render(
@@ -16,7 +17,15 @@ ReactDOM.render(
     <BrowserRouter>
       <PersistGate persistor={persistor}>
         <ThemeProvider theme={createTheme()}>
-          <SnackbarProvider maxSnack={3}>
+          <CssBaseline />
+          <SnackbarProvider
+            preventDuplicate
+            maxSnack={3}
+            anchorOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+          >
             <Root />
           </SnackbarProvider>
         </ThemeProvider>
