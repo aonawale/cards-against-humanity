@@ -15,6 +15,7 @@ const useStyles = makeStyles({
   }),
   content: {
     wordWrap: 'break-word',
+    textAlign: 'left',
     whiteSpace: 'normal',
     userSelect: 'none',
     height: '100%',

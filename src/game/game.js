@@ -53,6 +53,14 @@ class Game {
       || (this.playedWhiteCards.get(id).length < this.playedBlackCard?.pick)));
   }
 
+  get roundWinner() {
+    return this.players.find((({ id }) => id === this.roundWinnerID));
+  }
+
+  get roundWinnerCards() {
+    return this.playedWhiteCards.get(this.roundWinnerID);
+  }
+
   // //---------------------------- Instance methods
   setWhiteCards(cards) {
     const foundIndex = Game.findCardIndex(cards, this.lastWhiteCard);
@@ -74,10 +82,6 @@ class Game {
     if (!Object.values(gameStates).includes(state))
       throw new Error('Invalid state');
     this.state = state;
-  }
-
-  hasPlayer(playerID) {
-    return !!this.players.find(({ id }) => id === playerID);
   }
 
   startNextRound() {
@@ -108,11 +112,30 @@ class Game {
     this.lastWhiteCard = cards[cards.length - 1];
   }
 
+  cardPlayer(card) {
+    return this.players.find(({ id }) => id === card.playerID);
+  }
+
+  hasPlayer(playerID) {
+    return !!this.players.find(({ id }) => id === playerID);
+  }
+
   addPlayer(player) {
     if (this.players.length >= 10)
       throw new Error('Max allowed players is 10!');
     this.dealCardsToPlayer(player, 5);
     this.players.push(player);
+  }
+
+  removePlayer(player) {
+    if (player.id === this.ownerID)
+      throw new Error('The owner cannot leave his own game');
+    if (!this.hasPlayer(player.id))
+      throw new Error('The player is not in this game');
+    // remove player played white cards
+    this.playedWhiteCards.delete(player.id);
+    // remove player
+    this.players = this.players.filter(({ id }) => id !== player.id);
   }
 
   resetCurrentRound() {
@@ -158,10 +181,6 @@ class Game {
 
     // remove the card from the player cards
     player.cards = player.cards.filter(({ text }) => text !== card.text);
-  }
-
-  cardPlayer(card) {
-    return this.players.find(({ id }) => id === card.playerID);
   }
 
   // picking winner

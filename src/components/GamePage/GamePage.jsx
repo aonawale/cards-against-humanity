@@ -8,7 +8,8 @@ import TabPanel from 'components/TabPanel/TabPanel';
 import PlayersList from 'components/PlayersList/PlayersList';
 import GameDeck from 'components/GameDeck/GameDeck';
 import GamePlay from 'components/GamePlay/GamePlay';
-import GameJoinDialog from 'components/GameJoinDialog/GameJoinDialog';
+import GameSettings from 'components/GameSettings/GameSettings';
+import AlertDialog from 'components/AlertDialog/AlertDialog';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
@@ -16,11 +17,9 @@ import Typography from '@material-ui/core/Typography';
 import { selectGame } from 'stream/gamesList/gamesList';
 import joinGame, { playerJoinedGameSubject } from 'stream/gamesList/joinGame/joinGame';
 import pickWinner from 'stream/currentGame/pickWinner/pickWinner';
-import playCard from 'stream/currentGame/playCard/playCard';
+import playCard, { playerPlayedCardSubject } from 'stream/currentGame/playCard/playCard';
 import nextRound from 'stream/currentGame/nextRound/nextRound';
-import {
-  playerPlayedCardSubject,
-} from 'stream/currentGame/playedCards/playedCards';
+import leaveGame, { playerLeaveGameSubject } from 'stream/currentGame/leaveGame/leaveGame';
 import currentGameSubject from 'stream/currentGame/currentGame';
 import currentPlayerSubject from 'stream/currentGame/currentPlayer/currentPlayer';
 import { currentUserSubject } from 'stream/currentUser/currentUser';
@@ -62,6 +61,11 @@ const GamePage = memo(() => {
       if (player.id !== currentPlayer?.id)
         enqueueSnackbar(`${player.firstName} played a card`);
     }));
+    // listen for player leaves game event
+    subscriptions.push(playerLeaveGameSubject.subscribe((player) => {
+      if (player.id !== currentPlayer?.id)
+        enqueueSnackbar(`${player.firstName} left game`);
+    }));
     return () => subscriptions.forEach((subscription) => subscription.unsubscribe());
   }, [currentPlayer, enqueueSnackbar]);
 
@@ -94,6 +98,10 @@ const GamePage = memo(() => {
     nextRound();
   }, []);
 
+  const handleLeaveGame = useCallback(() => {
+    leaveGame();
+  }, []);
+
   return (
     <Box display="flex" flexDirection="column" height="100%">
       {currentGame?.playedBlackCard && (
@@ -108,10 +116,11 @@ const GamePage = memo(() => {
         </Box>
       )}
 
-      <Tabs value={currentTab} onChange={handleTabChange}>
+      <Tabs centered value={currentTab} onChange={handleTabChange}>
         <Tab label="Game" />
         <Tab label="Deck" />
         <Tab label="Players" />
+        <Tab label="Settings" />
       </Tabs>
 
       <Box width="100%" flex="1">
@@ -141,14 +150,24 @@ const GamePage = memo(() => {
             players={currentGame?.players}
           />
         </TabPanel>
+
+        <TabPanel value={currentTab} index={3}>
+          <GameSettings
+            onLeaveGame={handleLeaveGame}
+          />
+        </TabPanel>
       </Box>
 
-      <GameJoinDialog
-        isOpen={joinDialogIsOpen}
-        gameName={currentGame?.name ?? ''}
-        onClose={handleCloseJoinDialog}
+      <AlertDialog
+        open={joinDialogIsOpen}
+        title="Join this game?"
+        cancelText="No, I want my mummy"
+        confirmText="Bring it on!"
+        onCancel={handleCloseJoinDialog}
         onConfirm={handleConfirmJoinDialog}
-      />
+      >
+        {`Join to play ${currentGame?.name ?? ''} Game`}
+      </AlertDialog>
     </Box>
   );
 });

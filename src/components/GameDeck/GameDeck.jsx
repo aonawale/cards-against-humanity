@@ -19,7 +19,7 @@ const useStyles = makeStyles({
 const GameDeck = memo(({ whiteCardsDeck, blackCardsDeck }) => {
   const classes = useStyles();
   return (
-    <Box p={2} textAlign="center" whiteSpace="nowrap" height="100%" width="100%" overflow="scroll">
+    <Box py={1} px={2} textAlign="center" whiteSpace="nowrap" height="100%" width="100%" overflow="scroll">
       <CardsStack
         spacing={4}
         isClickable={false}

@@ -1,11 +1,17 @@
-import React, { memo, useState, useCallback } from 'react';
+import React, {
+  memo, useState, useCallback, forwardRef,
+} from 'react';
 import PropTypes from 'prop-types';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ListItemText from '@material-ui/core/ListItemText';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
-import GameDeleteDialog from 'components/GameDeleteDialog/GameDeleteDialog';
+import AlertDialog from 'components/AlertDialog/AlertDialog';
+import Slide from '@material-ui/core/Slide';
+
+// eslint-disable-next-line react/jsx-props-no-spreading
+const Transition = forwardRef((props, ref) => <Slide direction="up" ref={ref} {...props} />);
 
 const GamesListItem = memo(({
   game, canDelete, onClick, onDelete,
@@ -44,11 +50,16 @@ const GamesListItem = memo(({
         )}
       </ListItem>
 
-      <GameDeleteDialog
-        isOpen={deleteDialogIsOpen}
-        onClose={handleCloseDeleteDialog}
-        onDelete={handleConfirmDeleteDialog}
-      />
+      <AlertDialog
+        open={deleteDialogIsOpen}
+        title="Delete this game?"
+        confirmText="Delete"
+        onCancel={handleCloseDeleteDialog}
+        onConfirm={handleConfirmDeleteDialog}
+        TransitionComponent={Transition}
+      >
+        All game data will be permanently deleted.
+      </AlertDialog>
     </>
   );
 });

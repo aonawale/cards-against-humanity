@@ -9,6 +9,7 @@ const useStyles = makeStyles({
   root: {
     position: 'relative',
     width: '200px',
+    height: '260px',
   },
 });
 
