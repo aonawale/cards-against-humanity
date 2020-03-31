@@ -1,5 +1,6 @@
 import React, { memo, useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
+import Container from '@material-ui/core/Container';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
@@ -25,7 +26,7 @@ const GameSettings = memo(({ onLeaveGame }) => {
   }, [onLeaveGame]);
 
   return (
-    <>
+    <Container maxWidth="sm">
       <List component="nav">
         <ListItem button onClick={handleLeave}>
           <ListItemIcon>
@@ -43,7 +44,7 @@ const GameSettings = memo(({ onLeaveGame }) => {
       >
         Your current game data will be lost. You can still join the game again.
       </AlertDialog>
-    </>
+    </Container>
   );
 });
 

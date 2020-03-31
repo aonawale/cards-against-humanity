@@ -4,6 +4,7 @@ import { cardTypes } from 'game/card/card';
 import Box from '@material-ui/core/Box';
 import Paper from '@material-ui/core/Paper';
 import { makeStyles } from '@material-ui/core/styles';
+import { Textfit } from 'react-textfit';
 
 const useStyles = makeStyles({
   root: (props) => ({
@@ -11,6 +12,7 @@ const useStyles = makeStyles({
     height: '260px',
     borderRadius: '8px',
     cursor: 'default',
+    padding: '16px',
     ...props,
   }),
   content: {
@@ -24,7 +26,7 @@ const useStyles = makeStyles({
 });
 
 const Card = memo(({
-  card, classes, onClick, isClickable, children,
+  card, classes, onClick, isClickable,
 }) => {
   const { root, content } = useStyles({
     color: card.type === cardTypes.black ? 'white' : 'black',
@@ -50,8 +52,10 @@ const Card = memo(({
       onMouseEnter={handleItemFocus}
       onMouseLeave={handleItemBlur}
     >
-      <Box p={2} className={content}>
-        {children}
+      <Box className={content}>
+        <Textfit mode="multi" style={{ height: '100%' }} max={33}>
+          {card.text}
+        </Textfit>
       </Box>
     </Paper>
   );

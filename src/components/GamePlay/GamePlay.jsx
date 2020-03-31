@@ -14,6 +14,16 @@ const useStyles = makeStyles({
     marginRight: '16px',
     display: 'inline-block',
   },
+  infoBox: {
+    padding: '16px',
+    whiteSpace: 'nowrap',
+    width: '100%',
+    overflow: 'scroll',
+    msOverflowStyle: 'none',
+    '&::-webkit-scrollbar': {
+      display: 'none',
+    },
+  },
 });
 
 const Info = ({ title, children }) => (
@@ -46,19 +56,15 @@ const GamePlay = memo(({
         )
         : (
           <Info title="Play card">
-            <Box mt={1} px={2} whiteSpace="nowrap" width="100%" overflow="scroll">
-              {currentPlayer?.cards.map((card) => (
+            <Box className={classes.infoBox}>
+              {currentPlayer.cards.map((card) => (
                 <Card
                   key={card.text}
                   card={card}
                   classes={classes.card}
-                  isClickable={currentPlayer && game.canPlayWhiteCard(currentPlayer)}
+                  isClickable={game.canPlayWhiteCard(currentPlayer)}
                   onClick={onPlayerClickCard}
-                >
-                  <Typography variant="h4" component="h1">
-                    {card.text}
-                  </Typography>
-                </Card>
+                />
               ))}
             </Box>
           </Info>
@@ -67,20 +73,14 @@ const GamePlay = memo(({
       return currentPlayerIsCzar
         ? (
           <Info title="Players played cards. Choose a winner.">
-            <Box mt={1} px={2} whiteSpace="nowrap" width="100%" overflow="scroll">
+            <Box className={classes.infoBox}>
               {[...game.playedWhiteCards.values()].map((cards) => (
                 <CardsStack
-                  key={`${Math.random()}`}
+                  key={cards.map(({ text }) => text).join('')}
                   classes={classes.card}
                   cards={cards}
                   onClick={onCZarClickCard}
-                >
-                  {(card) => (
-                    <Typography variant="h4" component="h1">
-                      {card.text}
-                    </Typography>
-                  )}
-                </CardsStack>
+                />
               ))}
             </Box>
           </Info>
@@ -90,7 +90,7 @@ const GamePlay = memo(({
       return currentPlayerIsCzar
         ? (
           <Info title={`You choose ${game.roundWinner.firstName} as the winner`}>
-            <Box mt={1} px={2}>
+            <Box className={classes.infoBox}>
               <Button variant="outlined" onClick={onNextRound}>
                 Next round
               </Button>
@@ -98,15 +98,11 @@ const GamePlay = memo(({
           </Info>
         )
         : (
-          <Info title={`The Czar choose ${game.roundWinner.firstName}'s card`}>
-            <Box mt={1} px={2} whiteSpace="nowrap" width="100%" overflow="scroll">
-              {game.roundWinnerCards.map((card) => (
-                <Card key={card.text} card={card} classes={classes.card}>
-                  <Typography variant="h4" component="h1">
-                    {card.text}
-                  </Typography>
-                </Card>
-              ))}
+          <Info title={`The Czar choose 
+            ${game.roundWinnerID === currentPlayer.id ? 'your' : `${game.roundWinner.firstName}s`} card`}
+          >
+            <Box className={classes.infoBox}>
+              {game.roundWinnerCards.map((card) => <Card key={card.text} card={card} classes={classes.card} />)}
             </Box>
           </Info>
         );

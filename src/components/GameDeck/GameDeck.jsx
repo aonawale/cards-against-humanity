@@ -5,57 +5,55 @@ import Typography from '@material-ui/core/Typography';
 import Card from 'components/Card/Card';
 import { makeStyles } from '@material-ui/core/styles';
 import CardsStack from 'components/CardsStack/CardsStack';
+import { cardTypes } from 'game/card/card';
 
 const useStyles = makeStyles({
   cardsStack: {
     marginRight: '16px',
     display: 'inline-block',
+    position: 'relative',
+    color: '#fff',
+  },
+  cardsCount: {
+    position: 'absolute',
+    left: '0px',
+    bottom: '16px',
+    width: '100%',
   },
   blackCard: {
     boxShadow: '0px 3px 1px -2px rgba(0,0,0,0.2), 0px 2px 2px 0px #fff, 0px 1px 5px 0px rgba(0,0,0,0.12);',
   },
 });
 
+const generateCards = (type) => [1, 2, 3, 4, 5].map(() => ({ text: 'Cards Against Humanity', type }));
+
 const GameDeck = memo(({ whiteCardsDeck, blackCardsDeck }) => {
   const classes = useStyles();
   return (
-    <Box py={1} px={2} textAlign="center" whiteSpace="nowrap" height="100%" width="100%" overflow="scroll">
-      <CardsStack
-        spacing={4}
-        isClickable={false}
-        classes={classes.cardsStack}
-        cardClasses={classes.blackCard}
-        cards={blackCardsDeck.cards.slice(0, 5)}
-      >
-        {() => (
-          <Box display="flex" flexDirection="column" justifyContent="space-between" height="100%">
-            <Typography component="h1" variant="h4">
-              Cards Against Humanity
-            </Typography>
-            <Typography align="center">
-              {blackCardsDeck.cards.length} Cards
-            </Typography>
-          </Box>
-        )}
-      </CardsStack>
+    <Box p={2} textAlign="center" whiteSpace="nowrap" height="100%" width="100%" overflow="scroll">
+      <Box className={classes.cardsStack}>
+        <CardsStack
+          spacing={4}
+          isClickable={false}
+          cardClasses={classes.blackCard}
+          cards={generateCards(cardTypes.black)}
+        />
+        <Typography className={classes.cardsCount}>
+          {blackCardsDeck.cards.length} Cards
+        </Typography>
+      </Box>
 
-      <CardsStack
-        spacing={4}
-        isClickable={false}
-        classes={classes.cardsStack}
-        cards={whiteCardsDeck.cards.slice(0, 5)}
-      >
-        {() => (
-          <Box display="flex" flexDirection="column" justifyContent="space-between" height="100%">
-            <Typography component="h1" variant="h4">
-              Cards Against Humanity
-            </Typography>
-            <Typography align="center">
-              {whiteCardsDeck.cards.length} Cards
-            </Typography>
-          </Box>
-        )}
-      </CardsStack>
+      <Box className={classes.cardsStack}>
+        <CardsStack
+          spacing={4}
+          isClickable={false}
+          classes={classes.cardsStack}
+          cards={generateCards(cardTypes.white)}
+        />
+        <Typography color="textPrimary" className={classes.cardsCount}>
+          {whiteCardsDeck.cards.length} Cards
+        </Typography>
+      </Box>
     </Box>
   );
 });

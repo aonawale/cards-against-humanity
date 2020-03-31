@@ -21,7 +21,7 @@ const useCardStyles = makeStyles({
 });
 
 const CardsStack = memo(({
-  cards: _cards, classes, spacing, isClickable, cardClasses, onClick, children,
+  cards: _cards, classes, spacing, isClickable, cardClasses, onClick,
 }) => {
   const [cards, setCards] = useState(_cards.slice());
   const lastIndex = cards.length - 1;
@@ -45,13 +45,12 @@ const CardsStack = memo(({
         return (
           <Card
             classes={`${root} ${cardClasses}`}
-            key={card.text}
+            // eslint-disable-next-line react/no-array-index-key
+            key={`${card.text}${index}`}
             card={card}
             isClickable={isClickable}
             onClick={handleCardClick}
-          >
-            {children(card)}
-          </Card>
+          />
         );
       })}
     </div>

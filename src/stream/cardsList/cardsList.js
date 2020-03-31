@@ -1,6 +1,6 @@
 import { from, Subject, BehaviorSubject } from 'rxjs';
 import {
-  map, filter, flatMap, take,
+  map, filter, flatMap, take, tap,
 } from 'rxjs/operators';
 
 const url = 'https://cards-against-humanity-api.herokuapp.com/sets/Base';
@@ -13,6 +13,7 @@ const whiteCardsListSubject = new Subject();
 from(fetch(url)).pipe(
   filter((response) => response),
   flatMap((response) => response.json()),
+  tap((response) => console.log('cardsResponseSubject response', response)),
 ).subscribe(cardsResponseSubject);
 
 cardsResponseSubject.pipe(
