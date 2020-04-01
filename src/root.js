@@ -5,34 +5,55 @@ import HomePage from 'components/HomePage/HomePage';
 import GamePage from 'components/GamePage/GamePage';
 import AuthenticatedRoute from 'components/AuthenticatedRoute/AuthenticatedRoute';
 import UnauthenticatedRoute from 'components/UnauthenticatedRoute/UnauthenticatedRoute';
-import { Switch, Route } from 'react-router-dom';
-import { currentUserIsAuthenticatedSubject } from 'stream/currentUser/currentUser';
+import { Switch } from 'react-router-dom';
+import { isAuthenticatedSubject, authStateDeterminedSubject } from 'stream/currentUser/currentUser';
+import Backdrop from '@material-ui/core/Backdrop';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
-const Routes = () => {
+import { makeStyles } from '@material-ui/core/styles';
+
+const useStyles = makeStyles((theme) => ({
+  backdrop: {
+    zIndex: theme.zIndex.drawer + 1,
+    color: '#fff',
+  },
+}));
+
+const Root = () => {
+  const classes = useStyles();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authStateDetermined, setAuthStateDetermined] = useState(false);
 
   useEffect(() => {
-    const subscription = currentUserIsAuthenticatedSubject.subscribe(setIsAuthenticated);
-    return () => subscription.unsubscribe();
+    const subscriptions = [];
+    subscriptions.push(isAuthenticatedSubject.subscribe(setIsAuthenticated));
+    subscriptions.push(authStateDeterminedSubject.subscribe(setAuthStateDetermined));
+    return () => subscriptions.forEach((subscription) => subscription.unsubscribe());
   }, []);
 
   return (
-    <App isAuthenticated={isAuthenticated}>
-      <Switch>
-        <UnauthenticatedRoute exact path="/login" isAuthenticated={isAuthenticated}>
-          <LoginPage />
-        </UnauthenticatedRoute>
+    <App>
+      {authStateDetermined && (
+        <Switch>
+          <UnauthenticatedRoute exact path="/login" isAuthenticated={isAuthenticated}>
+            <LoginPage />
+          </UnauthenticatedRoute>
 
-        <Route exact path="/games/:gameID" isAuthenticated={isAuthenticated}>
-          <GamePage />
-        </Route>
+          <AuthenticatedRoute exact path="/" isAuthenticated={isAuthenticated}>
+            <HomePage />
+          </AuthenticatedRoute>
 
-        <AuthenticatedRoute exact path="/" isAuthenticated={isAuthenticated}>
-          <HomePage />
-        </AuthenticatedRoute>
-      </Switch>
+          <AuthenticatedRoute exact path="/games/:gameID" isAuthenticated={isAuthenticated}>
+            <GamePage />
+          </AuthenticatedRoute>
+        </Switch>
+      )}
+
+      <Backdrop className={classes.backdrop} open={!authStateDetermined}>
+        <CircularProgress color="inherit" />
+      </Backdrop>
     </App>
   );
 };
 
-export default Routes;
+export default Root;

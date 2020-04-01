@@ -6,11 +6,12 @@ import Card from 'components/Card/Card';
 import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles({
-  root: {
+  root: (props) => ({
     position: 'relative',
     width: '200px',
     height: '260px',
-  },
+    ...props,
+  }),
 });
 
 const useCardStyles = makeStyles({
@@ -21,8 +22,11 @@ const useCardStyles = makeStyles({
 });
 
 const CardsStack = memo(({
-  cards: _cards, classes, spacing, isClickable, cardClasses, onClick,
+  cards: _cards, classes: _classes, spacing, isClickable, cardClasses, onClick,
 }) => {
+  const classes = useStyles({
+    height: `${260 + (_cards.length * spacing)}px`,
+  });
   const [cards, setCards] = useState(_cards.slice());
   const lastIndex = cards.length - 1;
 
@@ -36,7 +40,7 @@ const CardsStack = memo(({
   }, [cards, onClick]);
 
   return (
-    <div className={`${useStyles().root} ${classes}`}>
+    <div className={`${classes.root} ${_classes}`}>
       {cards.map((card, index) => {
         const { root } = useCardStyles({
           top: (lastIndex - index) * spacing,

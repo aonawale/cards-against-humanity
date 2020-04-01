@@ -1,17 +1,26 @@
 import { Subject, ReplaySubject } from 'rxjs';
-import { map, filter } from 'rxjs/operators';
+import {
+  map, filter, take, delay,
+} from 'rxjs/operators';
 import { auth, firestore } from 'lib/firebase';
 import { authState } from 'rxfire/auth';
 
 const authStateSubject = new Subject();
 const currentUserSubject = new ReplaySubject(1);
-const currentUserIsAuthenticatedSubject = new ReplaySubject(1);
+const authStateDeterminedSubject = new Subject();
+const isAuthenticatedSubject = new ReplaySubject(1);
 
 authState(auth).subscribe(authStateSubject);
 
 authStateSubject.pipe(
   map((user) => !!user),
-).subscribe(currentUserIsAuthenticatedSubject);
+).subscribe(isAuthenticatedSubject);
+
+isAuthenticatedSubject.pipe(
+  take(1),
+  map(() => true),
+  delay(500),
+).subscribe(authStateDeterminedSubject);
 
 authStateSubject.pipe(
   filter((user) => !!user),
@@ -31,5 +40,6 @@ currentUserSubject.subscribe((user) => {
 
 export {
   currentUserSubject,
-  currentUserIsAuthenticatedSubject,
+  isAuthenticatedSubject,
+  authStateDeterminedSubject,
 };

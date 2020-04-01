@@ -17,7 +17,7 @@ const useStyles = makeStyles({
   cardsCount: {
     position: 'absolute',
     left: '0px',
-    bottom: '16px',
+    bottom: '32px',
     width: '100%',
   },
   blackCard: {

@@ -9,11 +9,11 @@ import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
-import AccountCircle from '@material-ui/icons/AccountCircle';
+import Avatar from '@material-ui/core/Avatar';
 import { useDispatch } from 'react-redux';
 import { signOutStart } from 'store/auth/auth.actions';
 
-const Navbar = ({ currentUser, isAuthenticated }) => {
+const Navbar = ({ currentUser }) => {
   const dispatch = useDispatch();
   const [anchorEl, setAnchorEl] = useState();
 
@@ -38,7 +38,7 @@ const Navbar = ({ currentUser, isAuthenticated }) => {
             Cards Against Humanity
           </Link>
         </Typography>
-        {isAuthenticated && (
+        {currentUser && (
           <Box marginLeft="auto">
             <IconButton
               aria-label="account of current user"
@@ -47,7 +47,7 @@ const Navbar = ({ currentUser, isAuthenticated }) => {
               onClick={handleMenu}
               color="inherit"
             >
-              <AccountCircle />
+              <Avatar alt={currentUser?.displayName} src={currentUser?.photoURL} />
             </IconButton>
             <Menu
               id="menu-appbar"
@@ -64,7 +64,7 @@ const Navbar = ({ currentUser, isAuthenticated }) => {
               open={!!anchorEl}
               onClose={handleClose}
             >
-              <MenuItem>{currentUser?.displayName}</MenuItem>
+              <MenuItem onClick={handleClose}>{currentUser?.displayName}</MenuItem>
               <MenuItem onClick={logOut}>Logout</MenuItem>
             </Menu>
           </Box>
@@ -77,8 +77,8 @@ const Navbar = ({ currentUser, isAuthenticated }) => {
 Navbar.propTypes = {
   currentUser: PropTypes.shape({
     displayName: PropTypes.string,
+    photoURL: PropTypes.string,
   }),
-  isAuthenticated: PropTypes.bool.isRequired,
 };
 
 export default Navbar;

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
 import Navbar from 'components/Navbar/Navbar';
 import { currentUserSubject } from 'stream/currentUser/currentUser';
 import { makeStyles } from '@material-ui/core/styles';
@@ -10,7 +9,7 @@ const useStyles = makeStyles({
   },
 });
 
-const App = ({ isAuthenticated, children }) => {
+const App = ({ children }) => {
   const classes = useStyles();
   const [currentUser, setCurrentUser] = useState();
 
@@ -21,17 +20,10 @@ const App = ({ isAuthenticated, children }) => {
 
   return (
     <>
-      <Navbar
-        currentUser={currentUser}
-        isAuthenticated={isAuthenticated}
-      />
+      <Navbar currentUser={currentUser} />
       <main className={classes.main}>{children}</main>
     </>
   );
-};
-
-App.propTypes = {
-  isAuthenticated: PropTypes.bool.isRequired,
 };
 
 export default App;
