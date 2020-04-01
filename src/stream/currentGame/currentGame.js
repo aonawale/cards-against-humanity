@@ -1,6 +1,6 @@
-import { ReplaySubject, combineLatest } from 'rxjs';
+import { ReplaySubject, combineLatest, of } from 'rxjs';
 import {
-  map, tap, filter, distinctUntilChanged, switchMap,
+  map, tap, distinctUntilChanged, switchMap,
 } from 'rxjs/operators';
 import { firestore as db } from 'lib/firebase';
 import Card, { cardTypes } from 'game/card/card';
@@ -12,15 +12,15 @@ import { blackCardsListSubject, whiteCardsListSubject } from 'stream/cardsList/c
 const currentGameSubject = new ReplaySubject(1);
 
 combineLatest([
-  selectedGameIDSubject.pipe(filter((id) => !!id)),
+  selectedGameIDSubject,
   whiteCardsListSubject,
   blackCardsListSubject,
 ]).pipe(
   distinctUntilChanged(([prevID], [nextID]) => prevID === nextID),
-  switchMap(([id, whiteCards, blackCards]) => doc(db.collection('games').doc(id).withConverter(converter)).pipe(
+  switchMap(([id, whiteCards, blackCards]) => (id ? doc(db.collection('games').doc(id).withConverter(converter)).pipe(
     map((snapshot) => snapshot.data()),
     map((game) => [game, whiteCards, blackCards]),
-  )),
+  ) : of([]))),
   map(([game, whiteCards, blackCards]) => {
     if (!game)
       return undefined;

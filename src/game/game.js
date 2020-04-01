@@ -61,6 +61,10 @@ class Game {
     return this.playedWhiteCards.get(this.roundWinnerID);
   }
 
+  get canPlayNextRound() {
+    return this.blackCardsDeck.cards.length > 0;
+  }
+
   // //---------------------------- Instance methods
   setWhiteCards(cards) {
     const foundIndex = Game.findCardIndex(cards, this.lastWhiteCard);

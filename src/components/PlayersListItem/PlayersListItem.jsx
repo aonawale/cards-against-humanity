@@ -8,7 +8,7 @@ import Avatar from '@material-ui/core/Avatar';
 const PlayersListItem = memo(({ player }) => (
   <ListItem alignItems="flex-start">
     <ListItemAvatar>
-      <Avatar alt={player.name} />
+      <Avatar alt={player.name} src={player.photoURL} />
     </ListItemAvatar>
     <ListItemText
       primary={player.name}
@@ -21,6 +21,7 @@ PlayersListItem.propTypes = {
   player: PropTypes.shape({
     name: PropTypes.string.isRequired,
     points: PropTypes.number.isRequired,
+    photoURL: PropTypes.string,
   }),
 };
 

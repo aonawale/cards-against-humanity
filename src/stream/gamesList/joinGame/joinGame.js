@@ -20,7 +20,7 @@ joinGameSubject.pipe(
       filter((game) => !!game),
     ),
     currentUserSubject.pipe(
-      map(({ id, displayName }) => new Player(id, displayName, Date.now())),
+      map(({ id, displayName, photoURL }) => new Player(id, displayName, Date.now(), photoURL)),
     ),
   ),
   filter(([id, game, player]) => id === game.id && !game.hasPlayer(player)),

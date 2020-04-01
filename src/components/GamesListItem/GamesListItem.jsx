@@ -8,6 +8,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
 import AlertDialog from 'components/AlertDialog/AlertDialog';
+import Tooltip from '@material-ui/core/Tooltip';
 import Slide from '@material-ui/core/Slide';
 
 // eslint-disable-next-line react/jsx-props-no-spreading
@@ -43,9 +44,11 @@ const GamesListItem = memo(({
         <ListItemText primary={game.name} />
         {canDelete && (
           <ListItemSecondaryAction>
-            <IconButton edge="end" aria-label="delete" onClick={handleDelete}>
-              <DeleteIcon />
-            </IconButton>
+            <Tooltip title="Delete Game" aria-label="Delete Game">
+              <IconButton edge="end" aria-label="delete" onClick={handleDelete}>
+                <DeleteIcon />
+              </IconButton>
+            </Tooltip>
           </ListItemSecondaryAction>
         )}
       </ListItem>
@@ -54,6 +57,7 @@ const GamesListItem = memo(({
         open={deleteDialogIsOpen}
         title="Delete this game?"
         confirmText="Delete"
+        onBackdropClick={handleCloseDeleteDialog}
         onCancel={handleCloseDeleteDialog}
         onConfirm={handleConfirmDeleteDialog}
         TransitionComponent={Transition}

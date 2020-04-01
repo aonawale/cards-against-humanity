@@ -91,9 +91,15 @@ const GamePlay = memo(({
         ? (
           <Info title={`You choose ${game.roundWinner.firstName} as the winner`}>
             <Box className={classes.infoBox}>
-              <Button variant="outlined" onClick={onNextRound}>
-                Next round
-              </Button>
+              {game.canPlayNextRound ? (
+                <Button variant="outlined" onClick={onNextRound}>
+                  Next round
+                </Button>
+              ) : (
+                <Typography>
+                  The End
+                </Typography>
+              )}
             </Box>
           </Info>
         )

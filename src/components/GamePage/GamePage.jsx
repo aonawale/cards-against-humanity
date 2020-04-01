@@ -37,6 +37,7 @@ const GamePage = memo(() => {
 
   useEffect(() => {
     selectGame(gameID);
+    return () => selectGame(undefined);
   }, [gameID]);
 
   // bind component state to game data stream

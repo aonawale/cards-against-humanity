@@ -35,7 +35,7 @@ const GameStartDialog = memo(({ isOpen, onClose, onStart }) => {
   }, [formState.name, onStart]);
 
   return (
-    <Dialog open={isOpen} onClose={onClose} aria-labelledby="game-start-dialog-title">
+    <Dialog open={isOpen} onClose={onClose} onBackdropClick={onClose} aria-labelledby="game-start-dialog-title">
       <DialogTitle id="game-start-dialog-title">Enter Game Name</DialogTitle>
       <DialogContent>
         <DialogContentText>

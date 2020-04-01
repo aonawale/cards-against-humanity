@@ -15,10 +15,13 @@ authStateSubject.pipe(
 
 authStateSubject.pipe(
   filter((user) => !!user),
-  map(({ uid, email, displayName }) => ({
+  map(({
+    uid, email, displayName, photoURL,
+  }) => ({
     id: uid,
     email,
     displayName,
+    photoURL,
   })),
 ).subscribe(currentUserSubject);
 

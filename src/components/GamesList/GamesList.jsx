@@ -10,8 +10,8 @@ const GamesList = memo(({
 }) => (
   <Box paddingY={2}>
     <Box paddingX={2}>
-      <Typography component="h2">
-        {games.length ? 'All Games' : 'No Games'}
+      <Typography variant="h4" component="h1">
+        Games
       </Typography>
     </Box>
     <List>
