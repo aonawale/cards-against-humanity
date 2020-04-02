@@ -22,7 +22,7 @@ PlayersList.defaultProps = {
 };
 
 PlayersList.propTypes = {
-  players: PropTypes.arrayOf(PlayersListItem.propTypes.player),
+  players: PropTypes.arrayOf(PlayersListItem.propsStructure.player),
 };
 
 export default PlayersList;

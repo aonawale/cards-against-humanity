@@ -17,12 +17,16 @@ const PlayersListItem = memo(({ player }) => (
   </ListItem>
 ));
 
-PlayersListItem.propTypes = {
+PlayersListItem.propsStructure = {
   player: PropTypes.shape({
     name: PropTypes.string.isRequired,
     points: PropTypes.number.isRequired,
     photoURL: PropTypes.string,
   }),
+};
+
+PlayersListItem.propTypes = {
+  ...PlayersListItem.playerPropsTypes,
 };
 
 export default PlayersListItem;

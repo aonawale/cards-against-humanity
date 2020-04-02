@@ -68,7 +68,7 @@ Card.defaultProps = {
 Card.propTypes = {
   card: PropTypes.shape({
     text: PropTypes.string.isRequired,
-    type: PropTypes.oneOf([...Object.values(cardTypes)]),
+    type: PropTypes.oneOf([...Object.values(cardTypes)]).isRequired,
   }).isRequired,
   classes: PropTypes.string,
   isClickable: PropTypes.bool,

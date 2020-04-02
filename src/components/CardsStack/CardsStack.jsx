@@ -2,7 +2,7 @@ import React, {
   memo, useState, useCallback,
 } from 'react';
 import PropTypes from 'prop-types';
-import Card from 'components/Card/Card';
+import Card, { cardTypes } from 'components/Card/Card';
 import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles({
@@ -67,7 +67,10 @@ CardsStack.defaultProps = {
 };
 
 CardsStack.propTypes = {
-  cards: PropTypes.arrayOf(Card.propTypes.card).isRequired,
+  cards: PropTypes.arrayOf(PropTypes.shape({
+    text: PropTypes.string.isRequired,
+    type: PropTypes.oneOf([...Object.values(cardTypes)]).isRequired,
+  })).isRequired,
   spacing: PropTypes.number,
   isClickable: PropTypes.bool,
   classes: PropTypes.string,

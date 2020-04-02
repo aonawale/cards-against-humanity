@@ -2,7 +2,6 @@ import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
-import Card from 'components/Card/Card';
 import { makeStyles } from '@material-ui/core/styles';
 import CardsStack from 'components/CardsStack/CardsStack';
 import { cardTypes } from 'game/card/card';
@@ -39,7 +38,7 @@ const GameDeck = memo(({ whiteCardsDeck, blackCardsDeck }) => {
           cards={generateCards(cardTypes.black)}
         />
         <Typography className={classes.cardsCount}>
-          {blackCardsDeck.cards.length} Cards
+          {blackCardsDeck.count} Cards
         </Typography>
       </Box>
 
@@ -51,7 +50,7 @@ const GameDeck = memo(({ whiteCardsDeck, blackCardsDeck }) => {
           cards={generateCards(cardTypes.white)}
         />
         <Typography color="textPrimary" className={classes.cardsCount}>
-          {whiteCardsDeck.cards.length} Cards
+          {whiteCardsDeck.count} Cards
         </Typography>
       </Box>
     </Box>
@@ -60,10 +59,10 @@ const GameDeck = memo(({ whiteCardsDeck, blackCardsDeck }) => {
 
 GameDeck.propTypes = {
   whiteCardsDeck: PropTypes.shape({
-    cards: PropTypes.arrayOf(Card.propTypes.card),
+    count: PropTypes.number.isRequired,
   }),
   blackCardsDeck: PropTypes.shape({
-    cards: PropTypes.arrayOf(Card.propTypes.card),
+    count: PropTypes.number.isRequired,
   }),
 };
 

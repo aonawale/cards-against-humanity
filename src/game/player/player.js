@@ -5,7 +5,7 @@ export default class Player {
     this.id = id;
     this.name = name;
     this.createdAt = createdAt;
-    this.photoURL = photoURL;
+    this.photoURL = photoURL || null;
     this.points = points;
     this.cards = cards;
   }

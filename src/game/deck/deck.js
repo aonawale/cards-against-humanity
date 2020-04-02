@@ -3,6 +3,10 @@ export default class Deck {
     this.cards = cards;
   }
 
+  get count() {
+    return this.cards.length;
+  }
+
   draw() {
     return this.cards.pop();
   }

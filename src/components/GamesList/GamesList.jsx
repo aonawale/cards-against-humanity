@@ -33,7 +33,10 @@ GamesList.defaultProps = {
 };
 
 GamesList.propTypes = {
-  games: PropTypes.arrayOf(GamesListItem.propTypes.game),
+  games: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+  })),
   currentUser: PropTypes.shape({
     id: PropTypes.string.isRequired,
   }),

@@ -34,7 +34,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "deploy-staging": "cp .env.development.local .env.production.local && react-scripts build && firebase deploy -P staging && rm .env.production.local",
+    "deploy-production": "cp .env.production .env.production.local && react-scripts build && firebase deploy -P production && rm .env.production.local"
   },
   "eslintConfig": {
     "extends": "react-app"
