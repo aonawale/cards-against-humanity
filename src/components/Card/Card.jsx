@@ -22,13 +22,14 @@ const useStyles = makeStyles({
     userSelect: 'none',
     height: '100%',
     overflow: 'hidden',
+    position: 'relative',
   },
 });
 
 const Card = memo(({
   card, classes, onClick, isClickable,
 }) => {
-  const { root, content } = useStyles({
+  const { root, content, button } = useStyles({
     color: card.type === cardTypes.black ? 'white' : 'black',
     backgroundColor: card.type === cardTypes.black ? 'black' : 'white',
     cursor: isClickable ? 'pointer' : 'default',
@@ -53,7 +54,7 @@ const Card = memo(({
       onMouseLeave={handleItemBlur}
     >
       <Box className={content}>
-        <Textfit mode="multi" style={{ height: '100%' }} max={33}>
+        <Textfit mode="multi" style={{ width: '100%', height: '100%', display: 'flex' }} max={33}>
           {card.text}
         </Textfit>
       </Box>

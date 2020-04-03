@@ -13,12 +13,17 @@ const useStyles = makeStyles({
   card: {
     marginRight: '16px',
     display: 'inline-block',
+    '&:last-of-type': {
+      marginRight: '0px',
+    },
   },
   infoBox: {
     padding: '16px',
     whiteSpace: 'nowrap',
     width: '100%',
     overflow: 'scroll',
+    WebkitOverflowScrolling: 'touch',
+    scrollbarWidth: 'none',
     msOverflowStyle: 'none',
     '&::-webkit-scrollbar': {
       display: 'none',
@@ -55,7 +60,7 @@ const GamePlay = memo(({
           />
         )
         : (
-          <Info title="Play card">
+          <Info title="Click card to play">
             <Box className={classes.infoBox}>
               {currentPlayer.cards.map((card) => (
                 <Card
@@ -72,7 +77,7 @@ const GamePlay = memo(({
     case gameStates.pickingWinner:
       return currentPlayerIsCzar
         ? (
-          <Info title="Players played cards. Choose a winner.">
+          <Info title="Players played cards. Click card to choose a winner.">
             <Box className={classes.infoBox}>
               {[...game.playedWhiteCards.values()].map((cards) => (
                 <CardsStack
@@ -89,7 +94,7 @@ const GamePlay = memo(({
     case gameStates.winnerSelected:
       return currentPlayerIsCzar
         ? (
-          <Info title={`You choose ${game.roundWinner.firstName} as the winner`}>
+          <Info title={`You choose ${game.roundWinner.firstName} as the winner.`}>
             <Box className={classes.infoBox}>
               {game.canPlayNextRound ? (
                 <Button variant="outlined" onClick={onNextRound}>

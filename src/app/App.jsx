@@ -5,7 +5,8 @@ import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles({
   main: {
-    height: 'calc(100vh - 66px)',
+    position: 'relative',
+    minHeight: 'calc(100vh - 66px)',
   },
 });
 

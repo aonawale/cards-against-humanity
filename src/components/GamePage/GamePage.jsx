@@ -13,7 +13,9 @@ import AlertDialog from 'components/AlertDialog/AlertDialog';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
+import deleteGame from 'stream/gamesList/deleteGame/deleteGame';
 import { selectGame } from 'stream/gamesList/gamesList';
 import joinGame, { playerJoinedGameSubject } from 'stream/gamesList/joinGame/joinGame';
 import pickWinner from 'stream/currentGame/pickWinner/pickWinner';
@@ -24,8 +26,26 @@ import currentGameSubject from 'stream/currentGame/currentGame';
 import currentPlayerSubject from 'stream/currentGame/currentPlayer/currentPlayer';
 import { currentUserSubject } from 'stream/currentUser/currentUser';
 import { useSnackbar } from 'notistack';
+import { makeStyles } from '@material-ui/core/styles';
+
+const useStyles = makeStyles({
+  loader: {
+    position: 'absolute',
+    top: '0',
+    bottom: '0',
+    right: '0',
+    left: '0',
+    background: '#fff',
+    zIndex: 1,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
 
 const GamePage = memo(() => {
+  const classes = useStyles();
+
   const history = useHistory();
   const { gameID } = useParams();
   const { enqueueSnackbar } = useSnackbar();
@@ -103,10 +123,21 @@ const GamePage = memo(() => {
     leaveGame();
   }, []);
 
+  const handleDeleteGame = useCallback(() => {
+    deleteGame(currentGame?.id);
+    history.replace('/');
+  }, [currentGame, history]);
+
   return (
     <Box display="flex" flexDirection="column" height="100%">
+      {!currentGame && (
+        <Box className={classes.loader}>
+          <CircularProgress />
+        </Box>
+      )}
+
       {currentGame?.playedBlackCard && (
-        <Box p={1} display="flex" justifyContent="center">
+        <Box p={2} display="flex" justifyContent="center">
           <Card
             card={currentGame?.playedBlackCard}
           >
@@ -155,6 +186,9 @@ const GamePage = memo(() => {
         <TabPanel value={currentTab} index={3}>
           <GameSettings
             onLeaveGame={handleLeaveGame}
+            canLeaveGame={currentGame?.ownerID !== currentPlayer?.id}
+            onDeleteGame={handleDeleteGame}
+            canDeleteGame={currentGame?.ownerID === currentPlayer?.id}
           />
         </TabPanel>
       </Box>

@@ -8,7 +8,8 @@ import { cardTypes } from 'game/card/card';
 
 const useStyles = makeStyles({
   cardsStack: {
-    marginRight: '16px',
+    marginLeft: '8px',
+    marginRight: '8px',
     display: 'inline-block',
     position: 'relative',
     color: '#fff',
@@ -29,7 +30,7 @@ const generateCards = (type) => [1, 2, 3, 4, 5].map(() => ({ text: 'Cards Agains
 const GameDeck = memo(({ whiteCardsDeck, blackCardsDeck }) => {
   const classes = useStyles();
   return (
-    <Box p={2} textAlign="center" whiteSpace="nowrap" height="100%" width="100%" overflow="scroll">
+    <Box py={2} px={1} textAlign="center" whiteSpace="nowrap" height="100%" width="100%" overflow="scroll">
       <Box className={classes.cardsStack}>
         <CardsStack
           spacing={4}
