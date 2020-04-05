@@ -22,3 +22,8 @@ game state
     - api request to joing game id
     - player gets added to the players array
     - invoke [on response game state] step above
+
+
+Improvements
+
+enable next round in 3 sec, so people can see the winner
