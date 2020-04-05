@@ -1,32 +1,32 @@
 import { from, Subject, BehaviorSubject } from 'rxjs';
 import {
-  map, filter, flatMap, take, tap,
+  map, filter, flatMap, take, tap, share,
 } from 'rxjs/operators';
 
 const url = 'https://cards-against-humanity-api.herokuapp.com/sets/Base';
 
-const cardsResponseSubject = new Subject();
-const cardsLoadedSubject = new BehaviorSubject(false);
 const blackCardsListSubject = new Subject();
 const whiteCardsListSubject = new Subject();
+const cardsLoadedSubject = new BehaviorSubject(false);
 
-from(fetch(url)).pipe(
+const cardsResponseObservable = from(fetch(url)).pipe(
   filter((response) => response),
   flatMap((response) => response.json()),
-  tap((response) => console.log('cardsResponseSubject response', response)),
-).subscribe(cardsResponseSubject);
+  share(),
+  tap((response) => console.log('cardsResponseObservable response', response)),
+);
 
-cardsResponseSubject.pipe(
+cardsResponseObservable.pipe(
   take(1),
   map(() => true),
 ).subscribe(cardsLoadedSubject);
 
-cardsResponseSubject.pipe(
+cardsResponseObservable.pipe(
   map(({ blackCards }) => blackCards),
   map((cards) => cards.map(({ text, pick }) => ({ text, pick }))),
 ).subscribe(blackCardsListSubject);
 
-cardsResponseSubject.pipe(
+cardsResponseObservable.pipe(
   map(({ whiteCards }) => whiteCards),
   map((cards) => cards.map((card) => ({ text: card }))),
 ).subscribe(whiteCardsListSubject);

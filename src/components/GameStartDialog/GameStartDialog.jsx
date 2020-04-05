@@ -17,32 +17,38 @@ const GameStartDialog = memo(({ isOpen, onClose, onStart }) => {
     errors: {},
   });
 
+  const handleClose = useCallback(() => {
+    setFormState({ name: '', errors: {} });
+    if (onClose)
+      onClose();
+  }, [onClose]);
+
   const handleChange = useCallback((event) => {
     const { name, value } = event.target;
     setFormState((state) => ({ ...state, [name]: value }));
   }, []);
 
   const handleStart = useCallback(() => {
-    let errors;
+    let errors = {};
 
     if (!formState.name)
-      errors = { name: 'Game name is required' };
+      errors = { name: 'Name is required' };
 
     setFormState((state) => ({ ...state, errors }));
 
-    if (!errors && onStart)
+    if (!errors.name && onStart)
       onStart({ name: formState.name });
   }, [formState.name, onStart]);
 
   return (
-    <Dialog open={isOpen} onClose={onClose} onBackdropClick={onClose} aria-labelledby="game-start-dialog-title">
+    <Dialog open={isOpen} onClose={handleClose} onBackdropClick={handleClose} aria-labelledby="game-start-dialog-title">
       <DialogTitle id="game-start-dialog-title">Enter Game Name</DialogTitle>
       <DialogContent>
         <DialogContentText>
-          Please enter a game name to start game.
+          Please enter a game name to start.
         </DialogContentText>
         <FormControl required fullWidth error={!!formState.errors.name}>
-          <InputLabel htmlFor="game-name">Game Name</InputLabel>
+          <InputLabel htmlFor="game-name">Name</InputLabel>
           <Input
             autoFocus
             id="game-name"
@@ -57,11 +63,11 @@ const GameStartDialog = memo(({ isOpen, onClose, onStart }) => {
         </FormControl>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} color="primary">
-        Cancel
+        <Button onClick={handleClose} color="primary">
+          Cancel
         </Button>
         <Button onClick={handleStart} color="primary">
-        Start
+          Start
         </Button>
       </DialogActions>
     </Dialog>

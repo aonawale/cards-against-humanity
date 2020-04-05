@@ -1,6 +1,6 @@
 import { Subject } from 'rxjs';
 import {
-  tap, distinctUntilKeyChanged, withLatestFrom, filter, map,
+  tap, withLatestFrom, filter, map,
 } from 'rxjs/operators';
 import currentGameSubject from 'stream/currentGame/currentGame';
 import { firestore as db } from 'lib/firebase';
@@ -12,7 +12,6 @@ const pickWinner = (card) => pickWinnerSubject.next(card);
 
 pickWinnerSubject.pipe(
   filter((card) => !!card),
-  distinctUntilKeyChanged('text'),
   withLatestFrom(
     currentGameSubject.pipe(filter((game) => !!game)),
   ),

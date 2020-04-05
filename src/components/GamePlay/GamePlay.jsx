@@ -1,5 +1,6 @@
-import React, { memo } from 'react';
+import React, { memo, useMemo } from 'react';
 import PropTypes from 'prop-types';
+import shuffle from 'lib/shuffle';
 import Game, { gameStates } from 'game/game';
 import Player from 'game/player/player';
 import Box from '@material-ui/core/Box';
@@ -13,6 +14,7 @@ const useStyles = makeStyles({
   card: {
     marginRight: '16px',
     display: 'inline-block',
+    verticalAlign: 'top',
     '&:last-of-type': {
       marginRight: '0px',
     },
@@ -49,7 +51,12 @@ const GamePlay = memo(({
 }) => {
   const classes = useStyles();
   const currentPlayerIsCzar = currentPlayer.id === game.cZarID;
-  const playerNames = game.pendingPlayers.map(({ firstName }) => firstName).join(',');
+  const playerNames = game.pendingPlayers.map(({ firstName }) => firstName).join(', ');
+
+  const shuffledPlayedWhiteCards = useMemo(
+    () => shuffle([...game.playedWhiteCards.values()]),
+    [game.playedWhiteCards],
+  );
 
   switch (game.state) {
     case gameStates.playingCards:
@@ -60,14 +67,18 @@ const GamePlay = memo(({
           />
         )
         : (
-          <Info title="Click card to play">
+          <Info
+            title={game.hasPlayedWhiteCards(currentPlayer)
+              ? 'Waiting for others to play...'
+              : 'Click card to play'}
+          >
             <Box className={classes.infoBox}>
               {currentPlayer.cards.map((card) => (
                 <Card
                   key={card.text}
                   card={card}
                   classes={classes.card}
-                  isClickable={game.canPlayWhiteCard(currentPlayer)}
+                  isClickable={game.canPlayWhiteCard(currentPlayer, card)}
                   onClick={onPlayerClickCard}
                 />
               ))}
@@ -79,10 +90,10 @@ const GamePlay = memo(({
         ? (
           <Info title="Players played cards. Click card to choose a winner.">
             <Box className={classes.infoBox}>
-              {[...game.playedWhiteCards.values()].map((cards) => (
+              {shuffledPlayedWhiteCards.map((cards) => (
                 <CardsStack
                   key={cards.map(({ text }) => text).join('')}
-                  classes={classes.card}
+                  className={classes.card}
                   cards={cards}
                   onClick={onCZarClickCard}
                 />
@@ -110,7 +121,7 @@ const GamePlay = memo(({
         )
         : (
           <Info title={`The Czar choose 
-            ${game.roundWinnerID === currentPlayer.id ? 'your' : `${game.roundWinner.firstName}s`} card`}
+            ${game.roundWinnerID === currentPlayer.id ? 'your' : `${game.roundWinner.firstName}'s`} card`}
           >
             <Box className={classes.infoBox}>
               {game.roundWinnerCards.map((card) => <Card key={card.text} card={card} classes={classes.card} />)}

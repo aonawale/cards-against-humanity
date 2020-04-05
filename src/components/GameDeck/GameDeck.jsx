@@ -7,12 +7,27 @@ import CardsStack from 'components/CardsStack/CardsStack';
 import { cardTypes } from 'game/card/card';
 
 const useStyles = makeStyles({
+  root: {
+    padding: '16px 8px',
+    whiteSpace: 'nowrap',
+    width: '100%',
+    height: '100%',
+    textAlign: 'center',
+    overflow: 'scroll',
+    WebkitOverflowScrolling: 'touch',
+    scrollbarWidth: 'none',
+    msOverflowStyle: 'none',
+    '&::-webkit-scrollbar': {
+      display: 'none',
+    },
+  },
   cardsStack: {
     marginLeft: '8px',
     marginRight: '8px',
     display: 'inline-block',
     position: 'relative',
     color: '#fff',
+    verticalAlign: 'top',
   },
   cardsCount: {
     position: 'absolute',
@@ -25,18 +40,20 @@ const useStyles = makeStyles({
   },
 });
 
-const generateCards = (type) => [1, 2, 3, 4, 5].map(() => ({ text: 'Cards Against Humanity', type }));
+const generateCards = (type, count) => [...new Array(count).keys()].map(
+  () => ({ text: 'Cards Against Humanity', type }),
+);
 
 const GameDeck = memo(({ whiteCardsDeck, blackCardsDeck }) => {
   const classes = useStyles();
   return (
-    <Box py={2} px={1} textAlign="center" whiteSpace="nowrap" height="100%" width="100%" overflow="scroll">
+    <Box className={classes.root}>
       <Box className={classes.cardsStack}>
         <CardsStack
           spacing={4}
           isClickable={false}
           cardClasses={classes.blackCard}
-          cards={generateCards(cardTypes.black)}
+          cards={generateCards(cardTypes.black, Math.min(blackCardsDeck.count || 1, 5))}
         />
         <Typography className={classes.cardsCount}>
           {blackCardsDeck.count} Cards
@@ -48,7 +65,7 @@ const GameDeck = memo(({ whiteCardsDeck, blackCardsDeck }) => {
           spacing={4}
           isClickable={false}
           classes={classes.cardsStack}
-          cards={generateCards(cardTypes.white)}
+          cards={generateCards(cardTypes.white, Math.min(whiteCardsDeck.count || 1, 5))}
         />
         <Typography color="textPrimary" className={classes.cardsCount}>
           {whiteCardsDeck.count} Cards

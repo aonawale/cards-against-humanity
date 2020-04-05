@@ -15,13 +15,12 @@ const playCard = (card) => playCardSubject.next(card);
 
 playCardSubject.pipe(
   filter((card) => !!card),
-  distinctUntilKeyChanged('text'),
   withLatestFrom(
     currentGameSubject.pipe(filter((game) => !!game)),
     currentPlayerSubject,
   ),
   tap((val) => console.log('playCardSubject emits =>', val)),
-  filter(([, game, player]) => game.canPlayWhiteCard(player)),
+  filter(([card, game, player]) => game.canPlayWhiteCard(player, card)),
   tap(([card, game, player]) => game.playWhiteCard(player, card)),
   tap((val) => console.log('playCardSubject play card =>', val)),
 ).subscribe(([, game]) => {

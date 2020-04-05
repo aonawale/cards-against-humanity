@@ -42,6 +42,7 @@ class Game {
       (aggr, curr) => [...aggr, ...curr], [],
     );
     return this.players.length > 1
+    && !this.roundWinnerID
     && this.playedBlackCard
     && cards.length === ((this.players.length - 1) * this.playedBlackCard.pick);
   }
@@ -62,7 +63,7 @@ class Game {
   }
 
   get canPlayNextRound() {
-    return this.blackCardsDeck.cards.length > 0;
+    return this.blackCardsDeck.count > 0;
   }
 
   // //---------------------------- Instance methods
@@ -159,13 +160,27 @@ class Game {
     this.playedBlackCard = this.blackCardsDeck.draw();
   }
 
-  canPlayWhiteCard(player) {
+  hasPlayedWhiteCards(player) {
+    const playedCards = this.playedWhiteCards.get(player.id);
+
+    return playedCards
+      && this.playedBlackCard
+      && this.playedBlackCard.pick === playedCards.length;
+  }
+
+  canPlayWhiteCard(player, card) {
     const hasPlayed = this.playedWhiteCards.has(player.id);
     const playedCards = this.playedWhiteCards.get(player.id);
 
     return this.cZarID !== player.id
       && this.playedBlackCard
-      && (!hasPlayed || this.playedBlackCard.pick > playedCards.length);
+      && (
+        !hasPlayed
+        || (
+          this.playedBlackCard.pick > playedCards.length
+          && !playedCards.some(({ text }) => text === card.text)
+        )
+      );
   }
 
   // a player playing a white card
@@ -192,14 +207,10 @@ class Game {
     if (!this.canPickWinner)
       throw new Error('All players must play card(s) before picking a winner!');
 
-    const [playerID] = [...this.playedWhiteCards.entries()].find(
-      ([, cards]) => cards.find(({ text }) => text === card.text),
-    );
-
     const player = this.cardPlayer(card);
 
     player.incrementPoints();
-    this.roundWinnerID = playerID;
+    this.roundWinnerID = player.id;
   }
 }
 

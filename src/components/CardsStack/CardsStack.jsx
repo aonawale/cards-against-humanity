@@ -22,7 +22,7 @@ const useCardStyles = makeStyles({
 });
 
 const CardsStack = memo(({
-  cards: _cards, classes: _classes, spacing, isClickable, cardClasses, onClick,
+  cards: _cards, className, spacing, isClickable, cardClasses, onClick,
 }) => {
   const classes = useStyles({
     height: `${260 + (_cards.length * spacing)}px`,
@@ -40,7 +40,7 @@ const CardsStack = memo(({
   }, [cards, onClick]);
 
   return (
-    <div className={`${classes.root} ${_classes}`}>
+    <div className={`${classes.root} ${className}`}>
       {cards.map((card, index) => {
         const { root } = useCardStyles({
           top: (lastIndex - index) * spacing,
@@ -73,7 +73,7 @@ CardsStack.propTypes = {
   })).isRequired,
   spacing: PropTypes.number,
   isClickable: PropTypes.bool,
-  classes: PropTypes.string,
+  className: PropTypes.string,
   cardClasses: PropTypes.string,
   onClick: PropTypes.func,
 };

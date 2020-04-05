@@ -1,6 +1,6 @@
 import { from, Subject } from 'rxjs';
 import {
-  tap, map, distinctUntilChanged, withLatestFrom, filter, concatMap, pairwise,
+  tap, map, withLatestFrom, filter, concatMap, pairwise,
 } from 'rxjs/operators';
 import { currentUserSubject } from 'stream/currentUser/currentUser';
 import currentGameSubject from 'stream/currentGame/currentGame';
@@ -14,7 +14,6 @@ const playerJoinedGameSubject = new Subject();
 const joinGame = (id) => joinGameSubject.next(id);
 
 joinGameSubject.pipe(
-  distinctUntilChanged(),
   withLatestFrom(
     currentGameSubject.pipe(
       filter((game) => !!game),
