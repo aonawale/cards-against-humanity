@@ -51,7 +51,17 @@ const GamePlay = memo(({
 }) => {
   const classes = useStyles();
   const currentPlayerIsCzar = currentPlayer.id === game.cZarID;
-  const playerNames = game.pendingPlayers.map(({ firstName }) => firstName).join(', ');
+
+  const playerNames = useMemo(
+    () => {
+      const names = game.pendingPlayers.map(({ firstName }) => firstName);
+      const formattedNames = names.length > 1
+        ? [...names.slice(0, names.length - 2), names.slice(-2).join(' and ')]
+        : names;
+      return formattedNames.join(', ');
+    },
+    [game.pendingPlayers],
+  );
 
   const shuffledPlayedWhiteCards = useMemo(
     () => shuffle([...game.playedWhiteCards.values()]),

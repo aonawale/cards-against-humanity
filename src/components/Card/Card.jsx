@@ -29,7 +29,7 @@ const useStyles = makeStyles({
 const Card = memo(({
   card, classes, onClick, isClickable,
 }) => {
-  const { root, content, button } = useStyles({
+  const { root, content } = useStyles({
     color: card.type === cardTypes.black ? 'white' : 'black',
     backgroundColor: card.type === cardTypes.black ? 'black' : 'white',
     cursor: isClickable ? 'pointer' : 'default',
