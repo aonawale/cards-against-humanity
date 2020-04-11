@@ -1,6 +1,6 @@
-import { Subject, from } from 'rxjs';
+import { Subject, from, merge } from 'rxjs';
 import {
-  tap, withLatestFrom, filter, map, pairwise, concatMap,
+  tap, withLatestFrom, filter, map, pairwise, concatMap, switchMapTo, take,
 } from 'rxjs/operators';
 import currentGameSubject from 'stream/currentGame/currentGame';
 import currentPlayerSubject from 'stream/currentGame/currentPlayer/currentPlayer';
@@ -9,19 +9,22 @@ import { converter } from 'game/game';
 
 const leaveGameSubject = new Subject();
 const playerLeaveGameSubject = new Subject();
+const removePlayerSubject = new Subject();
 
 const leaveGame = () => leaveGameSubject.next();
+const removePlayer = (player) => removePlayerSubject.next(player);
 
-leaveGameSubject.pipe(
-  withLatestFrom(
-    currentGameSubject.pipe(filter((game) => !!game)),
-    currentPlayerSubject,
+merge(
+  removePlayerSubject,
+  leaveGameSubject.pipe(
+    switchMapTo(currentPlayerSubject.pipe(filter((player) => player), take(1))),
   ),
-  filter(([, game, player]) => game.ownerID !== player.id),
-  map(([, game, player]) => [game, player]),
-  tap(([game, player]) => game.removePlayer(player)),
+).pipe(
+  withLatestFrom(currentGameSubject.pipe(filter((game) => !!game))),
+  filter(([player, game]) => game.ownerID !== player.id),
+  tap(([player, game]) => game.removePlayer(player)),
   tap((val) => console.log('leaveGameSubject remove player =>', val)),
-).subscribe(([game]) => {
+).subscribe(([, game]) => {
   db.collection('games').doc(game.id).withConverter(converter).set(game);
 });
 
@@ -39,5 +42,6 @@ currentGameSubject.pipe(
 export default leaveGame;
 
 export {
+  removePlayer,
   playerLeaveGameSubject,
 };

@@ -1,22 +1,30 @@
-import { Subject } from 'rxjs';
+import { Subject, interval } from 'rxjs';
 import {
-  tap, withLatestFrom, filter, map,
+  tap, withLatestFrom, filter, map, switchMap, take, startWith,
 } from 'rxjs/operators';
 import currentGameSubject from 'stream/currentGame/currentGame';
 import currentPlayerSubject from 'stream/currentGame/currentPlayer/currentPlayer';
 import { firestore as db } from 'lib/firebase';
-import { converter } from 'game/game';
+import { converter, gameStates } from 'game/game';
 
-const nextRoundSubject = new Subject();
+const nextRoundStartingSubject = new Subject();
 
-const nextRound = () => nextRoundSubject.next();
+currentGameSubject.pipe(
+  filter((game) => game?.state === gameStates.winnerSelected && game.canPlayNextRound),
+  switchMap(() => interval(1000).pipe(
+    map((val) => 5 - (val + 1)),
+    take(5),
+    startWith(5),
+  )),
+).subscribe(nextRoundStartingSubject);
 
-nextRoundSubject.pipe(
+nextRoundStartingSubject.pipe(
+  filter((count) => count === 0),
   withLatestFrom(
     currentGameSubject.pipe(filter((game) => !!game)),
     currentPlayerSubject,
   ),
-  filter(([, game, player]) => game.cZarID === player.id),
+  filter(([, game, player]) => game.state === gameStates.winnerSelected && game.cZarID === player.id),
   map(([, game]) => game),
   tap((game) => game.startNextRound()),
   tap((val) => console.log('nextRoundSubject starts next round =>', val)),
@@ -24,4 +32,4 @@ nextRoundSubject.pipe(
   db.collection('games').doc(game.id).withConverter(converter).set(game);
 });
 
-export default nextRound;
+export default nextRoundStartingSubject;

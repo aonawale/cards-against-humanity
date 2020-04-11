@@ -121,15 +121,24 @@ class Game {
     return this.players.find(({ id }) => id === card.playerID);
   }
 
+  getPlayer(playerID) {
+    return this.players.find(({ id }) => id === playerID);
+  }
+
   hasPlayer(playerID) {
-    return !!this.players.find(({ id }) => id === playerID);
+    return !!this.getPlayer(playerID);
   }
 
   addPlayer(player) {
     if (this.players.length >= 10)
       throw new Error('Max allowed players is 10!');
+    if (this.hasPlayer(player.id))
+      throw new Error('Player has been added already');
     this.dealCardsToPlayer(player, 5);
     this.players.push(player);
+    // switch to playingCards state if we're in pickingWinner state
+    if (this.state === gameStates.pickingWinner)
+      this.setState(gameStates.playingCards);
   }
 
   removePlayer(player) {
@@ -141,6 +150,17 @@ class Game {
     this.playedWhiteCards.delete(player.id);
     // remove player
     this.players = this.players.filter(({ id }) => id !== player.id);
+
+    // choose a new czar if the player is the czar
+    if (this.canPlayNextRound && player.id === this.cZarID) {
+      const newCzar = this.chooseNextCZar();
+      // deal cards to new czar if they already played some cards
+      // and remove their played cards
+      if (this.playedWhiteCards.has(newCzar.id)) {
+        this.dealCardsToPlayer(newCzar, this.playedWhiteCards.get(newCzar.id).length);
+        this.playedWhiteCards.delete(newCzar.id);
+      }
+    }
   }
 
   resetCurrentRound() {
@@ -153,6 +173,7 @@ class Game {
     const index = this.players.findIndex((player) => player.id === this.cZarID);
     const nextIndex = (index + 1) % this.players.length;
     this.cZarID = this.players[nextIndex].id;
+    return this.getPlayer(this.cZarID);
   }
 
   // a cZarID playing a black card

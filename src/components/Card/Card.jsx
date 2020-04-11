@@ -54,7 +54,13 @@ const Card = memo(({
       onMouseLeave={handleItemBlur}
     >
       <Box className={content}>
-        <Textfit mode="multi" style={{ width: '100%', height: '100%', display: 'flex' }} max={33}>
+        <Textfit
+          mode="multi"
+          style={{
+            width: '100%', height: '100%', display: 'flex', hyphens: 'auto',
+          }}
+          max={33}
+        >
           {card.text}
         </Textfit>
       </Box>

@@ -20,8 +20,8 @@ import { selectGame } from 'stream/gamesList/gamesList';
 import joinGame, { playerJoinedGameSubject } from 'stream/gamesList/joinGame/joinGame';
 import pickWinner from 'stream/currentGame/pickWinner/pickWinner';
 import playCard, { playerPlayedCardSubject } from 'stream/currentGame/playCard/playCard';
-import nextRound from 'stream/currentGame/nextRound/nextRound';
-import leaveGame, { playerLeaveGameSubject } from 'stream/currentGame/leaveGame/leaveGame';
+import nextRoundStartingSubject from 'stream/currentGame/nextRound/nextRound';
+import leaveGame, { removePlayer, playerLeaveGameSubject } from 'stream/currentGame/leaveGame/leaveGame';
 import currentGameSubject from 'stream/currentGame/currentGame';
 import currentPlayerSubject from 'stream/currentGame/currentPlayer/currentPlayer';
 import { currentUserSubject } from 'stream/currentUser/currentUser';
@@ -52,6 +52,7 @@ const GamePage = memo(() => {
   const [currentGame, setcurrentGame] = useState();
   const [currentPlayer, setCurrentPlayer] = useState();
   const [currentUser, setCurrentUser] = useState();
+  const [nextRoundStarting, setNextRoundStarting] = useState();
   const [currentTab, setCurrentTab] = useState(0);
   const [joinDialogIsOpen, setJoinDialogIsOpen] = useState(false);
 
@@ -66,6 +67,7 @@ const GamePage = memo(() => {
     subscriptions.push(currentGameSubject.subscribe(setcurrentGame));
     subscriptions.push(currentPlayerSubject.subscribe(setCurrentPlayer));
     subscriptions.push(currentUserSubject.subscribe(setCurrentUser));
+    subscriptions.push(nextRoundStartingSubject.subscribe(setNextRoundStarting));
     return () => subscriptions.forEach((subscription) => subscription.unsubscribe());
   }, []);
 
@@ -98,30 +100,10 @@ const GamePage = memo(() => {
     setCurrentTab(newValue);
   }, []);
 
-  const handleConfirmJoinDialog = useCallback(() => {
-    joinGame(gameID);
-  }, [gameID]);
-
   const handleCloseJoinDialog = useCallback(() => {
     setJoinDialogIsOpen(false);
     history.replace('/');
   }, [history]);
-
-  const handlePlayerClickCard = useCallback((card) => {
-    playCard(card);
-  }, []);
-
-  const handleCZarClickCard = useCallback((card) => {
-    pickWinner(card);
-  }, []);
-
-  const handleNextRound = useCallback(() => {
-    nextRound();
-  }, []);
-
-  const handleLeaveGame = useCallback(() => {
-    leaveGame();
-  }, []);
 
   const handleDeleteGame = useCallback(() => {
     deleteGame(currentGame?.id);
@@ -161,9 +143,9 @@ const GamePage = memo(() => {
             <GamePlay
               game={currentGame}
               currentPlayer={currentPlayer}
-              onPlayerClickCard={handlePlayerClickCard}
-              onCZarClickCard={handleCZarClickCard}
-              onNextRound={handleNextRound}
+              onPlayerClickCard={playCard}
+              onCZarClickCard={pickWinner}
+              nextRoundStarting={nextRoundStarting}
             />
           )}
         </TabPanel>
@@ -180,12 +162,15 @@ const GamePage = memo(() => {
         <TabPanel value={currentTab} index={2}>
           <PlayersList
             players={currentGame?.players}
+            onRemovePlayer={removePlayer}
+            canRemovePlayer={(player) => currentGame?.ownerID === currentPlayer?.id
+              && currentGame?.ownerID !== player.id}
           />
         </TabPanel>
 
         <TabPanel value={currentTab} index={3}>
           <GameSettings
-            onLeaveGame={handleLeaveGame}
+            onLeaveGame={leaveGame}
             canLeaveGame={currentGame?.ownerID !== currentPlayer?.id}
             onDeleteGame={handleDeleteGame}
             canDeleteGame={currentGame?.ownerID === currentPlayer?.id}
@@ -199,7 +184,7 @@ const GamePage = memo(() => {
         cancelText="No, I want my mummy"
         confirmText="Bring it on!"
         onCancel={handleCloseJoinDialog}
-        onConfirm={handleConfirmJoinDialog}
+        onConfirm={() => joinGame(gameID)}
       >
         {`Join to play ${currentGame?.name ?? ''} Game`}
       </AlertDialog>

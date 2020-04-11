@@ -6,7 +6,7 @@ import Player from 'game/player/player';
 import Box from '@material-ui/core/Box';
 import Card from 'components/Card/Card';
 import CardsStack from 'components/CardsStack/CardsStack';
-import Button from '@material-ui/core/Button';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -38,7 +38,9 @@ const Info = ({ title, children }) => (
     <Typography variant="h5" component="h1">
       {title}
     </Typography>
-    {children}
+    <Box className={useStyles().infoBox}>
+      {children}
+    </Box>
   </Box>
 );
 
@@ -46,8 +48,10 @@ Info.propTypes = {
   title: PropTypes.string.isRequired,
 };
 
+const normalise = (value) => (value - 0) * (100 / (5 - 0));
+
 const GamePlay = memo(({
-  game, currentPlayer, onCZarClickCard, onPlayerClickCard, onNextRound,
+  game, currentPlayer, onCZarClickCard, onPlayerClickCard, nextRoundStarting,
 }) => {
   const classes = useStyles();
   const currentPlayerIsCzar = currentPlayer.id === game.cZarID;
@@ -82,33 +86,29 @@ const GamePlay = memo(({
               ? 'Waiting for others to play...'
               : 'Click card to play'}
           >
-            <Box className={classes.infoBox}>
-              {currentPlayer.cards.map((card) => (
-                <Card
-                  key={card.text}
-                  card={card}
-                  classes={classes.card}
-                  isClickable={game.canPlayWhiteCard(currentPlayer, card)}
-                  onClick={onPlayerClickCard}
-                />
-              ))}
-            </Box>
+            {currentPlayer.cards.map((card) => (
+              <Card
+                key={card.text}
+                card={card}
+                classes={classes.card}
+                isClickable={game.canPlayWhiteCard(currentPlayer, card)}
+                onClick={onPlayerClickCard}
+              />
+            ))}
           </Info>
         );
     case gameStates.pickingWinner:
       return currentPlayerIsCzar
         ? (
           <Info title="Players played cards. Click card to choose a winner.">
-            <Box className={classes.infoBox}>
-              {shuffledPlayedWhiteCards.map((cards) => (
-                <CardsStack
-                  key={cards.map(({ text }) => text).join('')}
-                  className={classes.card}
-                  cards={cards}
-                  onClick={onCZarClickCard}
-                />
-              ))}
-            </Box>
+            {shuffledPlayedWhiteCards.map((cards) => (
+              <CardsStack
+                key={cards.map(({ text }) => text).join('')}
+                className={classes.card}
+                cards={cards}
+                onClick={onCZarClickCard}
+              />
+            ))}
           </Info>
         )
         : <Info title="Waiting for the Czar to choose a winner" />;
@@ -116,26 +116,30 @@ const GamePlay = memo(({
       return currentPlayerIsCzar
         ? (
           <Info title={`You choose ${game.roundWinner.firstName} as the winner.`}>
-            <Box className={classes.infoBox}>
-              {game.canPlayNextRound ? (
-                <Button variant="outlined" onClick={onNextRound}>
-                  Next round
-                </Button>
-              ) : (
-                <Typography>
+            {game.canPlayNextRound ? (
+              <Box>
+                <Box mb={2}>Next round starting in...</Box>
+                <Box position="relative" display="flex" alignItems="center" justifyContent="center">
+                  <Box position="absolute" zIndex={1}>{nextRoundStarting}</Box>
+                  <CircularProgress variant="static" value={normalise(nextRoundStarting)}>
+                    {nextRoundStarting}
+                  </CircularProgress>
+                </Box>
+              </Box>
+            ) : (
+              <Typography>
                   The End
-                </Typography>
-              )}
-            </Box>
+              </Typography>
+            )}
           </Info>
         )
         : (
           <Info title={`The Czar choose 
             ${game.roundWinnerID === currentPlayer.id ? 'your' : `${game.roundWinner.firstName}'s`} card`}
           >
-            <Box className={classes.infoBox}>
-              {game.roundWinnerCards.map((card) => <Card key={card.text} card={card} classes={classes.card} />)}
-            </Box>
+            {game.roundWinnerCards.map((card) => (
+              <Card key={card.text} card={card} classes={classes.card} />
+            ))}
           </Info>
         );
     default:
@@ -148,7 +152,7 @@ GamePlay.propTypes = {
   currentPlayer: PropTypes.instanceOf(Player).isRequired,
   onPlayerClickCard: PropTypes.func.isRequired,
   onCZarClickCard: PropTypes.func.isRequired,
-  onNextRound: PropTypes.func.isRequired,
+  nextRoundStarting: PropTypes.number,
 };
 
 export default GamePlay;

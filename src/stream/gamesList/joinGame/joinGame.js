@@ -18,10 +18,14 @@ joinGameSubject.pipe(
     currentGameSubject.pipe(
       filter((game) => !!game),
     ),
-    currentUserSubject.pipe(
-      map(({ id, displayName, photoURL }) => new Player(id, displayName, Date.now(), photoURL)),
-    ),
+    currentUserSubject,
   ),
+  map(([id, game, { id: uid, displayName, photoURL }]) => [
+    id,
+    game,
+    new Player(uid, displayName, Date.now(), photoURL),
+  ]),
+  tap((val) => console.log('will ADD game add player =>', val)),
   filter(([id, game, player]) => id === game.id && !game.hasPlayer(player)),
   tap(([, game, player]) => game.addPlayer(player)),
   map(([, game]) => game),

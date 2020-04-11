@@ -25,5 +25,5 @@ game state
 
 
 Improvements
-
-enable next round in 3 sec, so people can see the winner
+copy/share link
+auto removal of offline players
