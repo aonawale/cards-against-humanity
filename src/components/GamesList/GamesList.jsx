@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import List from '@material-ui/core/List';
-import GamesListItem from 'components/GamesListItem/GamesListItem';
+import GamesListItem from 'components/GamesList/Item/Item';
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
 

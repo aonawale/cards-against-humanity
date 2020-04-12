@@ -14,7 +14,7 @@ import Slide from '@material-ui/core/Slide';
 // eslint-disable-next-line react/jsx-props-no-spreading
 const Transition = forwardRef((props, ref) => <Slide direction="up" ref={ref} {...props} />);
 
-const GamesListItem = memo(({
+const Item = memo(({
   game, canDelete, onClick, onDelete,
 }) => {
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false);
@@ -68,7 +68,7 @@ const GamesListItem = memo(({
   );
 });
 
-GamesListItem.propTypes = {
+Item.propTypes = {
   game: PropTypes.shape({
     id: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
@@ -78,4 +78,4 @@ GamesListItem.propTypes = {
   onDelete: PropTypes.func,
 };
 
-export default GamesListItem;
+export default Item;

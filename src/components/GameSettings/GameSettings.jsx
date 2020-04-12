@@ -1,19 +1,25 @@
-import React, { memo, useState, useCallback } from 'react';
+import React, {
+  memo, useState, useCallback,
+} from 'react';
 import PropTypes from 'prop-types';
 import Container from '@material-ui/core/Container';
+import Dialog from '@material-ui/core/Dialog';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
-import PowerSettingsNewIcon from '@material-ui/icons/PowerSettingsNew';
+import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import DeleteIcon from '@material-ui/icons/Delete';
+import ShareIcon from '@material-ui/icons/Share';
 import AlertDialog from 'components/AlertDialog/AlertDialog';
+import ShareMenu from 'components/ShareMenu/ShareMenu';
 
 const GameSettings = memo(({
   canLeaveGame, canDeleteGame, onLeaveGame, onDeleteGame,
 }) => {
   const [leaveDialogIsOpen, setLeaveDialogIsOpen] = useState(false);
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false);
+  const [shareDialogIsOpen, setShareDialogIsOpen] = useState(false);
 
   const handleLeave = useCallback(() => {
     setLeaveDialogIsOpen(true);
@@ -41,13 +47,27 @@ const GameSettings = memo(({
     onDeleteGame();
   }, [onDeleteGame]);
 
+  const handleShare = useCallback(() => {
+    setShareDialogIsOpen(true);
+  }, []);
+
+  const handleCloseShareDialog = useCallback(() => {
+    setShareDialogIsOpen(false);
+  }, []);
+
   return (
     <Container maxWidth="sm">
       <List component="nav">
+        <ListItem button onClick={handleShare}>
+          <ListItemIcon>
+            <ShareIcon />
+          </ListItemIcon>
+          <ListItemText primary="Share" />
+        </ListItem>
         {canLeaveGame && (
           <ListItem button onClick={handleLeave}>
             <ListItemIcon>
-              <PowerSettingsNewIcon />
+              <ExitToAppIcon />
             </ListItemIcon>
             <ListItemText primary="Leave game" />
           </ListItem>
@@ -82,6 +102,19 @@ const GameSettings = memo(({
       >
         All game data will be permanently deleted.
       </AlertDialog>
+
+      <Dialog
+        aria-labelledby="share-dialog-title"
+        fullWidth
+        maxWidth="xs"
+        open={shareDialogIsOpen}
+        onClose={handleCloseShareDialog}
+      >
+        <ShareMenu
+          Component={List}
+          itemComponent={ListItem}
+        />
+      </Dialog>
     </Container>
   );
 });

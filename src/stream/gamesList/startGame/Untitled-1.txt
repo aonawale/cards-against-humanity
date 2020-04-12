@@ -25,5 +25,4 @@ game state
 
 
 Improvements
-copy/share link
 auto removal of offline players

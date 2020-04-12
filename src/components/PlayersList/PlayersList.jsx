@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import List from '@material-ui/core/List';
 import Container from '@material-ui/core/Container';
-import PlayersListItem from 'components/PlayersListItem/PlayersListItem';
+import PlayersListItem from 'components/PlayersList/Item/Item';
 
 const PlayersList = memo(({ players, canRemovePlayer, onRemovePlayer }) => (
   <Container maxWidth="sm">

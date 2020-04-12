@@ -1,13 +1,22 @@
-import React, { memo, useMemo } from 'react';
+import React, {
+  memo, useMemo, useState, useCallback,
+} from 'react';
 import PropTypes from 'prop-types';
 import shuffle from 'lib/shuffle';
 import Game, { gameStates } from 'game/game';
 import Player from 'game/player/player';
 import Box from '@material-ui/core/Box';
+import Menu from '@material-ui/core/Menu';
+import Tooltip from '@material-ui/core/Tooltip';
+import MenuItem from '@material-ui/core/MenuItem';
 import Card from 'components/Card/Card';
+import Info from 'components/GamePlay/Info/Info';
+import ShareMenu from 'components/ShareMenu/ShareMenu';
 import CardsStack from 'components/CardsStack/CardsStack';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Typography from '@material-ui/core/Typography';
+import IconButton from '@material-ui/core/IconButton';
+import ShareIcon from '@material-ui/icons/Share';
 import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles({
@@ -19,34 +28,7 @@ const useStyles = makeStyles({
       marginRight: '0px',
     },
   },
-  infoBox: {
-    padding: '16px',
-    whiteSpace: 'nowrap',
-    width: '100%',
-    overflow: 'scroll',
-    WebkitOverflowScrolling: 'touch',
-    scrollbarWidth: 'none',
-    msOverflowStyle: 'none',
-    '&::-webkit-scrollbar': {
-      display: 'none',
-    },
-  },
 });
-
-const Info = ({ title, children }) => (
-  <Box textAlign="center" py={1}>
-    <Typography variant="h5" component="h1">
-      {title}
-    </Typography>
-    <Box className={useStyles().infoBox}>
-      {children}
-    </Box>
-  </Box>
-);
-
-Info.propTypes = {
-  title: PropTypes.string.isRequired,
-};
 
 const normalise = (value) => (value - 0) * (100 / (5 - 0));
 
@@ -54,7 +36,10 @@ const GamePlay = memo(({
   game, currentPlayer, onCZarClickCard, onPlayerClickCard, nextRoundStarting,
 }) => {
   const classes = useStyles();
+  const [shareAnchorEl, setShareAnchorEl] = useState();
   const currentPlayerIsCzar = currentPlayer.id === game.cZarID;
+
+  const hasPlayers = game.players.length > 1;
 
   const playerNames = useMemo(
     () => {
@@ -72,19 +57,46 @@ const GamePlay = memo(({
     [game.playedWhiteCards],
   );
 
+  const handleShare = useCallback((event) => {
+    setShareAnchorEl(event.currentTarget);
+  }, []);
+
+  const handleCloseShare = useCallback(() => {
+    setShareAnchorEl(null);
+  }, []);
+
   switch (game.state) {
     case gameStates.playingCards:
       return currentPlayerIsCzar
         ? (
           <Info
-            title={playerNames ? `Waiting for ${playerNames} to play...` : 'Waiting for players to join...'}
-          />
+            title={hasPlayers ? `Waiting for ${playerNames} to play...` : 'Waiting for players to join...'}
+          >
+            {!hasPlayers && (
+              <>
+                <Tooltip title="Share Game" aria-label="Share Game">
+                  <IconButton aria-controls="share-menu" aria-haspopup="true" onClick={handleShare}>
+                    <ShareIcon />
+                  </IconButton>
+                </Tooltip>
+                <ShareMenu
+                  anchorEl={shareAnchorEl}
+                  open={Boolean(shareAnchorEl)}
+                  onClose={handleCloseShare}
+                  onClickItem={handleCloseShare}
+                  Component={Menu}
+                  itemComponent={MenuItem}
+                />
+              </>
+            )}
+          </Info>
         )
         : (
           <Info
             title={game.hasPlayedWhiteCards(currentPlayer)
               ? 'Waiting for others to play...'
-              : 'Click card to play'}
+              : 'Click card to play.'}
+            subtitle={!game.hasPlayedWhiteCards(currentPlayer) ? `Requires ${game.playedBlackCard?.pick} card.` : null}
           >
             {currentPlayer.cards.map((card) => (
               <Card
@@ -100,7 +112,7 @@ const GamePlay = memo(({
     case gameStates.pickingWinner:
       return currentPlayerIsCzar
         ? (
-          <Info title="Players played cards. Click card to choose a winner.">
+          <Info title="Players played cards." subtitle="Click card to choose a winner.">
             {shuffledPlayedWhiteCards.map((cards) => (
               <CardsStack
                 key={cards.map(({ text }) => text).join('')}
@@ -111,20 +123,20 @@ const GamePlay = memo(({
             ))}
           </Info>
         )
-        : <Info title="Waiting for the Czar to choose a winner" />;
+        : <Info title="Waiting for the Czar to choose a winner." />;
     case gameStates.winnerSelected:
       return currentPlayerIsCzar
         ? (
-          <Info title={`You choose ${game.roundWinner.firstName} as the winner.`}>
+          <Info
+            title={`You choose ${game.roundWinner.firstName} as the winner.`}
+            subtitle={game.canPlayNextRound ? 'Next round starting in...' : null}
+          >
             {game.canPlayNextRound ? (
-              <Box>
-                <Box mb={2}>Next round starting in...</Box>
-                <Box position="relative" display="flex" alignItems="center" justifyContent="center">
-                  <Box position="absolute" zIndex={1}>{nextRoundStarting}</Box>
-                  <CircularProgress variant="static" value={normalise(nextRoundStarting)}>
-                    {nextRoundStarting}
-                  </CircularProgress>
-                </Box>
+              <Box position="relative" display="flex" alignItems="center" justifyContent="center">
+                <Box position="absolute" zIndex={1}>{nextRoundStarting}</Box>
+                <CircularProgress variant="static" value={normalise(nextRoundStarting)}>
+                  {nextRoundStarting}
+                </CircularProgress>
               </Box>
             ) : (
               <Typography>

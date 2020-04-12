@@ -8,7 +8,7 @@ import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
-import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+import RemoveCircleIcon from '@material-ui/icons/RemoveCircle';
 import Avatar from '@material-ui/core/Avatar';
 import AlertDialog from 'components/AlertDialog/AlertDialog';
 import Slide from '@material-ui/core/Slide';
@@ -16,7 +16,7 @@ import Slide from '@material-ui/core/Slide';
 // eslint-disable-next-line react/jsx-props-no-spreading
 const Transition = forwardRef((props, ref) => <Slide direction="up" ref={ref} {...props} />);
 
-const PlayersListItem = memo(({ player, canRemove, onRemove }) => {
+const Item = memo(({ player, canRemove, onRemove }) => {
   const [removeDialogIsOpen, setRemoveDialogIsOpen] = useState(false);
 
   const handleRemove = useCallback(() => {
@@ -47,7 +47,7 @@ const PlayersListItem = memo(({ player, canRemove, onRemove }) => {
         <ListItemSecondaryAction>
           <Tooltip title="Remove Player" aria-label="Remove Player">
             <IconButton edge="end" aria-label="remove" onClick={handleRemove}>
-              <ExitToAppIcon />
+              <RemoveCircleIcon />
             </IconButton>
           </Tooltip>
         </ListItemSecondaryAction>
@@ -69,7 +69,7 @@ const PlayersListItem = memo(({ player, canRemove, onRemove }) => {
   );
 });
 
-PlayersListItem.propsStructure = {
+Item.propsStructure = {
   player: PropTypes.shape({
     name: PropTypes.string.isRequired,
     points: PropTypes.number.isRequired,
@@ -77,10 +77,10 @@ PlayersListItem.propsStructure = {
   }),
 };
 
-PlayersListItem.propTypes = {
-  ...PlayersListItem.playerPropsTypes,
+Item.propTypes = {
+  ...Item.playerPropsTypes,
   canRemove: PropTypes.bool,
   onRemove: PropTypes.func,
 };
 
-export default PlayersListItem;
+export default Item;
