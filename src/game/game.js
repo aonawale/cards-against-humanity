@@ -1,6 +1,4 @@
-import Deck from 'game/deck/deck';
 import { converter as cardConverter } from 'game/card/card';
-
 import { converter as playerConverter } from 'game/player/player';
 
 const gameStates = {
