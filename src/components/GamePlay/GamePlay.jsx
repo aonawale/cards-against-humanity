@@ -1,5 +1,5 @@
 import React, {
-  memo, useMemo, useState, useCallback,
+  memo, useMemo,
 } from 'react';
 import PropTypes from 'prop-types';
 import shuffle from 'lib/shuffle';
@@ -18,6 +18,7 @@ import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import ShareIcon from '@material-ui/icons/Share';
 import { makeStyles } from '@material-ui/core/styles';
+import PopupState, { bindTrigger, bindMenu } from 'material-ui-popup-state';
 
 const useStyles = makeStyles({
   card: {
@@ -37,7 +38,6 @@ const GamePlay = memo(({
   game, currentPlayer, onCZarClickCard, onPlayerClickCard, nextRoundStarting,
 }) => {
   const classes = useStyles();
-  const [shareAnchorEl, setShareAnchorEl] = useState();
   const currentPlayerIsCzar = currentPlayer.id === game.cZarID;
 
   const hasPlayers = game.players.length > 1;
@@ -58,14 +58,6 @@ const GamePlay = memo(({
     [game.playedWhiteCards],
   );
 
-  const handleShare = useCallback((event) => {
-    setShareAnchorEl(event.currentTarget);
-  }, []);
-
-  const handleCloseShare = useCallback(() => {
-    setShareAnchorEl(null);
-  }, []);
-
   switch (game.state) {
     case gameStates.playingCards:
       return currentPlayerIsCzar
@@ -74,21 +66,27 @@ const GamePlay = memo(({
             title={hasPlayers ? `Waiting for ${playerNames} to play...` : 'Waiting for players to join...'}
           >
             {!hasPlayers && (
-              <>
-                <Tooltip title="Share Game" aria-label="Share Game">
-                  <IconButton aria-controls="share-menu" aria-haspopup="true" onClick={handleShare}>
-                    <ShareIcon />
-                  </IconButton>
-                </Tooltip>
-                <ShareMenu
-                  anchorEl={shareAnchorEl}
-                  open={Boolean(shareAnchorEl)}
-                  onClose={handleCloseShare}
-                  onClickItem={handleCloseShare}
-                  Component={Menu}
-                  itemComponent={MenuItem}
-                />
-              </>
+              <PopupState variant="popover" popupId="share-menu">
+                {(popupState) => (
+                  <>
+                    <Tooltip title="Share Game" aria-label="Share Game">
+                      <IconButton
+                        // eslint-disable-next-line react/jsx-props-no-spreading
+                        {...bindTrigger(popupState)}
+                      >
+                        <ShareIcon />
+                      </IconButton>
+                    </Tooltip>
+                    <ShareMenu
+                      // eslint-disable-next-line react/jsx-props-no-spreading
+                      {...bindMenu(popupState)}
+                      onClickItem={popupState.close}
+                      Component={Menu}
+                      itemComponent={MenuItem}
+                    />
+                  </>
+                )}
+              </PopupState>
             )}
           </Info>
         )

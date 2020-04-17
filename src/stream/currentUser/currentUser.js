@@ -23,18 +23,19 @@ isAuthenticatedSubject.pipe(
 ).subscribe(authStateDeterminedSubject);
 
 authStateSubject.pipe(
-  filter((user) => !!user),
-  map(({
-    uid, email, displayName, photoURL,
-  }) => ({
-    id: uid,
-    email,
-    displayName,
-    photoURL,
-  })),
+  map((user) => (user
+    ? ({
+      id: user.uid,
+      email: user.email,
+      displayName: user.displayName,
+      photoURL: user.photoURL,
+    })
+    : undefined)),
 ).subscribe(currentUserSubject);
 
-currentUserSubject.subscribe((user) => {
+currentUserSubject.pipe(
+  filter((user) => !!user),
+).subscribe((user) => {
   firestore.collection('users').doc(user.id).set(user);
 });
 

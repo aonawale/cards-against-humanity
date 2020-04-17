@@ -15,7 +15,6 @@ selectedGameIDSubject.pipe(
   flatMap((id) => (id
     ? doc(db.collection('decks').doc(id))
       .pipe(
-        tap((val) => console.log('selectedGameIDSubject deck =>', val)),
         filter((snapshot) => snapshot.exists),
         take(1),
         map((snapshot) => snapshot.data()),

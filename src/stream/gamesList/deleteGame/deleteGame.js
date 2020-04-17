@@ -12,7 +12,7 @@ const deleteGame = (id) => deleteGameSubject.next(id);
 
 deleteGameSubject.pipe(
   withLatestFrom(currentUserSubject, gamesListSubject),
-  filter(([id, currentUser, gamesList]) => gamesList.find((game) => game.id === id)?.ownerID === currentUser.id),
+  filter(([id, currentUser, gamesList]) => gamesList.find((game) => game.id === id)?.ownerID === currentUser?.id),
   tap((val) => console.log('deleteGameSubject =>', val)),
 ).subscribe(([id]) => {
   db.collection('games').doc(id).delete();

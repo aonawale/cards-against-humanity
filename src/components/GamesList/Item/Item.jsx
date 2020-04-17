@@ -1,5 +1,5 @@
 import React, {
-  memo, useState, useCallback, forwardRef,
+  memo, useCallback,
 } from 'react';
 import PropTypes from 'prop-types';
 import ListItem from '@material-ui/core/ListItem';
@@ -9,34 +9,23 @@ import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
 import AlertDialog from 'components/AlertDialog/AlertDialog';
 import Tooltip from '@material-ui/core/Tooltip';
-import Slide from '@material-ui/core/Slide';
-
-// eslint-disable-next-line react/jsx-props-no-spreading
-const Transition = forwardRef((props, ref) => <Slide direction="up" ref={ref} {...props} />);
+import useDialog from 'hooks/dialog';
 
 const Item = memo(({
   game, canDelete, onClick, onDelete,
 }) => {
-  const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false);
+  const [deleteDialogIsOpen, openDeleteDialog, closeDeleteDialog] = useDialog();
 
   const handleClick = useCallback(() => {
     if (onClick)
       onClick(game);
   }, [game, onClick]);
 
-  const handleDelete = useCallback(() => {
-    setDeleteDialogIsOpen(true);
-  }, []);
-
   const handleConfirmDeleteDialog = useCallback(() => {
-    setDeleteDialogIsOpen(false);
+    closeDeleteDialog();
     if (onDelete)
       onDelete(game);
-  }, [game, onDelete]);
-
-  const handleCloseDeleteDialog = useCallback(() => {
-    setDeleteDialogIsOpen(false);
-  }, []);
+  }, [closeDeleteDialog, game, onDelete]);
 
   return (
     <>
@@ -45,7 +34,7 @@ const Item = memo(({
         {canDelete && (
           <ListItemSecondaryAction>
             <Tooltip title="Delete Game" aria-label="Delete Game">
-              <IconButton edge="end" aria-label="delete" onClick={handleDelete}>
+              <IconButton edge="end" aria-label="delete" onClick={openDeleteDialog}>
                 <DeleteIcon />
               </IconButton>
             </Tooltip>
@@ -53,17 +42,18 @@ const Item = memo(({
         )}
       </ListItem>
 
-      <AlertDialog
-        open={deleteDialogIsOpen}
-        title="Delete this game?"
-        confirmText="Delete"
-        onBackdropClick={handleCloseDeleteDialog}
-        onCancel={handleCloseDeleteDialog}
-        onConfirm={handleConfirmDeleteDialog}
-        TransitionComponent={Transition}
-      >
-        All game data will be permanently deleted.
-      </AlertDialog>
+      {deleteDialogIsOpen && (
+        <AlertDialog
+          open={deleteDialogIsOpen}
+          title="Delete this game?"
+          confirmText="Delete"
+          onBackdropClick={closeDeleteDialog}
+          onCancel={closeDeleteDialog}
+          onConfirm={handleConfirmDeleteDialog}
+        >
+          All game data will be permanently deleted.
+        </AlertDialog>
+      )}
     </>
   );
 });

@@ -4,7 +4,7 @@ import startGame from 'stream/gamesList/startGame/startGame';
 import deleteGame from 'stream/gamesList/deleteGame/deleteGame';
 import gamesListSubject from 'stream/gamesList/gamesList';
 import { currentUserSubject } from 'stream/currentUser/currentUser';
-import { decksListSubject, defaultDeckSubject } from 'stream/cardsList/cardsList';
+import { decksListSubject, defaultDeckSubject } from 'stream/decksList/decksList';
 import GamesList from 'components/GamesList/GamesList';
 import GameStartDialog from 'components/GameStartDialog/GameStartDialog';
 import Container from '@material-ui/core/Container';
@@ -13,6 +13,7 @@ import Zoom from '@material-ui/core/Zoom';
 import Tooltip from '@material-ui/core/Tooltip';
 import AddIcon from '@material-ui/icons/Add';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
+import useDialog from 'hooks/dialog';
 
 const useStyles = makeStyles((theme) => ({
   fab: {
@@ -36,7 +37,7 @@ const HomePage = () => {
   const [defaultDeck, setDefaultDeck] = useState();
   const [gamesList, setGamesList] = useState([]);
   const [currentUser, setCurrentUser] = useState();
-  const [startDialogIsOpen, setStartDialogIsOpen] = useState(false);
+  const [startDialogIsOpen, openStartDialog, closeStartDialog] = useDialog();
 
   // bind component state to game data stream
   useEffect(() => {
@@ -46,10 +47,6 @@ const HomePage = () => {
     subscriptions.push(gamesListSubject.subscribe(setGamesList));
     subscriptions.push(currentUserSubject.subscribe(setCurrentUser));
     return () => subscriptions.forEach((subscription) => subscription.unsubscribe());
-  }, []);
-
-  const handleNewGame = useCallback(() => {
-    setStartDialogIsOpen(true);
   }, []);
 
   const handleClickGame = useCallback(({ id }) => {
@@ -64,10 +61,6 @@ const HomePage = () => {
     const id = startGame(name, deck);
     history.push(`games/${id}`);
   }, [history]);
-
-  const handleCloseStartDialog = useCallback(() => {
-    setStartDialogIsOpen(false);
-  }, []);
 
   return (
     <Container>
@@ -84,13 +77,13 @@ const HomePage = () => {
         decks={decksList}
         defaultDeck={defaultDeck}
         isOpen={startDialogIsOpen}
-        onClose={handleCloseStartDialog}
+        onClose={closeStartDialog}
         onStart={handleConfirmStartDialog}
       />
 
       <Tooltip title="New Game" aria-label="New Game">
         <Zoom in unmountOnExit timeout={transitionDuration} className={classes.fab}>
-          <Fab color="primary" aria-label="add" onClick={handleNewGame}>
+          <Fab color="primary" aria-label="add" onClick={openStartDialog}>
             <AddIcon />
           </Fab>
         </Zoom>

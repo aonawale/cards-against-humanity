@@ -18,7 +18,7 @@ joinGameSubject.pipe(
     currentGameSubject.pipe(
       filter((game) => !!game),
     ),
-    currentUserSubject,
+    currentUserSubject.pipe(filter((user) => !!user)),
   ),
   map(([id, game, { id: uid, displayName, photoURL }]) => [
     id,

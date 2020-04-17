@@ -1,5 +1,5 @@
 import React, {
-  memo, useState, useCallback,
+  memo, useCallback,
 } from 'react';
 import PropTypes from 'prop-types';
 import Container from '@material-ui/core/Container';
@@ -14,59 +14,36 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import ShareIcon from '@material-ui/icons/Share';
 import AlertDialog from 'components/AlertDialog/AlertDialog';
 import ShareMenu from 'components/ShareMenu/ShareMenu';
+import useDialog from 'hooks/dialog';
 
 const GameSettings = memo(({
   canLeaveGame, canDeleteGame, onLeaveGame, onDeleteGame,
 }) => {
-  const [leaveDialogIsOpen, setLeaveDialogIsOpen] = useState(false);
-  const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false);
-  const [shareDialogIsOpen, setShareDialogIsOpen] = useState(false);
-
-  const handleLeave = useCallback(() => {
-    setLeaveDialogIsOpen(true);
-  }, []);
-
-  const handleCloseLeaveDialog = useCallback(() => {
-    setLeaveDialogIsOpen(false);
-  }, []);
+  const [leaveDialogIsOpen, openLeaveDialog, closeLeaveDialog] = useDialog();
+  const [deleteDialogIsOpen, openDeleteDialog, closeDeleteDialog] = useDialog();
+  const [shareDialogIsOpen, openShareDialog, closeShareDialog] = useDialog();
 
   const handleConfirmLeaveDialog = useCallback(() => {
-    setLeaveDialogIsOpen(false);
+    closeLeaveDialog(false);
     onLeaveGame();
-  }, [onLeaveGame]);
-
-  const handleDelete = useCallback(() => {
-    setDeleteDialogIsOpen(true);
-  }, []);
-
-  const handleCloseDeleteDialog = useCallback(() => {
-    setDeleteDialogIsOpen(false);
-  }, []);
+  }, [closeLeaveDialog, onLeaveGame]);
 
   const handleConfirmDeleteDialog = useCallback(() => {
-    setDeleteDialogIsOpen(false);
+    closeDeleteDialog(false);
     onDeleteGame();
-  }, [onDeleteGame]);
-
-  const handleShare = useCallback(() => {
-    setShareDialogIsOpen(true);
-  }, []);
-
-  const handleCloseShareDialog = useCallback(() => {
-    setShareDialogIsOpen(false);
-  }, []);
+  }, [closeDeleteDialog, onDeleteGame]);
 
   return (
     <Container maxWidth="sm">
       <List component="nav">
-        <ListItem button onClick={handleShare}>
+        <ListItem button onClick={openShareDialog}>
           <ListItemIcon>
             <ShareIcon />
           </ListItemIcon>
           <ListItemText primary="Share" />
         </ListItem>
         {canLeaveGame && (
-          <ListItem button onClick={handleLeave}>
+          <ListItem button onClick={openLeaveDialog}>
             <ListItemIcon>
               <ExitToAppIcon />
             </ListItemIcon>
@@ -74,7 +51,7 @@ const GameSettings = memo(({
           </ListItem>
         )}
         {canDeleteGame && (
-          <ListItem button onClick={handleDelete}>
+          <ListItem button onClick={openDeleteDialog}>
             <ListItemIcon>
               <DeleteIcon />
             </ListItemIcon>
@@ -86,9 +63,9 @@ const GameSettings = memo(({
       <AlertDialog
         open={leaveDialogIsOpen}
         title="Leave this game?"
-        onCancel={handleCloseLeaveDialog}
+        onCancel={closeLeaveDialog}
         onConfirm={handleConfirmLeaveDialog}
-        onBackdropClick={handleCloseLeaveDialog}
+        onBackdropClick={closeLeaveDialog}
       >
         Your current game data will be lost. You can still join the game again.
       </AlertDialog>
@@ -97,9 +74,9 @@ const GameSettings = memo(({
         open={deleteDialogIsOpen}
         title="Delete this game?"
         confirmText="Delete"
-        onCancel={handleCloseDeleteDialog}
+        onCancel={closeDeleteDialog}
         onConfirm={handleConfirmDeleteDialog}
-        onBackdropClick={handleCloseDeleteDialog}
+        onBackdropClick={closeDeleteDialog}
       >
         All game data will be permanently deleted.
       </AlertDialog>
@@ -109,13 +86,13 @@ const GameSettings = memo(({
         fullWidth
         maxWidth="xs"
         open={shareDialogIsOpen}
-        onClose={handleCloseShareDialog}
+        onClose={closeShareDialog}
       >
         <DialogTitle id="share-dialog-title">Share Game</DialogTitle>
         <ShareMenu
           Component={List}
           itemComponent={ListItem}
-          onClickItem={handleCloseShareDialog}
+          onClickItem={closeShareDialog}
         />
       </Dialog>
     </Container>

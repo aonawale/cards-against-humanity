@@ -1,9 +1,9 @@
 import { Subject } from 'rxjs';
 import {
-  map, withLatestFrom, tap, flatMap,
+  map, withLatestFrom, tap, flatMap, filter,
 } from 'rxjs/operators';
 import { currentUserSubject } from 'stream/currentUser/currentUser';
-import { fetchCards } from 'stream/cardsList/cardsList';
+import { fetchCards } from 'stream/decksList/decksList';
 import { firestore as db } from 'lib/firebase';
 import Game, { gameStates, converter } from 'game/game';
 import Player from 'game/player/player';
@@ -18,7 +18,7 @@ const startGame = (name, deckID) => {
 };
 
 newGameSubject.pipe(
-  withLatestFrom(currentUserSubject),
+  withLatestFrom(currentUserSubject.pipe(filter((user) => !!user))),
   flatMap(([{ id, name, deckID }, currentUser]) => fetchCards(deckID).pipe(
     map((cards) => [id, name, currentUser, cards]),
   )),

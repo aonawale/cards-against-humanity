@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { Link as RouterLink } from 'react-router-dom';
 import Box from '@material-ui/core/Box';
@@ -12,23 +12,14 @@ import Menu from '@material-ui/core/Menu';
 import Avatar from '@material-ui/core/Avatar';
 import { useDispatch } from 'react-redux';
 import { signOutStart } from 'store/auth/auth.actions';
+import PopupState, { bindTrigger, bindMenu } from 'material-ui-popup-state';
 
 const Navbar = ({ currentUser }) => {
   const dispatch = useDispatch();
-  const [anchorEl, setAnchorEl] = useState();
-
-  const handleMenu = useCallback((event) => {
-    setAnchorEl(event.currentTarget);
-  }, []);
-
-  const handleClose = useCallback(() => {
-    setAnchorEl(null);
-  }, []);
 
   const logOut = useCallback(() => {
     dispatch(signOutStart());
-    handleClose();
-  }, [dispatch, handleClose]);
+  }, [dispatch]);
 
   return (
     <AppBar position="static" color="transparent" variant="outlined">
@@ -40,33 +31,34 @@ const Navbar = ({ currentUser }) => {
         </Typography>
         {currentUser && (
           <Box marginLeft="auto">
-            <IconButton
-              aria-label="account of current user"
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
-              onClick={handleMenu}
-              color="inherit"
-            >
-              <Avatar alt={currentUser?.displayName} src={currentUser?.photoURL} />
-            </IconButton>
-            <Menu
-              id="menu-appbar"
-              anchorEl={anchorEl}
-              anchorOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              open={!!anchorEl}
-              onClose={handleClose}
-            >
-              <MenuItem onClick={handleClose}>{currentUser?.displayName}</MenuItem>
-              <MenuItem onClick={logOut}>Logout</MenuItem>
-            </Menu>
+            <PopupState variant="popover" popupId="share-menu">
+              {(popupState) => (
+                <>
+                  <IconButton
+                    color="inherit"
+                    // eslint-disable-next-line react/jsx-props-no-spreading
+                    {...bindTrigger(popupState)}
+                  >
+                    <Avatar alt={currentUser?.displayName} src={currentUser?.photoURL} />
+                  </IconButton>
+                  <Menu
+                    anchorOrigin={{
+                      vertical: 'top',
+                      horizontal: 'right',
+                    }}
+                    transformOrigin={{
+                      vertical: 'top',
+                      horizontal: 'right',
+                    }}
+                    // eslint-disable-next-line react/jsx-props-no-spreading
+                    {...bindMenu(popupState)}
+                  >
+                    <MenuItem onClick={popupState.close}>{currentUser?.displayName}</MenuItem>
+                    <MenuItem onClick={logOut}>Logout</MenuItem>
+                  </Menu>
+                </>
+              )}
+            </PopupState>
           </Box>
         )}
       </Toolbar>

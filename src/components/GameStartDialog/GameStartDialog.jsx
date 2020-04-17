@@ -1,5 +1,5 @@
 import React, {
-  memo, useState, useCallback, useEffect,
+  memo, useState, useCallback, useEffect, forwardRef,
 } from 'react';
 import PropTypes from 'prop-types';
 import Button from '@material-ui/core/Button';
@@ -15,6 +15,7 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Slide from '@material-ui/core/Slide';
 
 const formSteps = {
   name: Symbol('name'),
@@ -26,6 +27,9 @@ const initialFormState = {
   deck: '',
   errors: {},
 };
+
+// eslint-disable-next-line react/jsx-props-no-spreading
+const Transition = forwardRef((props, ref) => <Slide direction="up" ref={ref} {...props} />);
 
 const GameStartDialog = memo(({
   isOpen, decks, defaultDeck, onClose, onStart,
@@ -82,6 +86,7 @@ const GameStartDialog = memo(({
       fullWidth
       maxWidth="xs"
       aria-labelledby="game-start-dialog-title"
+      TransitionComponent={Transition}
     >
       <DialogTitle id="game-start-dialog-title">
         {formStep === formSteps.name ? 'Enter Game Name' : 'Choose Deck'}
