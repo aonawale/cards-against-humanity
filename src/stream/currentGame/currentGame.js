@@ -1,4 +1,4 @@
-import { ReplaySubject, of } from 'rxjs';
+import { Subject, of } from 'rxjs';
 import {
   map, tap, distinctUntilChanged, switchMap, flatMap, filter, take,
 } from 'rxjs/operators';
@@ -8,7 +8,7 @@ import { converter as deckConverter } from 'game/deck/deck';
 import { doc } from 'rxfire/firestore';
 import { selectedGameIDSubject } from 'stream/gamesList/gamesList';
 
-const currentGameSubject = new ReplaySubject(1);
+const currentGameSubject = new Subject();
 
 selectedGameIDSubject.pipe(
   distinctUntilChanged(),

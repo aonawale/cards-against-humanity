@@ -14,9 +14,10 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import SentimentVeryDissatisfied from '@material-ui/icons/SentimentVeryDissatisfied';
 
 import deleteGame from 'stream/gamesList/deleteGame/deleteGame';
-import { selectGame } from 'stream/gamesList/gamesList';
+import { selectGame, selectedGameExistSubject } from 'stream/gamesList/gamesList';
 import joinGame, { playerJoinedGameSubject } from 'stream/gamesList/joinGame/joinGame';
 import pickWinner from 'stream/currentGame/pickWinner/pickWinner';
 import playCard, { playerPlayedCardSubject } from 'stream/currentGame/playCard/playCard';
@@ -27,6 +28,7 @@ import currentPlayerSubject from 'stream/currentGame/currentPlayer/currentPlayer
 import { currentUserSubject } from 'stream/currentUser/currentUser';
 import { useSnackbar } from 'notistack';
 import { makeStyles } from '@material-ui/core/styles';
+import useDialog from 'hooks/dialog';
 
 const useStyles = makeStyles({
   loader: {
@@ -55,6 +57,7 @@ const GamePage = memo(() => {
   const [nextRoundStarting, setNextRoundStarting] = useState();
   const [currentTab, setCurrentTab] = useState(0);
   const [joinDialogIsOpen, setJoinDialogIsOpen] = useState(false);
+  const [notFoundDialogIsOpen, openNotFoundDialog, closeNotFoundDialog] = useDialog();
 
   useEffect(() => {
     selectGame(gameID);
@@ -70,6 +73,15 @@ const GamePage = memo(() => {
     subscriptions.push(nextRoundStartingSubject.subscribe(setNextRoundStarting));
     return () => subscriptions.forEach((subscription) => subscription.unsubscribe());
   }, []);
+
+  // listen for non existent selected game
+  useEffect(() => {
+    const subscription = selectedGameExistSubject.subscribe((exist) => {
+      if (!exist)
+        openNotFoundDialog();
+    });
+    return () => subscription.unsubscribe();
+  }, [openNotFoundDialog]);
 
   // listen for game play events
   useEffect(() => {
@@ -104,6 +116,11 @@ const GamePage = memo(() => {
     setJoinDialogIsOpen(false);
     history.replace('/');
   }, [history]);
+
+  const handleCloseNotFoundDialog = useCallback(() => {
+    closeNotFoundDialog(false);
+    history.replace('/');
+  }, [closeNotFoundDialog, history]);
 
   const handleDeleteGame = useCallback(() => {
     deleteGame(currentGame?.id);
@@ -187,6 +204,15 @@ const GamePage = memo(() => {
         onConfirm={() => joinGame(gameID)}
       >
         {`Join to play ${currentGame?.name ?? ''} Game`}
+      </AlertDialog>
+
+      <AlertDialog
+        open={notFoundDialogIsOpen}
+        title="Game not found"
+        confirmText="Close"
+        onConfirm={handleCloseNotFoundDialog}
+      >
+        The game does not exist <SentimentVeryDissatisfied />. It may have been deleted or the link is incorrect.
       </AlertDialog>
     </Box>
   );

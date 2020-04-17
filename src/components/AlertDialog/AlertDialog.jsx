@@ -25,9 +25,11 @@ const AlertDialog = memo(({
       </DialogContentText>
     </DialogContent>
     <DialogActions>
-      <Button onClick={onCancel} color="primary">
-        {cancelText}
-      </Button>
+      {onCancel && (
+        <Button onClick={onCancel} color="primary">
+          {cancelText}
+        </Button>
+      )}
       <Button onClick={onConfirm} color="primary">
         {confirmText}
       </Button>
