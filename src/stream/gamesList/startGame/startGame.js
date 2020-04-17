@@ -1,41 +1,60 @@
 import { Subject } from 'rxjs';
 import {
-  map, withLatestFrom, tap,
+  map, withLatestFrom, tap, flatMap,
 } from 'rxjs/operators';
 import { currentUserSubject } from 'stream/currentUser/currentUser';
-import { blackCardsListSubject, whiteCardsListSubject } from 'stream/cardsList/cardsList';
+import { fetchCards } from 'stream/cardsList/cardsList';
 import { firestore as db } from 'lib/firebase';
 import Game, { gameStates, converter } from 'game/game';
-import Card, { cardTypes } from 'game/card/card';
 import Player from 'game/player/player';
+import Deck, { converter as deckConverter } from 'game/deck/deck';
 
 const newGameSubject = new Subject();
 
-const startGame = (name) => {
+const startGame = (name, deckID) => {
   const { id } = db.collection('games').doc();
-  newGameSubject.next({ id, name });
+  newGameSubject.next({ id, name, deckID });
   return id;
 };
 
 newGameSubject.pipe(
-  withLatestFrom(currentUserSubject, whiteCardsListSubject, blackCardsListSubject),
-  map(([{ id, name }, user, whiteCards, blackCards]) => {
+  withLatestFrom(currentUserSubject),
+  flatMap(([{ id, name, deckID }, currentUser]) => fetchCards(deckID).pipe(
+    map((cards) => [id, name, currentUser, cards]),
+  )),
+  tap((val) => console.log('newGameSubject game data =>', val)),
+  map(([id, name, currentUser, { whiteCards, blackCards }]) => {
     const game = new Game(
       id,
       name,
-      user.id,
-      user.id,
-      [new Player(user.id, user.displayName, Date.now(), user.photoURL)],
+      currentUser.id,
+      currentUser.id,
+      [new Player(currentUser.id, currentUser.displayName, Date.now(), currentUser.photoURL)],
       gameStates.playingCards,
     );
-    game.setWhiteCards(whiteCards.map(({ text }) => new Card(cardTypes.white, text)));
-    game.setBlackCards(blackCards.map(({ text, pick }) => new Card(cardTypes.black, text, pick)));
+    const whiteCardsDeck = new Deck(whiteCards);
+    const blackCardsDeck = new Deck(blackCards);
+
+    blackCardsDeck.shuffle();
+    whiteCardsDeck.shuffle();
+
+    game.setWhiteDeck(whiteCardsDeck);
+    game.setBlackDeck(blackCardsDeck);
+
     game.startNextRound();
     return game;
   }),
   tap((val) => console.log('newGameSubject init game =>', val)),
 ).subscribe((game) => {
-  db.collection('games').doc(game.id).withConverter(converter).set(game);
+  const batch = db.batch();
+
+  batch.set(db.collection('games').doc(game.id).withConverter(converter), game);
+  batch.set(db.collection('decks').doc(game.id), {
+    white: deckConverter.toFirestore(game.whiteCardsDeck),
+    black: deckConverter.toFirestore(game.blackCardsDeck),
+  });
+
+  batch.commit();
 });
 
 export default startGame;

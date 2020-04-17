@@ -4,6 +4,7 @@ import React, {
 import PropTypes from 'prop-types';
 import Container from '@material-ui/core/Container';
 import Dialog from '@material-ui/core/Dialog';
+import DialogTitle from '@material-ui/core/DialogTitle';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
@@ -110,9 +111,11 @@ const GameSettings = memo(({
         open={shareDialogIsOpen}
         onClose={handleCloseShareDialog}
       >
+        <DialogTitle id="share-dialog-title">Share Game</DialogTitle>
         <ShareMenu
           Component={List}
           itemComponent={ListItem}
+          onClickItem={handleCloseShareDialog}
         />
       </Dialog>
     </Container>

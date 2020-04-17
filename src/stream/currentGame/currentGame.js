@@ -1,35 +1,41 @@
-import { ReplaySubject, combineLatest, of } from 'rxjs';
+import { ReplaySubject, of } from 'rxjs';
 import {
-  map, tap, distinctUntilChanged, switchMap,
+  map, tap, distinctUntilChanged, switchMap, flatMap, filter, take,
 } from 'rxjs/operators';
 import { firestore as db } from 'lib/firebase';
-import Card, { cardTypes } from 'game/card/card';
 import { converter } from 'game/game';
+import { converter as deckConverter } from 'game/deck/deck';
 import { doc } from 'rxfire/firestore';
 import { selectedGameIDSubject } from 'stream/gamesList/gamesList';
-import { blackCardsListSubject, whiteCardsListSubject } from 'stream/cardsList/cardsList';
 
 const currentGameSubject = new ReplaySubject(1);
 
-combineLatest([
-  selectedGameIDSubject,
-  whiteCardsListSubject.pipe(
-    map((whiteCards) => whiteCards.map(({ text }) => new Card(cardTypes.white, text))),
-  ),
-  blackCardsListSubject.pipe(
-    map((blackCards) => blackCards.map(({ text, pick }) => new Card(cardTypes.black, text, pick))),
-  ),
-]).pipe(
-  distinctUntilChanged(([prevID], [nextID]) => prevID === nextID),
-  switchMap(([id, whiteCards, blackCards]) => (id ? doc(db.collection('games').doc(id).withConverter(converter)).pipe(
-    map((snapshot) => snapshot.data()),
-    map((game) => [game, whiteCards, blackCards]),
-  ) : of([]))),
-  map(([game, whiteCards, blackCards]) => {
+selectedGameIDSubject.pipe(
+  distinctUntilChanged(),
+  flatMap((id) => (id
+    ? doc(db.collection('decks').doc(id))
+      .pipe(
+        tap((val) => console.log('selectedGameIDSubject deck =>', val)),
+        filter((snapshot) => snapshot.exists),
+        take(1),
+        map((snapshot) => snapshot.data()),
+        map(({ white, black }) => [
+          id,
+          deckConverter.fromFirestore({ data: () => white }),
+          deckConverter.fromFirestore({ data: () => black }),
+        ]),
+      )
+    : of([]))),
+  switchMap(([id, whiteDeck, blackDeck]) => (id
+    ? doc(db.collection('games').doc(id).withConverter(converter)).pipe(
+      map((snapshot) => snapshot.data()),
+      map((game) => [game, whiteDeck, blackDeck]),
+    ) : of([]))),
+  map(([game, whiteDeck, blackDeck]) => {
     if (!game)
       return undefined;
-    game.setWhiteCards(whiteCards);
-    game.setBlackCards(blackCards);
+    game.setWhiteDeck(whiteDeck);
+    game.setBlackDeck(blackDeck);
     return game;
   }),
   tap((val) => console.log('currentGame =>', val)),

@@ -59,8 +59,6 @@ ShareMenu.muiName = Menu.muiName;
 
 ShareMenu.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
-  anchorEl: PropTypes.object,
-  // eslint-disable-next-line react/forbid-prop-types
   Component: PropTypes.object.isRequired,
   // eslint-disable-next-line react/forbid-prop-types
   itemComponent: PropTypes.object.isRequired,

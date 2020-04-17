@@ -30,7 +30,8 @@ const useStyles = makeStyles({
   },
 });
 
-const normalise = (value) => (value - 0) * (100 / (5 - 0));
+const normalize = (value) => (value - 0) * (100 / (5 - 0));
+const pluralize = (word, count) => (count > 1 ? `${word}s` : word);
 
 const GamePlay = memo(({
   game, currentPlayer, onCZarClickCard, onPlayerClickCard, nextRoundStarting,
@@ -96,7 +97,9 @@ const GamePlay = memo(({
             title={game.hasPlayedWhiteCards(currentPlayer)
               ? 'Waiting for others to play...'
               : 'Click card to play.'}
-            subtitle={!game.hasPlayedWhiteCards(currentPlayer) ? `Requires ${game.playedBlackCard?.pick} card.` : null}
+            subtitle={!game.hasPlayedWhiteCards(currentPlayer)
+              ? `Requires ${game.playedBlackCard?.pick} ${pluralize('card', game.playedBlackCard?.pick)}.`
+              : null}
           >
             {currentPlayer.cards.map((card) => (
               <Card
@@ -134,7 +137,7 @@ const GamePlay = memo(({
             {game.canPlayNextRound ? (
               <Box position="relative" display="flex" alignItems="center" justifyContent="center">
                 <Box position="absolute" zIndex={1}>{nextRoundStarting}</Box>
-                <CircularProgress variant="static" value={normalise(nextRoundStarting)}>
+                <CircularProgress variant="static" value={normalize(nextRoundStarting)}>
                   {nextRoundStarting}
                 </CircularProgress>
               </Box>

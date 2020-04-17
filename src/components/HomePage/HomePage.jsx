@@ -4,6 +4,7 @@ import startGame from 'stream/gamesList/startGame/startGame';
 import deleteGame from 'stream/gamesList/deleteGame/deleteGame';
 import gamesListSubject from 'stream/gamesList/gamesList';
 import { currentUserSubject } from 'stream/currentUser/currentUser';
+import { decksListSubject, defaultDeckSubject } from 'stream/cardsList/cardsList';
 import GamesList from 'components/GamesList/GamesList';
 import GameStartDialog from 'components/GameStartDialog/GameStartDialog';
 import Container from '@material-ui/core/Container';
@@ -31,6 +32,8 @@ const HomePage = () => {
   };
 
   const history = useHistory();
+  const [decksList, setDecksList] = useState([]);
+  const [defaultDeck, setDefaultDeck] = useState();
   const [gamesList, setGamesList] = useState([]);
   const [currentUser, setCurrentUser] = useState();
   const [startDialogIsOpen, setStartDialogIsOpen] = useState(false);
@@ -38,6 +41,8 @@ const HomePage = () => {
   // bind component state to game data stream
   useEffect(() => {
     const subscriptions = [];
+    subscriptions.push(decksListSubject.subscribe(setDecksList));
+    subscriptions.push(defaultDeckSubject.subscribe(setDefaultDeck));
     subscriptions.push(gamesListSubject.subscribe(setGamesList));
     subscriptions.push(currentUserSubject.subscribe(setCurrentUser));
     return () => subscriptions.forEach((subscription) => subscription.unsubscribe());
@@ -55,8 +60,8 @@ const HomePage = () => {
     deleteGame(id);
   }, []);
 
-  const handleConfirmStartDialog = useCallback(({ name }) => {
-    const id = startGame(name);
+  const handleConfirmStartDialog = useCallback(({ name, deck }) => {
+    const id = startGame(name, deck);
     history.push(`games/${id}`);
   }, [history]);
 
@@ -76,6 +81,8 @@ const HomePage = () => {
       ) : null}
 
       <GameStartDialog
+        decks={decksList}
+        defaultDeck={defaultDeck}
         isOpen={startDialogIsOpen}
         onClose={handleCloseStartDialog}
         onStart={handleConfirmStartDialog}

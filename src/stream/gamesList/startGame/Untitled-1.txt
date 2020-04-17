@@ -25,4 +25,6 @@ game state
 
 
 Improvements
+shuffle cards on game create
+choose deck on create game
 auto removal of offline players

@@ -1,5 +1,6 @@
 import Deck from 'game/deck/deck';
 import { converter as cardConverter } from 'game/card/card';
+
 import { converter as playerConverter } from 'game/player/player';
 
 const gameStates = {
@@ -67,20 +68,12 @@ class Game {
   }
 
   // //---------------------------- Instance methods
-  setWhiteCards(cards) {
-    const foundIndex = Game.findCardIndex(cards, this.lastWhiteCard);
-    const whiteCards = [];
-    for (let index = 0; index < foundIndex; index++)
-      whiteCards.push(cards[index]);
-    this.whiteCardsDeck = new Deck(whiteCards);
+  setWhiteDeck(deck) {
+    this.whiteCardsDeck = deck;
   }
 
-  setBlackCards(cards) {
-    const foundIndex = Game.findCardIndex(cards, this.playedBlackCard);
-    const blackCards = [];
-    for (let index = 0; index < foundIndex; index++)
-      blackCards.push(cards[index]);
-    this.blackCardsDeck = new Deck(blackCards);
+  setBlackDeck(deck) {
+    this.blackCardsDeck = deck;
   }
 
   setState(state) {

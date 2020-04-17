@@ -11,6 +11,8 @@ const AlertDialog = memo(({
   title, cancelText, confirmText, onCancel, onConfirm, children, ...rest
 }) => (
   <Dialog
+    fullWidth
+    maxWidth="xs"
     aria-labelledby="alert-dialog-title"
     aria-describedby="alert-dialog-description"
     // eslint-disable-next-line react/jsx-props-no-spreading
