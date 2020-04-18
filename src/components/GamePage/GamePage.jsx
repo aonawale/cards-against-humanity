@@ -9,9 +9,13 @@ import PlayersList from 'components/PlayersList/PlayersList';
 import GameDeck from 'components/GameDeck/GameDeck';
 import GamePlay from 'components/GamePlay/GamePlay';
 import GameSettings from 'components/GameSettings/GameSettings';
+import Login from 'components/Login/Login';
 import AlertDialog from 'components/AlertDialog/AlertDialog';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
+import Dialog from '@material-ui/core/Dialog';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import DialogContent from '@material-ui/core/DialogContent';
 import Typography from '@material-ui/core/Typography';
 import SentimentVeryDissatisfied from '@material-ui/icons/SentimentVeryDissatisfied';
 
@@ -24,7 +28,7 @@ import nextRoundStartingSubject from 'stream/currentGame/nextRound/nextRound';
 import leaveGame, { removePlayer, playerLeaveGameSubject } from 'stream/currentGame/leaveGame/leaveGame';
 import currentGameSubject from 'stream/currentGame/currentGame';
 import currentPlayerSubject from 'stream/currentGame/currentPlayer/currentPlayer';
-import { currentUserSubject } from 'stream/currentUser/currentUser';
+import { currentUserSubject, isAuthenticatedSubject } from 'stream/currentUser/currentUser';
 import { useSnackbar } from 'notistack';
 import OverlayLoader from 'components/OverlayLoader/OverlayLoader';
 import useDialog from 'hooks/dialog';
@@ -37,6 +41,7 @@ const GamePage = memo(() => {
   const [currentPlayer, setCurrentPlayer] = useState();
   const [currentUser, setCurrentUser] = useState();
   const [nextRoundStarting, setNextRoundStarting] = useState();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentTab, setCurrentTab] = useState(0);
   const [joinDialogIsOpen, setJoinDialogIsOpen] = useState(false);
   const [notFoundDialogIsOpen, openNotFoundDialog, closeNotFoundDialog] = useDialog();
@@ -53,6 +58,7 @@ const GamePage = memo(() => {
     subscriptions.push(currentPlayerSubject.subscribe(setCurrentPlayer));
     subscriptions.push(currentUserSubject.subscribe(setCurrentUser));
     subscriptions.push(nextRoundStartingSubject.subscribe(setNextRoundStarting));
+    subscriptions.push(isAuthenticatedSubject.subscribe(setIsAuthenticated));
     return () => subscriptions.forEach((subscription) => subscription.unsubscribe());
   }, []);
 
@@ -183,6 +189,18 @@ const GamePage = memo(() => {
       >
         {`Join to play ${currentGame?.name ?? ''} Game`}
       </AlertDialog>
+
+      <Dialog
+        open={!isAuthenticated}
+        fullWidth
+        maxWidth="xs"
+        aria-labelledby="signin-dialog-title"
+      >
+        <DialogTitle id="signin-dialog-title">Signin to play</DialogTitle>
+        <DialogContent>
+          <Login />
+        </DialogContent>
+      </Dialog>
 
       <AlertDialog
         open={notFoundDialogIsOpen}

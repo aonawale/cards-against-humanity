@@ -3,9 +3,9 @@ import App from 'app/App';
 import LoginPage from 'components/LoginPage/LoginPage';
 import HomePage from 'components/HomePage/HomePage';
 import GamePage from 'components/GamePage/GamePage';
+import { Route, Switch } from 'react-router-dom';
 import AuthenticatedRoute from 'components/AuthenticatedRoute/AuthenticatedRoute';
 import UnauthenticatedRoute from 'components/UnauthenticatedRoute/UnauthenticatedRoute';
-import { Switch } from 'react-router-dom';
 import { isAuthenticatedSubject, authStateDeterminedSubject } from 'stream/currentUser/currentUser';
 import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
@@ -42,9 +42,9 @@ const Root = () => {
             <HomePage />
           </AuthenticatedRoute>
 
-          <AuthenticatedRoute exact path="/games/:gameID" isAuthenticated={isAuthenticated}>
+          <Route exact path="/games/:gameID">
             <GamePage />
-          </AuthenticatedRoute>
+          </Route>
         </Switch>
       )}
 

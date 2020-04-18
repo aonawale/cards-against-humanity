@@ -1,4 +1,6 @@
-import { Subject, of, from } from 'rxjs';
+import {
+  Subject, of, from, combineLatest,
+} from 'rxjs';
 import {
   map, tap, distinctUntilChanged, switchMap, filter,
 } from 'rxjs/operators';
@@ -7,11 +9,16 @@ import { converter } from 'game/game';
 import { converter as deckConverter } from 'game/deck/deck';
 import { doc } from 'rxfire/firestore';
 import { selectedGameIDSubject } from 'stream/gamesList/gamesList';
+import { isAuthenticatedSubject } from 'stream/currentUser/currentUser';
 
 const currentGameSubject = new Subject();
 
-selectedGameIDSubject.pipe(
-  distinctUntilChanged(),
+combineLatest([
+  selectedGameIDSubject.pipe(distinctUntilChanged()),
+  isAuthenticatedSubject,
+]).pipe(
+  filter(([selectedGameID, isAuthenticated]) => isAuthenticated && selectedGameID),
+  map(([selectedGameID]) => selectedGameID),
   switchMap((id) => (id
     ? from(db.collection('decks').doc(id).get())
       .pipe(
