@@ -1,6 +1,6 @@
-import { Subject, of } from 'rxjs';
+import { Subject, of, from } from 'rxjs';
 import {
-  map, tap, distinctUntilChanged, switchMap, flatMap, filter, take,
+  map, tap, distinctUntilChanged, switchMap, filter,
 } from 'rxjs/operators';
 import { firestore as db } from 'lib/firebase';
 import { converter } from 'game/game';
@@ -12,11 +12,10 @@ const currentGameSubject = new Subject();
 
 selectedGameIDSubject.pipe(
   distinctUntilChanged(),
-  flatMap((id) => (id
-    ? doc(db.collection('decks').doc(id))
+  switchMap((id) => (id
+    ? from(db.collection('decks').doc(id).get())
       .pipe(
         filter((snapshot) => snapshot.exists),
-        take(1),
         map((snapshot) => snapshot.data()),
         map(({ white, black }) => [
           id,

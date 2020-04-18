@@ -1,4 +1,4 @@
-import { Subject } from 'rxjs';
+import { Subject, from } from 'rxjs';
 import {
   map, withLatestFrom, tap, flatMap, filter,
 } from 'rxjs/operators';
@@ -10,11 +10,11 @@ import Player from 'game/player/player';
 import Deck, { converter as deckConverter } from 'game/deck/deck';
 
 const newGameSubject = new Subject();
+const newGameStartedSubject = new Subject();
 
 const startGame = (name, deckID) => {
   const { id } = db.collection('games').doc();
   newGameSubject.next({ id, name, deckID });
-  return id;
 };
 
 newGameSubject.pipe(
@@ -45,16 +45,21 @@ newGameSubject.pipe(
     return game;
   }),
   tap((val) => console.log('newGameSubject init game =>', val)),
-).subscribe((game) => {
-  const batch = db.batch();
+  flatMap((game) => {
+    const batch = db.batch();
 
-  batch.set(db.collection('games').doc(game.id).withConverter(converter), game);
-  batch.set(db.collection('decks').doc(game.id), {
-    white: deckConverter.toFirestore(game.whiteCardsDeck),
-    black: deckConverter.toFirestore(game.blackCardsDeck),
-  });
+    batch.set(db.collection('games').doc(game.id).withConverter(converter), game);
+    batch.set(db.collection('decks').doc(game.id), {
+      white: deckConverter.toFirestore(game.whiteCardsDeck),
+      black: deckConverter.toFirestore(game.blackCardsDeck),
+    });
 
-  batch.commit();
-});
+    return from(batch.commit().then(() => game.id));
+  }),
+).subscribe(newGameStartedSubject);
 
 export default startGame;
+
+export {
+  newGameStartedSubject,
+};

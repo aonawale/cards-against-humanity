@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
-import startGame from 'stream/gamesList/startGame/startGame';
+import startGame, { newGameStartedSubject } from 'stream/gamesList/startGame/startGame';
 import deleteGame from 'stream/gamesList/deleteGame/deleteGame';
 import gamesListSubject from 'stream/gamesList/gamesList';
 import { currentUserSubject } from 'stream/currentUser/currentUser';
@@ -33,6 +33,7 @@ const HomePage = () => {
   };
 
   const history = useHistory();
+  const [isStartingGame, setIsStartingGame] = useState(false);
   const [decksList, setDecksList] = useState([]);
   const [defaultDeck, setDefaultDeck] = useState();
   const [gamesList, setGamesList] = useState([]);
@@ -49,6 +50,16 @@ const HomePage = () => {
     return () => subscriptions.forEach((subscription) => subscription.unsubscribe());
   }, []);
 
+  // listen for new game event
+  useEffect(() => {
+    const subscription = newGameStartedSubject.subscribe((id) => {
+      setIsStartingGame(false);
+      closeStartDialog();
+      history.push(`games/${id}`);
+    });
+    return () => subscription.unsubscribe();
+  }, [closeStartDialog, history]);
+
   const handleClickGame = useCallback(({ id }) => {
     history.push(`games/${id}`);
   }, [history]);
@@ -58,9 +69,9 @@ const HomePage = () => {
   }, []);
 
   const handleConfirmStartDialog = useCallback(({ name, deck }) => {
-    const id = startGame(name, deck);
-    history.push(`games/${id}`);
-  }, [history]);
+    startGame(name, deck);
+    setIsStartingGame(true);
+  }, []);
 
   return (
     <Container>
@@ -77,6 +88,7 @@ const HomePage = () => {
         decks={decksList}
         defaultDeck={defaultDeck}
         isOpen={startDialogIsOpen}
+        isStarting={isStartingGame}
         onClose={closeStartDialog}
         onStart={handleConfirmStartDialog}
       />

@@ -16,6 +16,7 @@ import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Slide from '@material-ui/core/Slide';
+import OverlayLoader from 'components/OverlayLoader/OverlayLoader';
 
 const formSteps = {
   name: Symbol('name'),
@@ -32,7 +33,7 @@ const initialFormState = {
 const Transition = forwardRef((props, ref) => <Slide direction="up" ref={ref} {...props} />);
 
 const GameStartDialog = memo(({
-  isOpen, decks, defaultDeck, onClose, onStart,
+  isOpen, isStarting, decks, defaultDeck, onClose, onStart,
 }) => {
   const [formStep, setFormStep] = useState(formSteps.name);
   const [formState, setFormState] = useState({ ...initialFormState });
@@ -43,10 +44,12 @@ const GameStartDialog = memo(({
   }, [defaultDeck, formState.deck]);
 
   const handleClose = useCallback(() => {
-    setFormState({ ...initialFormState });
-    if (onClose)
-      onClose();
-  }, [onClose]);
+    if (!isStarting) {
+      setFormState({ ...initialFormState });
+      if (onClose)
+        onClose();
+    }
+  }, [isStarting, onClose]);
 
   const handleCancel = useCallback(() => {
     if (formStep === formSteps.name)
@@ -88,6 +91,7 @@ const GameStartDialog = memo(({
       aria-labelledby="game-start-dialog-title"
       TransitionComponent={Transition}
     >
+      {isStarting && <OverlayLoader />}
       <DialogTitle id="game-start-dialog-title">
         {formStep === formSteps.name ? 'Enter Game Name' : 'Choose Deck'}
       </DialogTitle>
@@ -146,10 +150,12 @@ const GameStartDialog = memo(({
 
 GameStartDialog.defaultProps = {
   isOpen: false,
+  isStarting: false,
 };
 
 GameStartDialog.propTypes = {
   isOpen: PropTypes.bool,
+  isStarting: PropTypes.bool,
   decks: PropTypes.arrayOf(PropTypes.shape({
     id: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,

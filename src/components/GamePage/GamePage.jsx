@@ -13,7 +13,6 @@ import AlertDialog from 'components/AlertDialog/AlertDialog';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
-import CircularProgress from '@material-ui/core/CircularProgress';
 import SentimentVeryDissatisfied from '@material-ui/icons/SentimentVeryDissatisfied';
 
 import deleteGame from 'stream/gamesList/deleteGame/deleteGame';
@@ -27,27 +26,10 @@ import currentGameSubject from 'stream/currentGame/currentGame';
 import currentPlayerSubject from 'stream/currentGame/currentPlayer/currentPlayer';
 import { currentUserSubject } from 'stream/currentUser/currentUser';
 import { useSnackbar } from 'notistack';
-import { makeStyles } from '@material-ui/core/styles';
+import OverlayLoader from 'components/OverlayLoader/OverlayLoader';
 import useDialog from 'hooks/dialog';
 
-const useStyles = makeStyles({
-  loader: {
-    position: 'absolute',
-    top: '0',
-    bottom: '0',
-    right: '0',
-    left: '0',
-    background: '#fff',
-    zIndex: 1,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
-
 const GamePage = memo(() => {
-  const classes = useStyles();
-
   const history = useHistory();
   const { gameID } = useParams();
   const { enqueueSnackbar } = useSnackbar();
@@ -129,11 +111,7 @@ const GamePage = memo(() => {
 
   return (
     <Box display="flex" flexDirection="column" height="100%">
-      {!currentGame && (
-        <Box className={classes.loader}>
-          <CircularProgress />
-        </Box>
-      )}
+      {!currentGame && <OverlayLoader />}
 
       {currentGame?.playedBlackCard && (
         <Box p={2} display="flex" justifyContent="center">
