@@ -12,9 +12,9 @@ const nextRoundStartingSubject = new Subject();
 currentGameSubject.pipe(
   filter((game) => game?.state === gameStates.winnerSelected && game.canPlayNextRound),
   switchMap(() => interval(1000).pipe(
-    map((val) => 5 - (val + 1)),
-    take(5),
-    startWith(5),
+    map((val) => 10 - (val + 1)),
+    take(10),
+    startWith(10),
   )),
 ).subscribe(nextRoundStartingSubject);
 

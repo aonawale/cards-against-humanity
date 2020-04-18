@@ -78,7 +78,6 @@ class Game {
   setBlackCards(cards) {
     const foundIndex = Game.findCardIndex(cards, this.playedBlackCard);
     const blackCards = [];
-    console.log(foundIndex, this.playedBlackCard, cards);
     for (let index = 0; index < foundIndex; index++)
       blackCards.push(cards[index]);
     this.blackCardsDeck = new Deck(blackCards);

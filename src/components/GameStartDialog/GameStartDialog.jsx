@@ -46,6 +46,7 @@ const GameStartDialog = memo(({
   const handleClose = useCallback(() => {
     if (!isStarting) {
       setFormState({ ...initialFormState });
+      setFormStep(formSteps.name);
       if (onClose)
         onClose();
     }

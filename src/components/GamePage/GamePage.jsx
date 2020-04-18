@@ -196,7 +196,7 @@ const GamePage = memo(() => {
         maxWidth="xs"
         aria-labelledby="signin-dialog-title"
       >
-        <DialogTitle id="signin-dialog-title">Signin to play</DialogTitle>
+        <DialogTitle id="signin-dialog-title">Sign in to play</DialogTitle>
         <DialogContent>
           <Login />
         </DialogContent>

@@ -1,5 +1,5 @@
 import React, {
-  memo, useMemo,
+  memo, useMemo, useCallback,
 } from 'react';
 import PropTypes from 'prop-types';
 import shuffle from 'lib/shuffle';
@@ -31,7 +31,7 @@ const useStyles = makeStyles({
   },
 });
 
-const normalize = (value) => (value - 0) * (100 / (5 - 0));
+const normalize = (value) => (value - 0) * (100 / (10 - 0));
 const pluralize = (word, count) => (count > 1 ? `${word}s` : word);
 
 const GamePlay = memo(({
@@ -40,17 +40,26 @@ const GamePlay = memo(({
   const classes = useStyles();
   const currentPlayerIsCzar = currentPlayer.id === game.cZarID;
 
-  const hasPlayers = game.players.length > 1;
+  const hasRequiredPlayers = game.players.length > 1;
+  const czarName = game.getPlayer(game.cZarID)?.firstName;
+
+  const formatPlayerNames = useCallback((names) => {
+    const formattedNames = names.length > 1
+      ? [...names.slice(0, names.length - 2), names.slice(-2).join(' and ')]
+      : names;
+    return formattedNames.join(', ');
+  }, []);
 
   const playerNames = useMemo(
-    () => {
-      const names = game.pendingPlayers.map(({ firstName }) => firstName);
-      const formattedNames = names.length > 1
-        ? [...names.slice(0, names.length - 2), names.slice(-2).join(' and ')]
-        : names;
-      return formattedNames.join(', ');
-    },
-    [game.pendingPlayers],
+    () => formatPlayerNames(game.pendingPlayers.map(({ firstName }) => firstName)),
+    [formatPlayerNames, game.pendingPlayers],
+  );
+
+  const otherPlayerNames = useMemo(
+    () => formatPlayerNames(game.pendingPlayers
+      .filter(({ id }) => id !== currentPlayer.id)
+      .map(({ firstName }) => firstName)),
+    [currentPlayer.id, formatPlayerNames, game.pendingPlayers],
   );
 
   const shuffledPlayedWhiteCards = useMemo(
@@ -63,9 +72,9 @@ const GamePlay = memo(({
       return currentPlayerIsCzar
         ? (
           <Info
-            title={hasPlayers ? `Waiting for ${playerNames} to play...` : 'Waiting for players to join...'}
+            title={hasRequiredPlayers ? `Waiting for ${playerNames} to play...` : 'Waiting for players to join...'}
           >
-            {!hasPlayers && (
+            {!hasRequiredPlayers && (
               <PopupState variant="popover" popupId="share-menu">
                 {(popupState) => (
                   <>
@@ -93,10 +102,11 @@ const GamePlay = memo(({
         : (
           <Info
             title={game.hasPlayedWhiteCards(currentPlayer)
-              ? 'Waiting for others to play...'
+              ? `Waiting for ${otherPlayerNames} to play...`
               : 'Click card to play.'}
             subtitle={!game.hasPlayedWhiteCards(currentPlayer)
-              ? `Requires ${game.playedBlackCard?.pick} ${pluralize('card', game.playedBlackCard?.pick)}.`
+              ? `Requires ${game.playedBlackCard?.pick} 
+                ${pluralize('card', game.playedBlackCard?.pick)}. ${czarName} is the Czar.`
               : null}
           >
             {currentPlayer.cards.map((card) => (
@@ -124,7 +134,7 @@ const GamePlay = memo(({
             ))}
           </Info>
         )
-        : <Info title="Waiting for the Czar to choose a winner." />;
+        : <Info title={`Waiting for ${czarName} to choose a winner.`} />;
     case gameStates.winnerSelected:
       return currentPlayerIsCzar
         ? (
@@ -147,7 +157,7 @@ const GamePlay = memo(({
           </Info>
         )
         : (
-          <Info title={`The Czar choose 
+          <Info title={`${czarName} choose 
             ${game.roundWinnerID === currentPlayer.id ? 'your' : `${game.roundWinner.firstName}'s`} card`}
           >
             {game.roundWinnerCards.map((card) => (

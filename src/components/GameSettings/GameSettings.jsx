@@ -35,7 +35,7 @@ const GameSettings = memo(({
 
   return (
     <Container maxWidth="sm">
-      <List component="nav">
+      <List>
         <ListItem button onClick={openShareDialog}>
           <ListItemIcon>
             <ShareIcon />
