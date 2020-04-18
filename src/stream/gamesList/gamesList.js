@@ -1,12 +1,12 @@
 import {
-  ReplaySubject, BehaviorSubject, Subject, from,
+  ReplaySubject, BehaviorSubject, Subject,
 } from 'rxjs';
 import {
   map, switchMap, tap, take, distinctUntilKeyChanged, filter, distinctUntilChanged,
 } from 'rxjs/operators';
 import { currentUserSubject } from 'stream/currentUser/currentUser';
 import { firestore as db } from 'lib/firebase';
-import { collection } from 'rxfire/firestore';
+import { doc, collection } from 'rxfire/firestore';
 import { converter } from 'game/game';
 
 const gamesListSubject = new ReplaySubject(1);
@@ -19,7 +19,7 @@ const selectGame = (id) => selectedGameIDSubject.next(id);
 selectedGameIDSubject.pipe(
   filter((id) => id),
   distinctUntilChanged(),
-  switchMap((id) => from(db.collection('games').doc(id).get())),
+  switchMap((id) => doc(db.collection('games').doc(id))),
   map((snapshot) => snapshot.exists),
 ).subscribe(selectedGameExistSubject);
 

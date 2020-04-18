@@ -39,8 +39,8 @@ combineLatest([
   map(([game, whiteDeck, blackDeck]) => {
     if (!game)
       return undefined;
-    game.setWhiteDeck(whiteDeck);
-    game.setBlackDeck(blackDeck);
+    game.setWhiteCards(whiteDeck.cards);
+    game.setBlackCards(blackDeck.cards);
     return game;
   }),
   tap((val) => console.log('currentGame =>', val)),

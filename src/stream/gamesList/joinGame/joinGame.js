@@ -15,17 +15,16 @@ const joinGame = (id) => joinGameSubject.next(id);
 
 joinGameSubject.pipe(
   withLatestFrom(
-    currentGameSubject.pipe(
-      filter((game) => !!game),
-    ),
-    currentUserSubject.pipe(filter((user) => !!user)),
+    currentGameSubject,
+    currentUserSubject,
   ),
+  filter(([id, game, player]) => id && game && player),
   map(([id, game, { id: uid, displayName, photoURL }]) => [
     id,
     game,
     new Player(uid, displayName, Date.now(), photoURL),
   ]),
-  tap((val) => console.log('will ADD game add player =>', val)),
+  tap((val) => console.log('will add game player =>', val)),
   filter(([id, game, player]) => id === game.id && !game.hasPlayer(player)),
   tap(([, game, player]) => game.addPlayer(player)),
   map(([, game]) => game),

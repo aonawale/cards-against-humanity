@@ -41,7 +41,7 @@ const GamePage = memo(() => {
   const [currentPlayer, setCurrentPlayer] = useState();
   const [currentUser, setCurrentUser] = useState();
   const [nextRoundStarting, setNextRoundStarting] = useState();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState();
   const [currentTab, setCurrentTab] = useState(0);
   const [joinDialogIsOpen, setJoinDialogIsOpen] = useState(false);
   const [notFoundDialogIsOpen, openNotFoundDialog, closeNotFoundDialog] = useDialog();
@@ -191,7 +191,7 @@ const GamePage = memo(() => {
       </AlertDialog>
 
       <Dialog
-        open={!isAuthenticated}
+        open={isAuthenticated === false}
         fullWidth
         maxWidth="xs"
         aria-labelledby="signin-dialog-title"
