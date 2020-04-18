@@ -1,6 +1,6 @@
 {
   "projects": {
     "staging": "cah-dev-86dc7",
-    "production": "play-cah",
+    "production": "play-cah"
   }
 }
