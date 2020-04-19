@@ -3,8 +3,6 @@ import React, {
 } from 'react';
 import PropTypes from 'prop-types';
 import Container from '@material-ui/core/Container';
-import Dialog from '@material-ui/core/Dialog';
-import DialogTitle from '@material-ui/core/DialogTitle';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
@@ -66,9 +64,8 @@ const GameSettings = memo(({
         onCancel={closeLeaveDialog}
         onConfirm={handleConfirmLeaveDialog}
         onBackdropClick={closeLeaveDialog}
-      >
-        Your current game data will be lost. You can still join the game again.
-      </AlertDialog>
+        textContent="Your current game data will be lost. You can still join the game again."
+      />
 
       <AlertDialog
         open={deleteDialogIsOpen}
@@ -77,24 +74,20 @@ const GameSettings = memo(({
         onCancel={closeDeleteDialog}
         onConfirm={handleConfirmDeleteDialog}
         onBackdropClick={closeDeleteDialog}
-      >
-        All game data will be permanently deleted.
-      </AlertDialog>
+        textContent="All game data will be permanently deleted."
+      />
 
-      <Dialog
-        aria-labelledby="share-dialog-title"
-        fullWidth
-        maxWidth="xs"
+      <AlertDialog
+        title="Share Game"
         open={shareDialogIsOpen}
-        onClose={closeShareDialog}
+        onBackdropClick={closeShareDialog}
       >
-        <DialogTitle id="share-dialog-title">Share Game</DialogTitle>
         <ShareMenu
           Component={List}
           itemComponent={ListItem}
           onClickItem={closeShareDialog}
         />
-      </Dialog>
+      </AlertDialog>
     </Container>
   );
 });

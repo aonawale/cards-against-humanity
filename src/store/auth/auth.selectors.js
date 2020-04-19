@@ -7,6 +7,11 @@ export const selectCredential = createSelector(
   (auth) => auth.credential,
 );
 
+export const selectError = createSelector(
+  [selectAuth],
+  (auth) => auth.error,
+);
+
 export const selectIsAuthenticating = createSelector(
   [selectAuth],
   (auth) => auth.isAuthenticating,

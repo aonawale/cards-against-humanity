@@ -4,12 +4,12 @@ import {
 import {
   signOutSuccess, signOutFailure, signinSuccess, signinFailure,
 } from 'store/auth/auth.actions';
-import { firebaseApp } from 'lib/firebase';
+import { auth } from 'lib/firebase';
 import actionTypes from './auth.types';
 
 export function* signOut() {
   try {
-    yield firebaseApp.auth().signOut();
+    yield auth.signOut();
     yield put(signOutSuccess());
   } catch (error) {
     yield put(signOutFailure(error));
@@ -20,10 +20,14 @@ export function* onSignOutStart() {
   yield takeLatest(actionTypes.SIGNOUT_START, signOut);
 }
 
-export function* signin() {
+export function* signin({ payload: provider }) {
   try {
-    // Hopefully will manually call firebase signin here at some point
-    yield put(signinSuccess());
+    let result = null;
+    if (provider)
+      result = yield auth.signInWithRedirect(provider);
+    else
+      result = yield auth.signInAnonymously();
+    yield put(signinSuccess(result));
   } catch (error) {
     yield put(signinFailure(error));
   }

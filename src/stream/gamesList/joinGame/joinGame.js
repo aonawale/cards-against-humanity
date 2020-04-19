@@ -2,27 +2,37 @@ import { from, Subject } from 'rxjs';
 import {
   tap, map, withLatestFrom, filter, concatMap, pairwise,
 } from 'rxjs/operators';
-import { currentUserSubject } from 'stream/currentUser/currentUser';
-import currentGameSubject from 'stream/currentGame/currentGame';
 import { firestore as db } from 'lib/firebase';
+import { currentUserSubject, authStateSubject } from 'stream/currentUser/currentUser';
+import currentGameSubject from 'stream/currentGame/currentGame';
+
 import { converter } from 'game/game';
 import Player from 'game/player/player';
 
 const joinGameSubject = new Subject();
 const playerJoinedGameSubject = new Subject();
 
-const joinGame = (id) => joinGameSubject.next(id);
+const joinGame = (id, playerName) => joinGameSubject.next({ id, playerName });
+
+joinGameSubject.pipe(
+  withLatestFrom(authStateSubject),
+  filter(([{ playerName }, user]) => playerName && user && !user.displayName),
+).subscribe(async ([{ playerName }, user]) => {
+  console.log('joinGameSubject update current user diaplay name =>', playerName);
+  await user.updateProfile({ displayName: playerName });
+  authStateSubject.next(user);
+});
 
 joinGameSubject.pipe(
   withLatestFrom(
     currentGameSubject,
     currentUserSubject,
   ),
-  filter(([id, game, player]) => id && game && player),
-  map(([id, game, { id: uid, displayName, photoURL }]) => [
+  filter(([, game, player]) => game && player),
+  map(([{ id, playerName }, game, { id: uid, displayName, photoURL }]) => [
     id,
     game,
-    new Player(uid, displayName, Date.now(), photoURL),
+    new Player(uid, playerName || displayName, Date.now(), photoURL),
   ]),
   tap((val) => console.log('will add game player =>', val)),
   filter(([id, game, player]) => id === game.id && !game.hasPlayer(player)),

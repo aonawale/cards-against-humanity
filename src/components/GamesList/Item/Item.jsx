@@ -50,9 +50,8 @@ const Item = memo(({
           onBackdropClick={closeDeleteDialog}
           onCancel={closeDeleteDialog}
           onConfirm={handleConfirmDeleteDialog}
-        >
-          All game data will be permanently deleted.
-        </AlertDialog>
+          textContent="All game data will be permanently deleted."
+        />
       )}
     </>
   );

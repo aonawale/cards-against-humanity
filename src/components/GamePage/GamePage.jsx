@@ -13,9 +13,7 @@ import Login from 'components/Login/Login';
 import AlertDialog from 'components/AlertDialog/AlertDialog';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
-import Dialog from '@material-ui/core/Dialog';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import DialogContent from '@material-ui/core/DialogContent';
+import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import SentimentVeryDissatisfied from '@material-ui/icons/SentimentVeryDissatisfied';
 
@@ -45,6 +43,7 @@ const GamePage = memo(() => {
   const [currentTab, setCurrentTab] = useState(0);
   const [joinDialogIsOpen, setJoinDialogIsOpen] = useState(false);
   const [notFoundDialogIsOpen, openNotFoundDialog, closeNotFoundDialog] = useDialog();
+  const [playerName, setPlayerName] = useState('');
 
   useEffect(() => {
     selectGame(gameID);
@@ -76,17 +75,17 @@ const GamePage = memo(() => {
     const subscriptions = [];
     // listen for player join game
     subscriptions.push(playerJoinedGameSubject.subscribe((player) => {
-      if (player.id !== currentPlayer?.id)
+      if (player.id !== currentPlayer?.id && player.firstName)
         enqueueSnackbar(`${player.firstName} joined game`);
     }));
     // listen for player play card event
     subscriptions.push(playerPlayedCardSubject.subscribe((player) => {
-      if (player.id !== currentPlayer?.id)
+      if (player.id !== currentPlayer?.id && player.firstName)
         enqueueSnackbar(`${player.firstName} played a card`);
     }));
     // listen for player leaves game event
     subscriptions.push(playerLeaveGameSubject.subscribe((player) => {
-      if (player.id !== currentPlayer?.id)
+      if (player.id !== currentPlayer?.id && player.firstName)
         enqueueSnackbar(`${player.firstName} left game`);
     }));
     return () => subscriptions.forEach((subscription) => subscription.unsubscribe());
@@ -185,31 +184,40 @@ const GamePage = memo(() => {
         cancelText="No, I want my mummy"
         confirmText="Bring it on!"
         onCancel={handleCloseJoinDialog}
-        onConfirm={() => joinGame(gameID)}
+        onConfirm={() => joinGame(gameID, playerName)}
+        confirmDisabled={!currentUser?.displayName && !playerName}
+        textContent={`Join to play ${currentGame?.name ?? ''} Game`}
       >
-        {`Join to play ${currentGame?.name ?? ''} Game`}
+        {!currentUser?.displayName && (
+          <TextField
+            fullWidth
+            value={playerName}
+            onChange={({ target }) => setPlayerName(target.value)}
+            label="Player name"
+            helperText="Enter a player name."
+          />
+        )}
       </AlertDialog>
 
-      <Dialog
+      <AlertDialog
         open={isAuthenticated === false}
-        fullWidth
-        maxWidth="xs"
-        aria-labelledby="signin-dialog-title"
+        title="Sign in to play"
       >
-        <DialogTitle id="signin-dialog-title">Sign in to play</DialogTitle>
-        <DialogContent>
-          <Login />
-        </DialogContent>
-      </Dialog>
+        <Login />
+      </AlertDialog>
 
       <AlertDialog
         open={notFoundDialogIsOpen}
         title="Game not found"
         confirmText="Close"
         onConfirm={handleCloseNotFoundDialog}
-      >
-        The game does not exist <SentimentVeryDissatisfied />. It may have been deleted or the link is incorrect.
-      </AlertDialog>
+        textContent={(
+          <>
+            The game does not exist <SentimentVeryDissatisfied />.
+            It may have been deleted or the link is incorrect.
+          </>
+        )}
+      />
     </Box>
   );
 });

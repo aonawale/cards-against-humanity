@@ -62,9 +62,8 @@ const Item = memo(({ player, canRemove, onRemove }) => {
         onCancel={handleCloseRemoveDialog}
         onConfirm={handleConfirmRemoveDialog}
         TransitionComponent={Transition}
-      >
-        The player game data will be permanently deleted.
-      </AlertDialog>
+        textContent="The player game data will be permanently deleted."
+      />
     </>
   );
 });

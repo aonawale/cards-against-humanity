@@ -8,7 +8,7 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
 const AlertDialog = memo(({
-  title, cancelText, confirmText, onCancel, onConfirm, children, ...rest
+  title, cancelText, confirmText, onCancel, onConfirm, children, confirmDisabled, textContent, ...rest
 }) => (
   <Dialog
     fullWidth
@@ -20,30 +20,40 @@ const AlertDialog = memo(({
   >
     <DialogTitle id="alert-dialog-title">{title}</DialogTitle>
     <DialogContent>
-      <DialogContentText id="alert-dialog-description">
-        {children}
-      </DialogContentText>
-    </DialogContent>
-    <DialogActions>
-      {onCancel && (
-        <Button onClick={onCancel} color="primary">
-          {cancelText}
-        </Button>
+      {textContent && (
+        <DialogContentText id="alert-dialog-description">
+          {textContent}
+        </DialogContentText>
       )}
-      <Button onClick={onConfirm} color="primary">
-        {confirmText}
-      </Button>
-    </DialogActions>
+      {children}
+    </DialogContent>
+    {(onCancel || onConfirm) && (
+      <DialogActions>
+        {onCancel && (
+          <Button onClick={onCancel} color="primary">
+            {cancelText}
+          </Button>
+        )}
+        {onConfirm && (
+          <Button onClick={onConfirm} disabled={confirmDisabled} color="primary">
+            {confirmText}
+          </Button>
+        )}
+      </DialogActions>
+    )}
   </Dialog>
 ));
 
 AlertDialog.defaultProps = {
   cancelText: 'Cancel',
   confirmText: 'Confirm',
+  confirmDisabled: false,
 };
 
 AlertDialog.propTypes = {
   title: PropTypes.string.isRequired,
+  textContent: PropTypes.node,
+  confirmDisabled: PropTypes.bool,
   cancelText: PropTypes.string,
   confirmText: PropTypes.string,
   onCancel: PropTypes.func,

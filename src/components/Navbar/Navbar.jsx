@@ -53,7 +53,9 @@ const Navbar = ({ currentUser }) => {
                     // eslint-disable-next-line react/jsx-props-no-spreading
                     {...bindMenu(popupState)}
                   >
-                    <MenuItem onClick={popupState.close}>{currentUser?.displayName}</MenuItem>
+                    {currentUser?.displayName && (
+                      <MenuItem onClick={popupState.close}>{currentUser?.displayName}</MenuItem>
+                    )}
                     <MenuItem onClick={logOut}>Logout</MenuItem>
                   </Menu>
                 </>

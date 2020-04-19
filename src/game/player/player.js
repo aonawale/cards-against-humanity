@@ -11,7 +11,7 @@ export default class Player {
   }
 
   get firstName() {
-    return this.name.split(' ')[0];
+    return this.name?.split(' ')[0];
   }
 
   incrementPoints() {

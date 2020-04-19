@@ -2,7 +2,7 @@ import {
   Subject, of, from, combineLatest,
 } from 'rxjs';
 import {
-  map, tap, distinctUntilChanged, switchMap, filter,
+  map, tap, distinctUntilChanged, switchMap, filter, catchError,
 } from 'rxjs/operators';
 import { firestore as db } from 'lib/firebase';
 import { converter } from 'game/game';
@@ -15,7 +15,7 @@ const currentGameSubject = new Subject();
 
 combineLatest([
   selectedGameIDSubject.pipe(distinctUntilChanged()),
-  isAuthenticatedSubject,
+  isAuthenticatedSubject.pipe(distinctUntilChanged()),
 ]).pipe(
   filter(([selectedGameID, isAuthenticated]) => isAuthenticated && selectedGameID),
   map(([selectedGameID]) => selectedGameID),
@@ -29,12 +29,14 @@ combineLatest([
           deckConverter.fromFirestore({ data: () => white }),
           deckConverter.fromFirestore({ data: () => black }),
         ]),
+        catchError(() => of([id])),
       )
     : of([]))),
   switchMap(([id, whiteDeck, blackDeck]) => (id
     ? doc(db.collection('games').doc(id).withConverter(converter)).pipe(
       map((snapshot) => snapshot.data()),
       map((game) => [game, whiteDeck, blackDeck]),
+      catchError(() => of([])),
     ) : of([]))),
   map(([game, whiteDeck, blackDeck]) => {
     if (!game)

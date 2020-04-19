@@ -1,10 +1,10 @@
 import {
-  ReplaySubject, BehaviorSubject, Subject,
+  ReplaySubject, BehaviorSubject, Subject, combineLatest,
 } from 'rxjs';
 import {
-  map, switchMap, tap, take, distinctUntilKeyChanged, filter, distinctUntilChanged,
+  map, switchMap, tap, take, distinctUntilKeyChanged, filter, distinctUntilChanged, takeUntil, endWith,
 } from 'rxjs/operators';
-import { currentUserSubject } from 'stream/currentUser/currentUser';
+import { currentUserSubject, isAuthenticatedSubject } from 'stream/currentUser/currentUser';
 import { firestore as db } from 'lib/firebase';
 import { doc, collection } from 'rxfire/firestore';
 import { converter } from 'game/game';
@@ -16,17 +16,28 @@ const selectedGameExistSubject = new Subject();
 
 const selectGame = (id) => selectedGameIDSubject.next(id);
 
-selectedGameIDSubject.pipe(
-  filter((id) => id),
-  distinctUntilChanged(),
-  switchMap((id) => doc(db.collection('games').doc(id))),
-  map((snapshot) => snapshot.exists),
+combineLatest([
+  selectedGameIDSubject.pipe(distinctUntilChanged()),
+  isAuthenticatedSubject.pipe(distinctUntilChanged()),
+]).pipe(
+  filter(([id, isAuthenticated]) => id && isAuthenticated),
+  switchMap(([id]) => doc(db.collection('games').doc(id)).pipe(
+    map((snapshot) => snapshot.exists),
+    takeUntil(isAuthenticatedSubject.pipe(
+      filter((val) => val === false),
+    )),
+  )),
 ).subscribe(selectedGameExistSubject);
 
 currentUserSubject.pipe(
   filter((user) => !!user),
-  map(({ id }) => db.collection('games').where(`players.${id}.id`, '==', id).withConverter(converter)),
-  switchMap((ref) => collection(ref)),
+  map(({ id }) => db.collection('games').where(`players.${id}.id`, '==', id)),
+  switchMap((ref) => collection(ref.withConverter(converter)).pipe(
+    takeUntil(isAuthenticatedSubject.pipe(
+      filter((val) => val === false),
+    )),
+    endWith([]),
+  )),
   map((snapshots) => snapshots.map((snapshot) => snapshot.data())),
   distinctUntilKeyChanged('length'),
   tap((val) => console.log('gamesListSubject =>', val)),
