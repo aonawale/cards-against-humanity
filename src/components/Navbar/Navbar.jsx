@@ -39,7 +39,9 @@ const Navbar = ({ currentUser }) => {
                     // eslint-disable-next-line react/jsx-props-no-spreading
                     {...bindTrigger(popupState)}
                   >
-                    <Avatar alt={currentUser?.displayName} src={currentUser?.photoURL} />
+                    <Avatar alt={currentUser?.displayName} src={currentUser?.photoURL}>
+                      {currentUser?.displayName?.charAt(0)}
+                    </Avatar>
                   </IconButton>
                   <Menu
                     anchorOrigin={{

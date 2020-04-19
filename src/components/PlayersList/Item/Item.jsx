@@ -37,7 +37,9 @@ const Item = memo(({ player, canRemove, onRemove }) => {
     <>
       <ListItem alignItems="flex-start">
         <ListItemAvatar>
-          <Avatar alt={player.name} src={player.photoURL} />
+          <Avatar alt={player.name} src={player.photoURL}>
+            {player.name.charAt(0)}
+          </Avatar>
         </ListItemAvatar>
         <ListItemText
           primary={player.name}
