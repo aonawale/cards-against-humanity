@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
-const useObservable = (observable) => {
-  const [value, setValue] = useState();
+const useObservable = (observable, defaultValue) => {
+  const [value, setValue] = useState(defaultValue);
 
   useEffect(() => {
     const subscription = observable.subscribe(setValue);

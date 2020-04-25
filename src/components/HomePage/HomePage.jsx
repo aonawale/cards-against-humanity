@@ -3,7 +3,11 @@ import { useHistory } from 'react-router-dom';
 import startGame, { newGameStartedSubject } from 'stream/gamesList/startGame/startGame';
 import deleteGame from 'stream/gamesList/deleteGame/deleteGame';
 import gamesListSubject from 'stream/gamesList/gamesList';
-import { currentUserSubject, linkAccount, linkAccountStateSubject } from 'stream/currentUser/currentUser';
+import { currentUserSubject } from 'stream/currentUser/currentUser';
+import linkAccount, {
+  linkAccountStateSubject,
+  accountLinkedSubject,
+} from 'stream/currentUser/linkAccount/linkAccount';
 import { decksListSubject, defaultDeckSubject } from 'stream/decksList/decksList';
 import GamesList from 'components/GamesList/GamesList';
 import AlertDialog from 'components/AlertDialog/AlertDialog';
@@ -37,23 +41,22 @@ const HomePage = () => {
 
   const history = useHistory();
   const [isStartingGame, setIsStartingGame] = useState(false);
-  const [decksList, setDecksList] = useState([]);
-  const [defaultDeck, setDefaultDeck] = useState();
-  const [gamesList, setGamesList] = useState([]);
-  const [currentUser, setCurrentUser] = useState();
+  const decksList = useObservable(decksListSubject, []);
+  const defaultDeck = useObservable(defaultDeckSubject);
+  const gamesList = useObservable(gamesListSubject, []);
+  const currentUser = useObservable(currentUserSubject);
+  const linkAccountState = useObservable(linkAccountStateSubject);
   const [startDialogIsOpen, openStartDialog, closeStartDialog] = useDialog();
   const [upgradeAccountDialogIsOpen, openUpgradeAccountDialog, closeUpgradeAccountDialog] = useDialog();
-  const linkAccountState = useObservable(linkAccountStateSubject);
 
-  // bind component state to game data stream
+  // listen for account linked event
   useEffect(() => {
-    const subscriptions = [];
-    subscriptions.push(decksListSubject.subscribe(setDecksList));
-    subscriptions.push(defaultDeckSubject.subscribe(setDefaultDeck));
-    subscriptions.push(gamesListSubject.subscribe(setGamesList));
-    subscriptions.push(currentUserSubject.subscribe(setCurrentUser));
-    return () => subscriptions.forEach((subscription) => subscription.unsubscribe());
-  }, []);
+    const subscription = accountLinkedSubject.subscribe(() => {
+      closeUpgradeAccountDialog();
+      openStartDialog();
+    });
+    return () => subscription.unsubscribe();
+  }, [closeUpgradeAccountDialog, openStartDialog]);
 
   // listen for new game event
   useEffect(() => {
@@ -111,7 +114,7 @@ const HomePage = () => {
       />
 
       <AlertDialog
-        open={linkAccountState?.isLinked !== true && upgradeAccountDialogIsOpen}
+        open={upgradeAccountDialogIsOpen}
         title="Sign in to create game"
         onBackdropClick={handleLinkAccountClose}
       >

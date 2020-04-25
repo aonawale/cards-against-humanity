@@ -21,8 +21,8 @@ const useStyles = makeStyles((theme) => ({
 
 const Root = () => {
   const classes = useStyles();
-  const isAuthenticated = useObservable(isAuthenticatedSubject);
-  const authStateDetermined = useObservable(authStateDeterminedSubject);
+  const isAuthenticated = useObservable(isAuthenticatedSubject, false);
+  const authStateDetermined = useObservable(authStateDeterminedSubject, false);
 
   return (
     <App>
