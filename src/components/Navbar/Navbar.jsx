@@ -13,9 +13,12 @@ import Avatar from '@material-ui/core/Avatar';
 import { useDispatch } from 'react-redux';
 import { signOutStart } from 'store/auth/auth.actions';
 import PopupState, { bindTrigger, bindMenu } from 'material-ui-popup-state';
+import AlertDialog from 'components/AlertDialog/AlertDialog';
+import useDialog from 'hooks/dialog';
 
-const Navbar = ({ currentUser }) => {
+const Navbar = ({ currentUser, onDeleteAccount }) => {
   const dispatch = useDispatch();
+  const [deleteDialogIsOpen, openDeleteDialog, closeDeleteDialog] = useDialog();
 
   const logOut = useCallback(() => {
     dispatch(signOutStart());
@@ -58,6 +61,9 @@ const Navbar = ({ currentUser }) => {
                     {currentUser?.displayName && (
                       <MenuItem onClick={popupState.close}>{currentUser?.displayName}</MenuItem>
                     )}
+                    {onDeleteAccount && (
+                      <MenuItem onClick={openDeleteDialog}>Delete account</MenuItem>
+                    )}
                     <MenuItem onClick={logOut}>Logout</MenuItem>
                   </Menu>
                 </>
@@ -66,6 +72,18 @@ const Navbar = ({ currentUser }) => {
           </Box>
         )}
       </Toolbar>
+
+      {deleteDialogIsOpen && (
+        <AlertDialog
+          open={deleteDialogIsOpen}
+          title="Delete account?"
+          confirmText="Delete"
+          onBackdropClick={closeDeleteDialog}
+          onCancel={closeDeleteDialog}
+          onConfirm={onDeleteAccount}
+          textContent="All account and games data will be permanently deleted."
+        />
+      )}
     </AppBar>
   );
 };
@@ -75,6 +93,7 @@ Navbar.propTypes = {
     displayName: PropTypes.string,
     photoURL: PropTypes.string,
   }),
+  onDeleteAccount: PropTypes.func,
 };
 
 export default Navbar;

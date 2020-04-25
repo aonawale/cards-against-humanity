@@ -10,9 +10,6 @@ exports.removeUser = functions.auth
 
     const batch = db.batch();
 
-    // delete user data
-    batch.delete(db.collection('users').doc(user.uid));
-
     // delete user games
     const gamesSnapshot = await db.collection('games').where('ownerID', '==', user.uid).get();
     gamesSnapshot.forEach((doc) => batch.delete(doc.ref));

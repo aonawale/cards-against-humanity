@@ -117,8 +117,15 @@ class Game {
     this.lastWhiteCard = cards[cards.length - 1];
   }
 
+  // swapPlayerCards(player) {
+  //   if (player.cardSwapCount >= 3)
+  //     throw new Error('Player cannot swap more cards!');
+  //   player.cards = [];
+  //   this.dealCardsToPlayer(player, 5);
+  // }
+
   cardPlayer(card) {
-    return this.players.find(({ id }) => id === card.playerID);
+    return this.getPlayer(card.playerID);
   }
 
   getPlayer(playerID) {

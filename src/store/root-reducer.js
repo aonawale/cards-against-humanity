@@ -9,8 +9,14 @@ const persistConfig = {
   whitelist: ['auth'],
 };
 
+const authPersistConfig = {
+  key: 'auth',
+  storage,
+  whitelist: ['credential'],
+};
+
 const rootReducer = combineReducers({
-  auth: authReducer,
+  auth: persistReducer(authPersistConfig, authReducer),
 });
 
 export default persistReducer(persistConfig, rootReducer);

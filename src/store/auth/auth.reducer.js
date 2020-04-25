@@ -22,7 +22,7 @@ const authReducer = (state = INITIAL_STATE, { type, payload }) => {
     case actionTypes.SIGNIN_SUCCESS:
       return {
         error: null,
-        credential: payload?.credential,
+        credential: payload.credential,
         isAuthenticating: false,
       };
     case actionTypes.SIGNOUT_FAILURE:

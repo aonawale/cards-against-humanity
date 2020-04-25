@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import App from 'app/App';
 import LoginPage from 'components/LoginPage/LoginPage';
 import HomePage from 'components/HomePage/HomePage';
@@ -10,6 +10,7 @@ import { isAuthenticatedSubject, authStateDeterminedSubject } from 'stream/curre
 import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { makeStyles } from '@material-ui/core/styles';
+import useObservable from 'hooks/observable';
 
 const useStyles = makeStyles((theme) => ({
   backdrop: {
@@ -20,15 +21,8 @@ const useStyles = makeStyles((theme) => ({
 
 const Root = () => {
   const classes = useStyles();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [authStateDetermined, setAuthStateDetermined] = useState(false);
-
-  useEffect(() => {
-    const subscriptions = [];
-    subscriptions.push(isAuthenticatedSubject.subscribe(setIsAuthenticated));
-    subscriptions.push(authStateDeterminedSubject.subscribe(setAuthStateDetermined));
-    return () => subscriptions.forEach((subscription) => subscription.unsubscribe());
-  }, []);
+  const isAuthenticated = useObservable(isAuthenticatedSubject);
+  const authStateDetermined = useObservable(authStateDeterminedSubject);
 
   return (
     <App>

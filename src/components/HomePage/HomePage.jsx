@@ -3,10 +3,12 @@ import { useHistory } from 'react-router-dom';
 import startGame, { newGameStartedSubject } from 'stream/gamesList/startGame/startGame';
 import deleteGame from 'stream/gamesList/deleteGame/deleteGame';
 import gamesListSubject from 'stream/gamesList/gamesList';
-import { currentUserSubject } from 'stream/currentUser/currentUser';
+import { currentUserSubject, linkAccount, linkAccountStateSubject } from 'stream/currentUser/currentUser';
 import { decksListSubject, defaultDeckSubject } from 'stream/decksList/decksList';
 import GamesList from 'components/GamesList/GamesList';
+import AlertDialog from 'components/AlertDialog/AlertDialog';
 import GameStartDialog from 'components/GameStartDialog/GameStartDialog';
+import Login from 'components/Login/Login';
 import Container from '@material-ui/core/Container';
 import Fab from '@material-ui/core/Fab';
 import Zoom from '@material-ui/core/Zoom';
@@ -14,6 +16,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import AddIcon from '@material-ui/icons/Add';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import useDialog from 'hooks/dialog';
+import useObservable from 'hooks/observable';
 
 const useStyles = makeStyles((theme) => ({
   fab: {
@@ -39,6 +42,8 @@ const HomePage = () => {
   const [gamesList, setGamesList] = useState([]);
   const [currentUser, setCurrentUser] = useState();
   const [startDialogIsOpen, openStartDialog, closeStartDialog] = useDialog();
+  const [upgradeAccountDialogIsOpen, openUpgradeAccountDialog, closeUpgradeAccountDialog] = useDialog();
+  const linkAccountState = useObservable(linkAccountStateSubject);
 
   // bind component state to game data stream
   useEffect(() => {
@@ -73,6 +78,18 @@ const HomePage = () => {
     setIsStartingGame(true);
   }, []);
 
+  const handleLinkAccountClose = useCallback(() => {
+    if (!linkAccountState?.isLoading)
+      closeUpgradeAccountDialog();
+  }, [closeUpgradeAccountDialog, linkAccountState]);
+
+  const handleAddClick = useCallback(() => {
+    if (currentUser?.isAnonymous)
+      openUpgradeAccountDialog();
+    else
+      openStartDialog();
+  }, [currentUser, openStartDialog, openUpgradeAccountDialog]);
+
   return (
     <Container>
       {gamesList.length ? (
@@ -93,9 +110,21 @@ const HomePage = () => {
         onStart={handleConfirmStartDialog}
       />
 
+      <AlertDialog
+        open={linkAccountState?.isLinked !== true && upgradeAccountDialogIsOpen}
+        title="Sign in to create game"
+        onBackdropClick={handleLinkAccountClose}
+      >
+        <Login
+          loading={linkAccountState?.isLoading}
+          error={linkAccountState?.error}
+          onAuth={linkAccount}
+        />
+      </AlertDialog>
+
       <Tooltip title="New Game" aria-label="New Game">
         <Zoom in unmountOnExit timeout={transitionDuration} className={classes.fab}>
-          <Fab color="primary" aria-label="add" onClick={openStartDialog}>
+          <Fab color="primary" aria-label="add" onClick={handleAddClick}>
             <AddIcon />
           </Fab>
         </Zoom>

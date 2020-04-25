@@ -1,8 +1,10 @@
-import { Subject, ReplaySubject } from 'rxjs';
 import {
-  map, filter, take, delay, tap, share, withLatestFrom,
+  Subject, ReplaySubject, of, BehaviorSubject, from,
+} from 'rxjs';
+import {
+  map, filter, take, delay, tap, share, withLatestFrom, flatMap, catchError,
 } from 'rxjs/operators';
-import { auth, firestore } from 'lib/firebase';
+import { auth } from 'lib/firebase';
 import { authState } from 'rxfire/auth';
 
 const authStateSubject = new Subject();
@@ -25,24 +27,18 @@ isAuthenticatedSubject.pipe(
 ).subscribe(authStateDeterminedSubject);
 
 // //-------------- Current user
+const buildUser = (user) => ({
+  id: user.uid,
+  email: user.email,
+  displayName: user.displayName,
+  photoURL: user.photoURL,
+  isAnonymous: user.isAnonymous || false,
+});
+
 authStateSubject.pipe(
-  map((user) => (user
-    ? ({
-      id: user.uid,
-      email: user.email,
-      displayName: user.displayName,
-      photoURL: user.photoURL,
-      isAnonymous: user.isAnonymous,
-    })
-    : undefined)),
+  map((user) => (user ? buildUser(user) : undefined)),
   tap((val) => console.log('currentUserSubject =>', val)),
 ).subscribe(currentUserSubject);
-
-currentUserSubject.pipe(
-  filter((user) => !!user),
-).subscribe((user) => {
-  firestore.collection('users').doc(user.id).set(user);
-});
 
 // //-------------- Delete anonymous user on signout
 const lastKnownUserObservable = authStateSubject.pipe(
@@ -55,9 +51,32 @@ isAuthenticatedSubject.pipe(
   filter(([isAuthenticated, user]) => !isAuthenticated && user.isAnonymous),
 ).subscribe(([, user]) => user.delete());
 
+// //-------------- Link anonymous account and update user profile
+const linkAccountSubject = new Subject();
+const linkAccountStateSubject = new BehaviorSubject({ error: undefined, isLoading: false });
+const linkAccount = (provider) => linkAccountSubject.next(provider);
+
+linkAccountSubject.pipe(
+  tap(() => linkAccountStateSubject.next({ error: undefined, isLoading: true })),
+  flatMap((provider) => from(auth.currentUser.linkWithPopup(provider)).pipe(
+    map((result) => result.user?.providerData?.[0]),
+    filter((data) => data?.displayName),
+    flatMap((data) => auth.currentUser.updateProfile({
+      displayName: data.displayName,
+      photoURL: data.photoURL,
+    })),
+    tap(() => authStateSubject.next(auth.currentUser)),
+    map(() => ({ error: undefined, isLoading: false, isLinked: true })),
+    catchError((error) => of({ error, isLoading: false })),
+    tap((val) => console.log('linkAccountSubject =>', val)),
+  )),
+).subscribe(linkAccountStateSubject);
+
 export {
   authStateSubject,
   currentUserSubject,
   isAuthenticatedSubject,
   authStateDeterminedSubject,
+  linkAccount,
+  linkAccountStateSubject,
 };

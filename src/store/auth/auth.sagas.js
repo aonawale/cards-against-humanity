@@ -24,7 +24,7 @@ export function* signin({ payload: provider }) {
   try {
     let result = null;
     if (provider)
-      result = yield auth.signInWithRedirect(provider);
+      result = yield auth.signInWithPopup(provider);
     else
       result = yield auth.signInAnonymously();
     yield put(signinSuccess(result));

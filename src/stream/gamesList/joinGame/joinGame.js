@@ -3,7 +3,7 @@ import {
   tap, map, withLatestFrom, filter, concatMap, pairwise,
 } from 'rxjs/operators';
 import { firestore as db } from 'lib/firebase';
-import { currentUserSubject, authStateSubject } from 'stream/currentUser/currentUser';
+import { currentUserSubject } from 'stream/currentUser/currentUser';
 import currentGameSubject from 'stream/currentGame/currentGame';
 
 import { converter } from 'game/game';
@@ -13,15 +13,6 @@ const joinGameSubject = new Subject();
 const playerJoinedGameSubject = new Subject();
 
 const joinGame = (id, playerName) => joinGameSubject.next({ id, playerName });
-
-joinGameSubject.pipe(
-  withLatestFrom(authStateSubject),
-  filter(([{ playerName }, user]) => playerName && user && !user.displayName),
-).subscribe(async ([{ playerName }, user]) => {
-  console.log('joinGameSubject update current user diaplay name =>', playerName);
-  await user.updateProfile({ displayName: playerName });
-  authStateSubject.next(user);
-});
 
 joinGameSubject.pipe(
   withLatestFrom(

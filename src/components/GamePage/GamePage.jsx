@@ -30,16 +30,17 @@ import { currentUserSubject, isAuthenticatedSubject } from 'stream/currentUser/c
 import { useSnackbar } from 'notistack';
 import OverlayLoader from 'components/OverlayLoader/OverlayLoader';
 import useDialog from 'hooks/dialog';
+import useObservable from 'hooks/observable';
 
 const GamePage = memo(() => {
   const history = useHistory();
   const { gameID } = useParams();
   const { enqueueSnackbar } = useSnackbar();
-  const [currentGame, setcurrentGame] = useState();
-  const [currentPlayer, setCurrentPlayer] = useState();
-  const [currentUser, setCurrentUser] = useState();
-  const [nextRoundStarting, setNextRoundStarting] = useState();
-  const [isAuthenticated, setIsAuthenticated] = useState();
+  const currentGame = useObservable(currentGameSubject);
+  const currentPlayer = useObservable(currentPlayerSubject);
+  const currentUser = useObservable(currentUserSubject);
+  const nextRoundStarting = useObservable(nextRoundStartingSubject);
+  const isAuthenticated = useObservable(isAuthenticatedSubject);
   const [currentTab, setCurrentTab] = useState(0);
   const [joinDialogIsOpen, setJoinDialogIsOpen] = useState(false);
   const [notFoundDialogIsOpen, openNotFoundDialog, closeNotFoundDialog] = useDialog();
@@ -49,17 +50,6 @@ const GamePage = memo(() => {
     selectGame(gameID);
     return () => selectGame(undefined);
   }, [gameID]);
-
-  // bind component state to game data stream
-  useEffect(() => {
-    const subscriptions = [];
-    subscriptions.push(currentGameSubject.subscribe(setcurrentGame));
-    subscriptions.push(currentPlayerSubject.subscribe(setCurrentPlayer));
-    subscriptions.push(currentUserSubject.subscribe(setCurrentUser));
-    subscriptions.push(nextRoundStartingSubject.subscribe(setNextRoundStarting));
-    subscriptions.push(isAuthenticatedSubject.subscribe(setIsAuthenticated));
-    return () => subscriptions.forEach((subscription) => subscription.unsubscribe());
-  }, []);
 
   // listen for non existent selected game
   useEffect(() => {
