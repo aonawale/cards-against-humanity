@@ -51,8 +51,10 @@ const GamePlay = memo(({
   }, []);
 
   const playerNames = useMemo(
-    () => formatPlayerNames(game.pendingPlayers.map(({ firstName }) => firstName)),
-    [formatPlayerNames, game.pendingPlayers],
+    () => formatPlayerNames(game.pendingPlayers
+      .filter(({ id }) => id !== game.cZarID)
+      .map(({ firstName }) => firstName)),
+    [formatPlayerNames, game.cZarID, game.pendingPlayers],
   );
 
   const otherPlayerNames = useMemo(

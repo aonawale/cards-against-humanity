@@ -55,7 +55,6 @@ class Game {
 
   get pendingPlayers() {
     return this.players.filter(({ id }) => this.playedBlackCard
-      && this.cZarID !== id
       && (!this.playedWhiteCards.has(id)
       || (this.playedWhiteCards.get(id).length < this.playedBlackCard?.pick)));
   }
