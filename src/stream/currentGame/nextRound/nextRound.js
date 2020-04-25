@@ -5,16 +5,17 @@ import {
 import currentGameSubject from 'stream/currentGame/currentGame';
 import currentPlayerSubject from 'stream/currentGame/currentPlayer/currentPlayer';
 import { firestore as db } from 'lib/firebase';
-import { converter, gameStates } from 'game/game';
+import Game, { converter, gameStates } from 'game/game';
 
+const { countDownTime } = Game;
 const nextRoundStartingSubject = new Subject();
 
 currentGameSubject.pipe(
   filter((game) => game?.state === gameStates.winnerSelected && game.canPlayNextRound),
   switchMap(() => interval(1000).pipe(
-    map((val) => 10 - (val + 1)),
-    take(10),
-    startWith(10),
+    map((val) => countDownTime - (val + 1)),
+    take(countDownTime),
+    startWith(countDownTime),
   )),
 ).subscribe(nextRoundStartingSubject);
 

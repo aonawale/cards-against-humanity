@@ -31,7 +31,7 @@ const useStyles = makeStyles({
   },
 });
 
-const normalize = (value) => (value - 0) * (100 / (10 - 0));
+const normalize = (value) => (value - 0) * (100 / (Game.countDownTime - 0));
 const pluralize = (word, count) => (count > 1 ? `${word}s` : word);
 
 const GamePlay = memo(({

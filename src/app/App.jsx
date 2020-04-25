@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Navbar from 'components/Navbar/Navbar';
 import { currentUserSubject } from 'stream/currentUser/currentUser';
 import { makeStyles } from '@material-ui/core/styles';
+import useObservable from 'hooks/observable';
 
 const useStyles = makeStyles({
   main: {
@@ -12,12 +13,7 @@ const useStyles = makeStyles({
 
 const App = ({ children }) => {
   const classes = useStyles();
-  const [currentUser, setCurrentUser] = useState();
-
-  useEffect(() => {
-    const subscription = currentUserSubject.subscribe(setCurrentUser);
-    return () => subscription.unsubscribe();
-  }, []);
+  const currentUser = useObservable(currentUserSubject);
 
   return (
     <>

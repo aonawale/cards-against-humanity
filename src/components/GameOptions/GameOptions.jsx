@@ -1,6 +1,4 @@
-import React, {
-  memo, useCallback,
-} from 'react';
+import React, { memo, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import Container from '@material-ui/core/Container';
 import List from '@material-ui/core/List';
@@ -10,16 +8,20 @@ import ListItemText from '@material-ui/core/ListItemText';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import DeleteIcon from '@material-ui/icons/Delete';
 import ShareIcon from '@material-ui/icons/Share';
+import SwapHorizIcon from '@material-ui/icons/SwapHoriz';
 import AlertDialog from 'components/AlertDialog/AlertDialog';
 import ShareMenu from 'components/ShareMenu/ShareMenu';
 import useDialog from 'hooks/dialog';
+import Game from 'game/game';
+import Player from 'game/player/player';
 
-const GameSettings = memo(({
-  canLeaveGame, canDeleteGame, onLeaveGame, onDeleteGame,
+const GameOptions = memo(({
+  game, currentPlayer, onLeaveGame, onDeleteGame, onSwapCards,
 }) => {
   const [leaveDialogIsOpen, openLeaveDialog, closeLeaveDialog] = useDialog();
   const [deleteDialogIsOpen, openDeleteDialog, closeDeleteDialog] = useDialog();
   const [shareDialogIsOpen, openShareDialog, closeShareDialog] = useDialog();
+  const [swapCardsDialogIsOpen, openSwapCardsDialog, closeSwapCardsDialog] = useDialog();
 
   const handleConfirmLeaveDialog = useCallback(() => {
     closeLeaveDialog(false);
@@ -31,6 +33,11 @@ const GameSettings = memo(({
     onDeleteGame();
   }, [closeDeleteDialog, onDeleteGame]);
 
+  const handleConfirmSwapCardsDialog = useCallback(() => {
+    closeSwapCardsDialog(false);
+    onSwapCards();
+  }, [closeSwapCardsDialog, onSwapCards]);
+
   return (
     <Container maxWidth="sm">
       <List>
@@ -40,7 +47,18 @@ const GameSettings = memo(({
           </ListItemIcon>
           <ListItemText primary="Share" />
         </ListItem>
-        {canLeaveGame && (
+        {(game.canSwapCards(currentPlayer)) && (
+          <ListItem button onClick={openSwapCardsDialog}>
+            <ListItemIcon>
+              <SwapHorizIcon />
+            </ListItemIcon>
+            <ListItemText
+              primary="Swap cards"
+              secondary={`Used ${currentPlayer.cardsSwapCount} out of ${Game.maxCardsSwapCount}`}
+            />
+          </ListItem>
+        )}
+        {(game.ownerID !== currentPlayer.id) && (
           <ListItem button onClick={openLeaveDialog}>
             <ListItemIcon>
               <ExitToAppIcon />
@@ -48,7 +66,7 @@ const GameSettings = memo(({
             <ListItemText primary="Leave game" />
           </ListItem>
         )}
-        {canDeleteGame && (
+        {(game.ownerID === currentPlayer.id) && (
           <ListItem button onClick={openDeleteDialog}>
             <ListItemIcon>
               <DeleteIcon />
@@ -78,6 +96,15 @@ const GameSettings = memo(({
       />
 
       <AlertDialog
+        open={swapCardsDialogIsOpen}
+        title="Swap current cards?"
+        onCancel={closeSwapCardsDialog}
+        onConfirm={handleConfirmSwapCardsDialog}
+        onBackdropClick={closeSwapCardsDialog}
+        textContent="Your current set of cards will be replaced with new cards."
+      />
+
+      <AlertDialog
         title="Share Game"
         open={shareDialogIsOpen}
         onBackdropClick={closeShareDialog}
@@ -92,11 +119,12 @@ const GameSettings = memo(({
   );
 });
 
-GameSettings.propTypes = {
-  canLeaveGame: PropTypes.bool.isRequired,
-  canDeleteGame: PropTypes.bool.isRequired,
+GameOptions.propTypes = {
+  game: PropTypes.instanceOf(Game).isRequired,
+  currentPlayer: PropTypes.instanceOf(Player).isRequired,
   onLeaveGame: PropTypes.func.isRequired,
   onDeleteGame: PropTypes.func.isRequired,
+  onSwapCards: PropTypes.func.isRequired,
 };
 
-export default GameSettings;
+export default GameOptions;

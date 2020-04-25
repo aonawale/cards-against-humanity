@@ -23,6 +23,12 @@ class Game {
     this.roundWinnerID = roundWinnerID;
   }
 
+  static dealCount = 5
+
+  static countDownTime = 8
+
+  static maxCardsSwapCount = 5
+
   // //---------------------- Static functions
   static findCardIndex(cards, cardToFind) {
     if (!cardToFind)
@@ -98,11 +104,11 @@ class Game {
   }
 
   dealWhiteCardsToPlayers() {
-    const dealCount = this.playedBlackCard?.pick || 5;
+    const dealCount = this.playedBlackCard?.pick || Game.dealCount;
 
     this.players.forEach((player) => {
       // don't deal cards to cZar if game has already started
-      if (!this.playedBlackCard || (player.id !== this.cZarID))
+      if ((!this.playedBlackCard || (player.id !== this.cZarID)) && player.cards.length < Game.dealCount)
         this.dealCardsToPlayer(player, dealCount);
     });
   }
@@ -117,12 +123,18 @@ class Game {
     this.lastWhiteCard = cards[cards.length - 1];
   }
 
-  // swapPlayerCards(player) {
-  //   if (player.cardSwapCount >= 3)
-  //     throw new Error('Player cannot swap more cards!');
-  //   player.cards = [];
-  //   this.dealCardsToPlayer(player, 5);
-  // }
+  canSwapCards(player) {
+    return player.cardsSwapCount < Game.maxCardsSwapCount
+      && ((this.players.length - 1) * Game.dealCount) < this.whiteCardsDeck.count;
+  }
+
+  swapPlayerCards(player) {
+    if (!this.canSwapCards(player))
+      throw new Error('Player cannot swap more cards!');
+    player.cards = [];
+    player.cardsSwapCount += 1;
+    this.dealCardsToPlayer(player, Game.dealCount);
+  }
 
   cardPlayer(card) {
     return this.getPlayer(card.playerID);
@@ -141,7 +153,7 @@ class Game {
       throw new Error('Max allowed players is 10!');
     if (this.hasPlayer(player.id))
       throw new Error('Player has been added already');
-    this.dealCardsToPlayer(player, 5);
+    this.dealCardsToPlayer(player, Game.dealCount);
     this.players.push(player);
     // switch to playingCards state if we're in pickingWinner state
     if (this.state === gameStates.pickingWinner)
@@ -237,7 +249,7 @@ class Game {
 
     const player = this.cardPlayer(card);
 
-    player.incrementPoints();
+    player.points += 1;
     this.roundWinnerID = player.id;
   }
 }

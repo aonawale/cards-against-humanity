@@ -8,7 +8,7 @@ import TabPanel from 'components/TabPanel/TabPanel';
 import PlayersList from 'components/PlayersList/PlayersList';
 import GameDeck from 'components/GameDeck/GameDeck';
 import GamePlay from 'components/GamePlay/GamePlay';
-import GameSettings from 'components/GameSettings/GameSettings';
+import GameOptions from 'components/GameOptions/GameOptions';
 import Login from 'components/Login/Login';
 import AlertDialog from 'components/AlertDialog/AlertDialog';
 import Tabs from '@material-ui/core/Tabs';
@@ -23,6 +23,7 @@ import joinGame, { playerJoinedGameSubject } from 'stream/gamesList/joinGame/joi
 import pickWinner from 'stream/currentGame/pickWinner/pickWinner';
 import playCard, { playerPlayedCardSubject } from 'stream/currentGame/playCard/playCard';
 import nextRoundStartingSubject from 'stream/currentGame/nextRound/nextRound';
+import swapCards from 'stream/currentGame/swapCards/swapCards';
 import leaveGame, { removePlayer, playerLeaveGameSubject } from 'stream/currentGame/leaveGame/leaveGame';
 import currentGameSubject from 'stream/currentGame/currentGame';
 import currentPlayerSubject from 'stream/currentGame/currentPlayer/currentPlayer';
@@ -104,6 +105,11 @@ const GamePage = memo(() => {
     history.replace('/');
   }, [currentGame, history]);
 
+  const handleSwapCards = useCallback(() => {
+    swapCards();
+    setCurrentTab(0);
+  }, []);
+
   return (
     <Box display="flex" flexDirection="column" height="100%">
       {!currentGame && <OverlayLoader />}
@@ -124,7 +130,7 @@ const GamePage = memo(() => {
         <Tab label="Game" />
         <Tab label="Deck" />
         <Tab label="Players" />
-        <Tab label="Settings" />
+        <Tab label="Options" />
       </Tabs>
 
       <Box width="100%" flex="1">
@@ -159,12 +165,15 @@ const GamePage = memo(() => {
         </TabPanel>
 
         <TabPanel value={currentTab} index={3}>
-          <GameSettings
-            onLeaveGame={leaveGame}
-            canLeaveGame={currentGame?.ownerID !== currentPlayer?.id}
-            onDeleteGame={handleDeleteGame}
-            canDeleteGame={currentGame?.ownerID === currentPlayer?.id}
-          />
+          {(currentGame && currentPlayer) && (
+            <GameOptions
+              game={currentGame}
+              currentPlayer={currentPlayer}
+              onLeaveGame={leaveGame}
+              onDeleteGame={handleDeleteGame}
+              onSwapCards={handleSwapCards}
+            />
+          )}
         </TabPanel>
       </Box>
 
