@@ -193,7 +193,7 @@ const GamePage = memo(() => {
             value={playerName}
             onChange={({ target }) => setPlayerName(target.value)}
             label="Player name"
-            helperText="Enter a player name."
+            helperText="Enter your preferred player name."
           />
         )}
       </AlertDialog>

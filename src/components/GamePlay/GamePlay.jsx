@@ -15,7 +15,7 @@ import ShareMenu from 'components/ShareMenu/ShareMenu';
 import CardsStack from 'components/CardsStack/CardsStack';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Typography from '@material-ui/core/Typography';
-import IconButton from '@material-ui/core/IconButton';
+import Button from '@material-ui/core/Button';
 import ShareIcon from '@material-ui/icons/Share';
 import { makeStyles } from '@material-ui/core/styles';
 import PopupState, { bindTrigger, bindMenu } from 'material-ui-popup-state';
@@ -80,13 +80,16 @@ const GamePlay = memo(({
               <PopupState variant="popover" popupId="share-menu">
                 {(popupState) => (
                   <>
-                    <Tooltip title="Share Game" aria-label="Share Game">
-                      <IconButton
+                    <Tooltip title="Share game link" aria-label="Share Game">
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        startIcon={<ShareIcon />}
                         // eslint-disable-next-line react/jsx-props-no-spreading
                         {...bindTrigger(popupState)}
                       >
-                        <ShareIcon />
-                      </IconButton>
+                        Share
+                      </Button>
                     </Tooltip>
                     <ShareMenu
                       // eslint-disable-next-line react/jsx-props-no-spreading

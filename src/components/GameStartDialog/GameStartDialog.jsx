@@ -94,7 +94,7 @@ const GameStartDialog = memo(({
     >
       {isStarting && <OverlayLoader />}
       <DialogTitle id="game-start-dialog-title">
-        {formStep === formSteps.name ? 'Enter Game Name' : 'Choose Deck'}
+        {formStep === formSteps.name ? 'Create game' : 'Choose deck'}
       </DialogTitle>
       {formStep === formSteps.name
         ? (
