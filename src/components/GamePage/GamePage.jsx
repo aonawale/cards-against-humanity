@@ -202,7 +202,9 @@ const GamePage = memo(() => {
         open={isAuthenticated === false}
         title="Sign in to play"
       >
-        <Login />
+        <Login
+          showGuestButton
+        />
       </AlertDialog>
 
       <AlertDialog

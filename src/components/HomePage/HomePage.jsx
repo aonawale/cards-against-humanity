@@ -94,7 +94,7 @@ const HomePage = () => {
   }, [currentUser, openStartDialog, openUpgradeAccountDialog]);
 
   return (
-    <Container>
+    <Container maxWidth="md">
       {gamesList.length ? (
         <GamesList
           games={gamesList}
